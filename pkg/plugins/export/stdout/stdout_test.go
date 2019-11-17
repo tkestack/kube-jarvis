@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
@@ -14,7 +16,7 @@ import (
 )
 
 func TestNewStdout(t *testing.T) {
-	s := NewExporter().(*Exporter)
+	s := NewExporter(&export.CreateParam{}).(*Exporter)
 	ctx := context.Background()
 	_ = s.CoordinateBegin(ctx)
 
