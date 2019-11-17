@@ -12,17 +12,23 @@ import (
 )
 
 type Exporter struct {
+	*export.CreateParam
 	Logger logger.Logger
 }
 
-func NewExporter() export.Exporter {
+func NewExporter(p *export.CreateParam) export.Exporter {
 	return &Exporter{
-		Logger: logger.NewLogger(),
+		Logger:      logger.NewLogger(),
+		CreateParam: p,
 	}
 }
 
 func init() {
 	export.Add("stdout", NewExporter)
+}
+
+func (e *Exporter) Param() export.CreateParam {
+	return *e.CreateParam
 }
 
 func (e *Exporter) CoordinateBegin(ctx context.Context) error {

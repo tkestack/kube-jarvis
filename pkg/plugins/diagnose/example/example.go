@@ -33,7 +33,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 			Level:    diagnose.HealthyLevelRisk,
 			Name:     "sample",
 			ObjName:  "sample-obj",
-			Desc:     "this is sample Diagnostic",
+			Desc:     d.Message,
 			Score:    10,
 			Weight:   100,
 			Proposal: "sample proposal",

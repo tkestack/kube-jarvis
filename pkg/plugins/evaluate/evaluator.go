@@ -3,6 +3,8 @@ package evaluate
 import (
 	"context"
 
+	"github.com/RayHuangCN/Jarvis/pkg/logger"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
@@ -18,7 +20,8 @@ type Evaluator interface {
 }
 
 type CreateParam struct {
-	Name string
+	Logger logger.Logger
+	Name   string
 }
 
 type Creator func(c *CreateParam) Evaluator

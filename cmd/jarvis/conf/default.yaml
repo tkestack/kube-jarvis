@@ -1,0 +1,32 @@
+global:
+  cluster:
+    kubeconfig: "./kubeconfig"
+coordinate:
+  type: "default"
+# config:
+#   xxx: "123"
+
+diagnostics:
+  - type: "example"
+    name: "example 1"
+    score: 10
+    weight: 10
+    config:
+      message: "This is a example diagnostic"
+
+  - type: "requests-limits"
+    name: "pod requests-limits"
+    score: 1
+    weight: 10
+
+evaluators:
+  - type: "sum"
+    name: "sum 1"
+    # config:
+    #   xxx: "123"
+
+exporters:
+  - type: "stdout"
+    name: "stdout 1"
+    # config:
+    #   xxx: "123"

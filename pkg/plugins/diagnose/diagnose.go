@@ -3,6 +3,8 @@ package diagnose
 import (
 	"context"
 
+	"github.com/RayHuangCN/Jarvis/pkg/logger"
+
 	"k8s.io/client-go/kubernetes"
 )
 
@@ -31,6 +33,7 @@ type Diagnostic interface {
 }
 
 type CreateParam struct {
+	Logger logger.Logger
 	Name   string
 	Score  int
 	Weight int

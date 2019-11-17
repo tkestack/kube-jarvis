@@ -3,12 +3,15 @@ package export
 import (
 	"context"
 
+	"github.com/RayHuangCN/Jarvis/pkg/logger"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
 type Exporter interface {
+	Param() CreateParam
 	CoordinateBegin(ctx context.Context) error
 
 	DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error
@@ -22,7 +25,12 @@ type Exporter interface {
 	CoordinateFinish(ctx context.Context) error
 }
 
-type Creator func() Exporter
+type CreateParam struct {
+	Logger logger.Logger
+	Name   string
+}
+
+type Creator func(c *CreateParam) Exporter
 
 var Creators = map[string]Creator{}
 
