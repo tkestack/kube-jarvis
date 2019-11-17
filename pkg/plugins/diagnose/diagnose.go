@@ -26,6 +26,21 @@ type Result struct {
 }
 
 type Diagnostic interface {
-	Name() string
-	StartDiagnose(ctx context.Context, cli kubernetes.Interface) chan *Result
+	Param() CreateParam
+	StartDiagnose(ctx context.Context) chan *Result
+}
+
+type CreateParam struct {
+	Name   string
+	Score  int
+	Weight int
+	Cli    kubernetes.Interface
+}
+
+type Creator func(d *CreateParam) Diagnostic
+
+var Creators = map[string]Creator{}
+
+func Add(typ string, creator Creator) {
+	Creators[typ] = creator
 }

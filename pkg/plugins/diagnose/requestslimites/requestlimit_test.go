@@ -1,8 +1,10 @@
-package diagnose
+package requestslimites
 
 import (
 	"context"
 	"testing"
+
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -51,8 +53,12 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	d := NewRequestLimitDiagnostic()
-	result := d.StartDiagnose(context.Background(), cli)
+	d := NewDiagnostic(&diagnose.CreateParam{
+		Score:  10,
+		Weight: 10,
+		Cli:    cli,
+	})
+	result := d.StartDiagnose(context.Background())
 
 	total := 0
 	for {
