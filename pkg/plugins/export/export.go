@@ -24,7 +24,7 @@ type Exporter interface {
 	DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error
 	// EvaluationBegin export information about a Evaluator begin
 	EvaluationBegin(ctx context.Context, eva evaluate.Evaluator) error
-	// EvaluationBegin export information about a Evaluator result
+	// EvaluationResult export information about a Evaluator result
 	EvaluationResult(ctx context.Context, result *evaluate.Result) error
 	// EvaluationFinish export information about a Evaluator finish
 	EvaluationFinish(ctx context.Context, eva evaluate.Evaluator) error

@@ -70,7 +70,7 @@ func (e *Exporter) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator)
 	return nil
 }
 
-// EvaluationBegin export information about a Evaluator result
+// EvaluationResult export information about a Evaluator result
 func (e *Exporter) EvaluationResult(ctx context.Context, result *evaluate.Result) error {
 	e.Logger.Infof("[%s] [%s]", result.Name, result.Desc)
 	return nil
