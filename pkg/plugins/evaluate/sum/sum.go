@@ -9,7 +9,7 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
-//  Evaluator sum all diagnostic result score with different healthy level
+// Evaluator sum all diagnostic result score with different healthy level
 type Evaluator struct {
 	*evaluate.CreateParam
 	TotalScore int

@@ -8,11 +8,15 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// HealthyLevel means the healthy level of diagnostic result
 type HealthyLevel string
 
 const (
+	// HealthyLevelPass means good healthy
 	HealthyLevelPass = "pass"
+	// HealthyLevelWarn means no serious unHealthy
 	HealthyLevelWarn = "warn"
+	// HealthyLevelRisk means serious unHealthy
 	HealthyLevelRisk = "risk"
 )
 
