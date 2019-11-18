@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/RayHuangCN/Jarvis/pkg/logger"
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
@@ -11,7 +12,7 @@ import (
 // Result is the result of evaluation
 type Result struct {
 	Name string
-	Desc string
+	Desc translate.Message
 }
 
 // Evaluator knows how to evaluate all diagnostic results become one evaluation result
@@ -26,8 +27,9 @@ type Evaluator interface {
 
 // CreateParam contains core attributes of a Evaluator
 type CreateParam struct {
-	Logger logger.Logger
-	Name   string
+	Translator *translate.Translator
+	Logger     logger.Logger
+	Name       string
 }
 
 // Creator is a factory to create a Evaluator

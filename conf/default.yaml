@@ -1,6 +1,8 @@
 global:
+  trans: "translation"
+  lang: "en"
   cluster:
-    kubeconfig: "./kubeconfig"
+    kubeconfig: "fake"
 coordinate:
   type: "default"
 # config:
@@ -12,7 +14,7 @@ diagnostics:
     score: 10
     weight: 10
     config:
-      message: "This is a example diagnostic"
+      message: "message"
 
   - type: "requests-limits"
     name: "pod requests-limits"

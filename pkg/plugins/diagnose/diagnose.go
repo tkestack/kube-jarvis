@@ -3,6 +3,8 @@ package diagnose
 import (
 	"context"
 
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
+
 	"github.com/RayHuangCN/Jarvis/pkg/logger"
 
 	"k8s.io/client-go/kubernetes"
@@ -23,13 +25,13 @@ const (
 // Result is a diagnostic result item
 type Result struct {
 	Level    HealthyLevel
-	Name     string
+	Name     translate.Message
 	ObjName  string
-	Desc     string
+	Desc     translate.Message
 	Score    int
 	Weight   int
 	Error    error
-	Proposal string
+	Proposal translate.Message
 }
 
 // Diagnostic diagnose some aspects of cluster
@@ -42,11 +44,12 @@ type Diagnostic interface {
 
 // CreateParam contains core attributes of a Diagnostic
 type CreateParam struct {
-	Logger logger.Logger
-	Name   string
-	Score  int
-	Weight int
-	Cli    kubernetes.Interface
+	Translator *translate.Translator
+	Logger     logger.Logger
+	Name       string
+	Score      int
+	Weight     int
+	Cli        kubernetes.Interface
 }
 
 // Creator is a factory to create a Diagnostic
