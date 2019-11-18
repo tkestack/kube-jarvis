@@ -9,6 +9,7 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
+//  Evaluator sum all diagnostic result score with different healthy level
 type Evaluator struct {
 	*evaluate.CreateParam
 	TotalScore int
@@ -18,6 +19,7 @@ type Evaluator struct {
 	ErrorTotal int
 }
 
+// NewEvaluator return a sum Evaluator
 func NewEvaluator(param *evaluate.CreateParam) evaluate.Evaluator {
 	return &Evaluator{
 		CreateParam: param,

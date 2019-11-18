@@ -1,4 +1,4 @@
-package requestslimites
+package requestslimits
 
 import (
 	"context"

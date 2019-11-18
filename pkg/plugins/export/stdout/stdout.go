@@ -11,11 +11,13 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
+// Exporter just print information to logger with a simple format
 type Exporter struct {
 	*export.CreateParam
 	Logger logger.Logger
 }
 
+// NewExporter return a stdout Exporter
 func NewExporter(p *export.CreateParam) export.Exporter {
 	return &Exporter{
 		Logger:      logger.NewLogger(),

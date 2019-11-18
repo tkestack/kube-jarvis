@@ -30,6 +30,7 @@ type Result struct {
 
 // Diagnostic diagnose some aspects of cluster
 type Diagnostic interface {
+	// Param return core attributes
 	Param() CreateParam
 	// StartDiagnose return a result chan that will output results
 	StartDiagnose(ctx context.Context) chan *Result

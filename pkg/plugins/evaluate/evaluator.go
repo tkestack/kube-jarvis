@@ -16,6 +16,7 @@ type Result struct {
 
 // Evaluator knows how to evaluate all diagnostic results become one evaluation result
 type Evaluator interface {
+	// Param return core attributes
 	Param() CreateParam
 	// EvaDiagnosticResult evaluate one diagnostic result
 	EvaDiagnosticResult(ctx context.Context, result *diagnose.Result) error

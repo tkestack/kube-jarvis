@@ -1,4 +1,4 @@
-package requestslimites
+package requestslimits
 
 import (
 	"context"
@@ -10,11 +10,13 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// Diagnostic report the healthy of pods's resources requests limits configuration
 type Diagnostic struct {
 	*diagnose.CreateParam
 	result chan *diagnose.Result
 }
 
+// NewDiagnostic return a requests-limits Diagnostic
 func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
 	return &Diagnostic{
 		CreateParam: config,

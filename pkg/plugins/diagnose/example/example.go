@@ -6,12 +6,14 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
+// Diagnostic is a example diagnostic shows how to write a diagnostic
 type Diagnostic struct {
 	*diagnose.CreateParam
 	result  chan *diagnose.Result
 	Message string `yaml:"message"`
 }
 
+// NewDiagnostic return a example diagnostic
 func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
 	return &Diagnostic{
 		result:      make(chan *diagnose.Result, 1000),

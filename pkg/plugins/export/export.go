@@ -12,17 +12,23 @@ import (
 
 // Exporter export all steps and results with special way or special format
 type Exporter interface {
+	// Param return core attributes
 	Param() CreateParam
+	// CoordinateBegin export information about coordinator Run begin
 	CoordinateBegin(ctx context.Context) error
-
+	// DiagnosticBegin export information about a Diagnostic begin
 	DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error
+	// DiagnosticResult export information about one diagnose.Result
 	DiagnosticResult(ctx context.Context, result *diagnose.Result) error
+	// DiagnosticFinish export information about a Diagnostic finished
 	DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error
-
+	// EvaluationBegin export information about a Evaluator begin
 	EvaluationBegin(ctx context.Context, eva evaluate.Evaluator) error
+	// EvaluationBegin export information about a Evaluator result
 	EvaluationResult(ctx context.Context, result *evaluate.Result) error
+	// EvaluationFinish export information about a Evaluator finish
 	EvaluationFinish(ctx context.Context, eva evaluate.Evaluator) error
-
+	// CoordinateBegin export information about coordinator Run finished
 	CoordinateFinish(ctx context.Context) error
 }
 

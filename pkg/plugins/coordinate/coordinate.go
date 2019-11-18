@@ -12,9 +12,13 @@ import (
 
 // Coordinator knows how to coordinate diagnostics,exporters,evaluators
 type Coordinator interface {
+	// AddDiagnostic add a diagnostic to Coordinator
 	AddDiagnostic(dia diagnose.Diagnostic)
+	// AddExporter add a Exporter to Coordinator
 	AddExporter(exporter export.Exporter)
+	// AddEvaluate add a evaluate to Coordinator
 	AddEvaluate(evaluate evaluate.Evaluator)
+	// Run will do all diagnostics, evaluations, then export it by exporters
 	Run(ctx context.Context)
 }
 
