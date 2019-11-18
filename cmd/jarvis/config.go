@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
@@ -25,6 +27,8 @@ import (
 type Config struct {
 	Logger logger.Logger
 	Global struct {
+		Trans   string
+		Lang    string
 		Cluster struct {
 			Kubeconfig string
 		}
@@ -76,6 +80,11 @@ func getConfig(data []byte, log logger.Logger) (*Config, error) {
 	return c, nil
 }
 
+// GetTranslator return a translate.Translator
+func (c *Config) GetTranslator() (*translate.Translator, error) {
+	return translate.NewTranslator(c.Global.Trans, "en", c.Global.Lang)
+}
+
 // GetClusterClient create a k8s client
 func (c *Config) GetClusterClient() (kubernetes.Interface, error) {
 	if c.Global.Cluster.Kubeconfig == "fake" {
@@ -116,7 +125,7 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 }
 
 // GetDiagnostics create all target Diagnostics
-func (c *Config) GetDiagnostics(cli kubernetes.Interface) ([]diagnose.Diagnostic, error) {
+func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans *translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
 	for _, config := range c.Diagnostics {
 		creator, exist := diagnose.Creators[config.Type]
@@ -125,6 +134,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface) ([]diagnose.Diagnostic
 		}
 
 		d := creator(&diagnose.CreateParam{
+			Translator: trans.WithModule("diagnostics." + config.Type),
 			Logger: c.Logger.With(map[string]string{
 				"diagnostic": config.Name,
 			}),
@@ -145,7 +155,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface) ([]diagnose.Diagnostic
 }
 
 // GetEvaluators create all target Evaluators
-func (c *Config) GetEvaluators() ([]evaluate.Evaluator, error) {
+func (c *Config) GetEvaluators(trans *translate.Translator) ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
 	for _, config := range c.Evaluators {
 		creator, exist := evaluate.Creators[config.Type]
@@ -154,6 +164,7 @@ func (c *Config) GetEvaluators() ([]evaluate.Evaluator, error) {
 		}
 
 		e := creator(&evaluate.CreateParam{
+			Translator: trans.WithModule("evaluators." + config.Type),
 			Logger: c.Logger.With(map[string]string{
 				"evaluator": config.Name,
 			}),

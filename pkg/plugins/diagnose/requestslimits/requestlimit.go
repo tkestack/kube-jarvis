@@ -60,49 +60,73 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 	for _, c := range pod.Spec.Containers {
 		if c.Resources.Limits.Memory().IsZero() {
 			d.result <- &diagnose.Result{
-				Level:    diagnose.HealthyLevelWarn,
-				Name:     "Pods Limits",
-				ObjName:  fmt.Sprintf("%s:%s", pod.Name, c.Name),
-				Desc:     "container no memory limits",
-				Score:    1,
-				Weight:   d.Weight,
-				Proposal: "container should set memory limits",
+				Level:   diagnose.HealthyLevelWarn,
+				Name:    "Pods Limits",
+				ObjName: fmt.Sprintf("%s:%s", pod.Name, c.Name),
+				Desc: d.Translator.Message("desc", map[string]interface{}{
+					"Resource": "memory",
+					"Type":     "limits",
+				}),
+				Score:  1,
+				Weight: d.Weight,
+				Proposal: d.Translator.Message("proposal", map[string]interface{}{
+					"Resource": "memory",
+					"Type":     "limits",
+				}),
 			}
 		}
 
 		if c.Resources.Limits.Cpu().IsZero() {
 			d.result <- &diagnose.Result{
-				Level:    diagnose.HealthyLevelWarn,
-				Name:     "Pods Limits",
-				ObjName:  fmt.Sprintf("%s:%s", pod.Name, c.Name),
-				Desc:     "container no cpu limits",
-				Score:    1,
-				Weight:   d.Weight,
-				Proposal: "any container should set cpu limits",
+				Level:   diagnose.HealthyLevelWarn,
+				Name:    "Pods Limits",
+				ObjName: fmt.Sprintf("%s:%s", pod.Name, c.Name),
+				Desc: d.Translator.Message("desc", map[string]interface{}{
+					"Resource": "cpu",
+					"Type":     "limits",
+				}),
+				Score:  1,
+				Weight: d.Weight,
+				Proposal: d.Translator.Message("proposal", map[string]interface{}{
+					"Resource": "memory",
+					"Type":     "limits",
+				}),
 			}
 		}
 
 		if c.Resources.Requests.Memory().IsZero() {
 			d.result <- &diagnose.Result{
-				Level:    diagnose.HealthyLevelWarn,
-				Name:     "Pods Requests",
-				ObjName:  fmt.Sprintf("%s:%s", pod.Name, c.Name),
-				Desc:     "container no memory requests",
-				Score:    1,
-				Weight:   d.Weight,
-				Proposal: "container should set memory requests",
+				Level:   diagnose.HealthyLevelWarn,
+				Name:    "Pods Requests",
+				ObjName: fmt.Sprintf("%s:%s", pod.Name, c.Name),
+				Desc: d.Translator.Message("desc", map[string]interface{}{
+					"Resource": "memory",
+					"Type":     "requests",
+				}),
+				Score:  1,
+				Weight: d.Weight,
+				Proposal: d.Translator.Message("proposal", map[string]interface{}{
+					"Resource": "memory",
+					"Type":     "requests",
+				}),
 			}
 		}
 
 		if c.Resources.Requests.Cpu().IsZero() {
 			d.result <- &diagnose.Result{
-				Level:    diagnose.HealthyLevelWarn,
-				Name:     "Pods Requests",
-				ObjName:  fmt.Sprintf("%s:%s", pod.Name, c.Name),
-				Desc:     "container no cpu requests",
-				Score:    1,
-				Weight:   d.Weight,
-				Proposal: "any container should set cpu requests",
+				Level:   diagnose.HealthyLevelWarn,
+				Name:    "Pods Requests",
+				ObjName: fmt.Sprintf("%s:%s", pod.Name, c.Name),
+				Desc: d.Translator.Message("desc", map[string]interface{}{
+					"Resource": "cpu",
+					"Type":     "requests",
+				}),
+				Score:  1,
+				Weight: d.Weight,
+				Proposal: d.Translator.Message("proposal", map[string]interface{}{
+					"Resource": "cpu",
+					"Type":     "requests",
+				}),
 			}
 		}
 	}

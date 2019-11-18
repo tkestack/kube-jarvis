@@ -2,7 +2,6 @@ package sum
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
 
@@ -53,7 +52,12 @@ func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Re
 func (e *Evaluator) Result() *evaluate.Result {
 	return &evaluate.Result{
 		Name: "score statistics",
-		Desc: fmt.Sprintf("TotalScore : %d, PassScore : %d, WarnScore : %d, RiskScore : %d, ErrorTotal : %d",
-			e.TotalScore, e.PassScore, e.WarnScore, e.RiskScore, e.ErrorTotal),
+		Desc: e.Translator.Message("result", map[string]interface{}{
+			"TotalScore": e.TotalScore,
+			"PassScore":  e.PassScore,
+			"WarnScore":  e.WarnScore,
+			"RiskScore":  e.RiskScore,
+			"ErrorTotal": e.ErrorTotal,
+		}),
 	}
 }

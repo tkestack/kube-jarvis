@@ -26,7 +26,12 @@ func main() {
 		panic(err)
 	}
 
-	diagnostics, err := config.GetDiagnostics(cli)
+	trans, err := config.GetTranslator()
+	if err != nil {
+		panic(err)
+	}
+
+	diagnostics, err := config.GetDiagnostics(cli, trans)
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +40,7 @@ func main() {
 		coordinator.AddDiagnostic(d)
 	}
 
-	evaluators, err := config.GetEvaluators()
+	evaluators, err := config.GetEvaluators(trans)
 	if err != nil {
 		panic(err)
 	}

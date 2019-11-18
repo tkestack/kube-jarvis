@@ -31,13 +31,15 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 	go func() {
 		defer close(d.result)
 		d.result <- &diagnose.Result{
-			Level:    diagnose.HealthyLevelRisk,
-			Name:     "sample",
-			ObjName:  "sample-obj",
-			Desc:     d.Message,
+			Level:   diagnose.HealthyLevelRisk,
+			Name:    "example",
+			ObjName: "example-obj",
+			Desc: d.Translator.Message("message", map[string]interface{}{
+				"Mes": d.Message,
+			}),
 			Score:    10,
 			Weight:   100,
-			Proposal: "sample proposal",
+			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}()
 	return d.result

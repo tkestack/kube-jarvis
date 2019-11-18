@@ -1,0 +1,2 @@
+desc: "{{ .Resource }} {{ .Type }} 没有设置"
+proposal: "{{ .Resource }} {{ .Type }} 应该被设置"
