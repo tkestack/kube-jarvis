@@ -10,6 +10,7 @@ type loggerInfo struct {
 	labels map[string]string
 }
 
+// NewLogger create a logger that just print logs using golang fmt logger
 func NewLogger() Logger {
 	return &loggerInfo{
 		labels: map[string]string{},

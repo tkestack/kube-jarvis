@@ -24,10 +24,6 @@ func NewEvaluator(param *evaluate.CreateParam) evaluate.Evaluator {
 	}
 }
 
-func init() {
-	evaluate.Add("sum", NewEvaluator)
-}
-
 func (e *Evaluator) Param() evaluate.CreateParam {
 	return *e.CreateParam
 }

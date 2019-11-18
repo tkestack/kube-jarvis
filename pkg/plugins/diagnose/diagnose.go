@@ -16,6 +16,7 @@ const (
 	HealthyLevelRisk = "risk"
 )
 
+// Result is a diagnostic result item
 type Result struct {
 	Level    HealthyLevel
 	Name     string
@@ -27,11 +28,14 @@ type Result struct {
 	Proposal string
 }
 
+// Diagnostic diagnose some aspects of cluster
 type Diagnostic interface {
 	Param() CreateParam
+	// StartDiagnose return a result chan that will output results
 	StartDiagnose(ctx context.Context) chan *Result
 }
 
+// CreateParam contains core attributes of a Diagnostic
 type CreateParam struct {
 	Logger logger.Logger
 	Name   string
@@ -40,10 +44,13 @@ type CreateParam struct {
 	Cli    kubernetes.Interface
 }
 
+// Creator is a factory to create a Diagnostic
 type Creator func(d *CreateParam) Diagnostic
 
+// Creators store all registered Diagnostic Creator
 var Creators = map[string]Creator{}
 
+// Add register a Diagnostic Creator
 func Add(typ string, creator Creator) {
 	Creators[typ] = creator
 }

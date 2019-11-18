@@ -10,6 +10,7 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
 )
 
+// Coordinator knows how to coordinate diagnostics,exporters,evaluators
 type Coordinator interface {
 	AddDiagnostic(dia diagnose.Diagnostic)
 	AddExporter(exporter export.Exporter)
@@ -17,10 +18,13 @@ type Coordinator interface {
 	Run(ctx context.Context)
 }
 
+// Creator is a factory to create a Coordinator
 type Creator func(logger logger.Logger) Coordinator
 
+// Creators store all registered Coordinator Creator
 var Creators = map[string]Creator{}
 
+// Add register a Coordinator Creator
 func Add(typ string, creator Creator) {
 	Creators[typ] = creator
 }

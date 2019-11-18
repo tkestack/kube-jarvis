@@ -4,12 +4,14 @@ import (
 	"context"
 
 	"github.com/RayHuangCN/Jarvis/pkg/logger"
-
-	"github.com/RayHuangCN/Jarvis/cmd/jarvis/conf"
+	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/coordinate/all"
+	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose/all"
+	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/all"
+	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/export/all"
 )
 
 func main() {
-	config, err := conf.GetConfig("conf/default.yaml", logger.NewLogger())
+	config, err := GetConfig("conf/default.yaml", logger.NewLogger())
 	if err != nil {
 		panic(err)
 	}

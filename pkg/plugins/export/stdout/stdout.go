@@ -23,10 +23,6 @@ func NewExporter(p *export.CreateParam) export.Exporter {
 	}
 }
 
-func init() {
-	export.Add("stdout", NewExporter)
-}
-
 func (e *Exporter) Param() export.CreateParam {
 	return *e.CreateParam
 }

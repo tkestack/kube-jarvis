@@ -22,10 +22,6 @@ func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
 	}
 }
 
-func init() {
-	diagnose.Add("requests-limits", NewDiagnostic)
-}
-
 func (d *Diagnostic) Param() diagnose.CreateParam {
 	return *d.CreateParam
 }

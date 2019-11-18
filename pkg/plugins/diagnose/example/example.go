@@ -18,9 +18,6 @@ func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
 		CreateParam: config,
 	}
 }
-func init() {
-	diagnose.Add("example", NewDiagnostic)
-}
 
 func (d *Diagnostic) Param() diagnose.CreateParam {
 	return *d.CreateParam

@@ -1,5 +1,10 @@
 package all
 
 import (
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/export/stdout"
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/export/stdout"
 )
+
+func init() {
+	export.Add("stdout", stdout.NewExporter)
+}

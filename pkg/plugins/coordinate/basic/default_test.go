@@ -1,4 +1,4 @@
-package _default
+package basic
 
 import (
 	"context"

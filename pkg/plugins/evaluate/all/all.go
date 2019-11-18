@@ -1,5 +1,10 @@
 package all
 
 import (
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/sum"
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/sum"
 )
+
+func init() {
+	evaluate.Add("sum", sum.NewEvaluator)
+}

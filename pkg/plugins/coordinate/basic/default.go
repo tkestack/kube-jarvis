@@ -1,4 +1,4 @@
-package _default
+package basic
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
+// Coordinator Coordinate diagnostics,exporters,evaluators with simple way
 type Coordinator struct {
 	logger      logger.Logger
 	diagnostics []diagnose.Diagnostic
@@ -20,14 +21,11 @@ type Coordinator struct {
 	evaluators  []evaluate.Evaluator
 }
 
+// NewCoordinator return a default Coordinator
 func NewCoordinator(logger logger.Logger) coordinate.Coordinator {
 	return &Coordinator{
 		logger: logger,
 	}
-}
-
-func init() {
-	coordinate.Add("default", NewCoordinator)
 }
 
 func (c *Coordinator) AddDiagnostic(dia diagnose.Diagnostic) {

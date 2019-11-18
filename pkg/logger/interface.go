@@ -1,5 +1,6 @@
 package logger
 
+// Logger is a abstract logger obj for jarvis
 type Logger interface {
 	// With create a new Logger and append "labels" to old logger's labels
 	With(labels map[string]string) Logger

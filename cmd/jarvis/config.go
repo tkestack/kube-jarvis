@@ -1,4 +1,4 @@
-package conf
+package main
 
 import (
 	"fmt"
@@ -19,13 +19,9 @@ import (
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
-
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/coordinate/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/export/all"
 )
 
+// Config is the struct for config file
 type Config struct {
 	Logger logger.Logger
 	Global struct {
@@ -60,6 +56,7 @@ type Config struct {
 	}
 }
 
+// GetConfig return a Config struct according to content of config file
 func GetConfig(file string, log logger.Logger) (*Config, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -79,6 +76,7 @@ func getConfig(data []byte, log logger.Logger) (*Config, error) {
 	return c, nil
 }
 
+// GetClusterClient create a k8s client
 func (c *Config) GetClusterClient() (kubernetes.Interface, error) {
 	if c.Global.Cluster.Kubeconfig == "fake" {
 		return fake.NewSimpleClientset(), nil
@@ -100,6 +98,7 @@ func (c *Config) GetClusterClient() (kubernetes.Interface, error) {
 	return kubernetes.NewForConfig(config)
 }
 
+// GetCoordinator return create a coordinate.Coordinator
 func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 	creator, exist := coordinate.Creators[c.Coordinate.Type]
 	if !exist {
@@ -116,6 +115,7 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 	return cr, nil
 }
 
+// GetDiagnostics create all target Diagnostics
 func (c *Config) GetDiagnostics(cli kubernetes.Interface) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
 	for _, config := range c.Diagnostics {
@@ -144,6 +144,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface) ([]diagnose.Diagnostic
 	return ds, nil
 }
 
+// GetEvaluators create all target Evaluators
 func (c *Config) GetEvaluators() ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
 	for _, config := range c.Evaluators {
@@ -169,6 +170,7 @@ func (c *Config) GetEvaluators() ([]evaluate.Evaluator, error) {
 	return es, nil
 }
 
+// GetExporters create all target Exporters
 func (c *Config) GetExporters() ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
 	for _, config := range c.Exporters {
@@ -194,6 +196,7 @@ func (c *Config) GetExporters() ([]export.Exporter, error) {
 	return es, nil
 }
 
+// InitObjViaYaml marshal "config" to yaml data, then unMarshal data to "obj"
 func InitObjViaYaml(obj interface{}, config interface{}) error {
 	if obj == nil || config == nil {
 		return nil
