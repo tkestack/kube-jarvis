@@ -26,10 +26,12 @@ func NewEvaluator(param *evaluate.CreateParam) evaluate.Evaluator {
 	}
 }
 
+// Param return core attributes
 func (e *Evaluator) Param() evaluate.CreateParam {
 	return *e.CreateParam
 }
 
+// EvaDiagnosticResult evaluate one diagnostic result
 func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Result) error {
 	if result.Error != nil {
 		e.ErrorTotal++
@@ -47,6 +49,7 @@ func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Re
 	return nil
 }
 
+// Result return a final evaluation result
 func (e *Evaluator) Result() *evaluate.Result {
 	return &evaluate.Result{
 		Name: "score statistics",

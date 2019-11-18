@@ -28,18 +28,22 @@ func NewCoordinator(logger logger.Logger) coordinate.Coordinator {
 	}
 }
 
+// AddDiagnostic add a diagnostic to Coordinator
 func (c *Coordinator) AddDiagnostic(dia diagnose.Diagnostic) {
 	c.diagnostics = append(c.diagnostics, dia)
 }
 
+// AddExporter add a Exporter to Coordinator
 func (c *Coordinator) AddExporter(exporter export.Exporter) {
 	c.exporters = append(c.exporters, exporter)
 }
 
+// AddEvaluate add a evaluate to Coordinator
 func (c *Coordinator) AddEvaluate(evaluate evaluate.Evaluator) {
 	c.evaluators = append(c.evaluators, evaluate)
 }
 
+// Run will do all diagnostics, evaluations, then export it by exporters
 func (c *Coordinator) Run(ctx context.Context) {
 	c.begin(ctx)
 	c.diagnostic(ctx)

@@ -24,10 +24,12 @@ func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
 	}
 }
 
+// Param return core attributes
 func (d *Diagnostic) Param() diagnose.CreateParam {
 	return *d.CreateParam
 }
 
+// StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 	go func() {
 		defer close(d.result)
