@@ -28,7 +28,7 @@ type Exporter interface {
 	EvaluationResult(ctx context.Context, result *evaluate.Result) error
 	// EvaluationFinish export information about a Evaluator finish
 	EvaluationFinish(ctx context.Context, eva evaluate.Evaluator) error
-	// CoordinateBegin export information about coordinator Run finished
+	// CoordinateFinish export information about coordinator Run finished
 	CoordinateFinish(ctx context.Context) error
 }
 

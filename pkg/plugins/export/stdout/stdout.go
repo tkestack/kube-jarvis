@@ -76,7 +76,7 @@ func (e *Exporter) EvaluationResult(ctx context.Context, result *evaluate.Result
 	return nil
 }
 
-// CoordinateBegin export information about coordinator Run finished
+// CoordinateFinish export information about coordinator Run finished
 func (e *Exporter) CoordinateFinish(ctx context.Context) error {
 	e.Logger.Infof("--------------- Finish -----------------")
 	return nil
