@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/export/stdout"
@@ -27,6 +29,6 @@ func TestNewDefault(t *testing.T) {
 		Weight: 10,
 	}))
 	d.AddEvaluate(sum.NewEvaluator(&evaluate.CreateParam{}))
-	d.AddExporter(stdout.NewExporter())
+	d.AddExporter(stdout.NewExporter(&export.CreateParam{}))
 	d.Run(ctx)
 }
