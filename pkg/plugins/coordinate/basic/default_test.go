@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
@@ -25,10 +27,13 @@ func TestNewDefault(t *testing.T) {
 	d := NewCoordinator(logger)
 
 	d.AddDiagnostic(example.NewDiagnostic(&diagnose.CreateParam{
-		Score:  10,
-		Weight: 10,
+		Translator: translate.NewFake(),
+		Score:      10,
+		Weight:     10,
 	}))
-	d.AddEvaluate(sum.NewEvaluator(&evaluate.CreateParam{}))
+	d.AddEvaluate(sum.NewEvaluator(&evaluate.CreateParam{
+		Translator: translate.NewFake(),
+	}))
 	d.AddExporter(stdout.NewExporter(&export.CreateParam{}))
 	d.Run(ctx)
 }

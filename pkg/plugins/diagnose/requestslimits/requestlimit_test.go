@@ -2,6 +2,7 @@ package requestslimits
 
 import (
 	"context"
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
 	"testing"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
@@ -54,9 +55,10 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 	}
 
 	d := NewDiagnostic(&diagnose.CreateParam{
-		Score:  10,
-		Weight: 10,
-		Cli:    cli,
+		Translator: translate.NewFake(),
+		Score:      10,
+		Weight:     10,
+		Cli:        cli,
 	})
 	result := d.StartDiagnose(context.Background())
 
