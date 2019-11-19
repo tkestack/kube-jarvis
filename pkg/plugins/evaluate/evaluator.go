@@ -27,7 +27,7 @@ type Evaluator interface {
 
 // CreateParam contains core attributes of a Evaluator
 type CreateParam struct {
-	Translator *translate.Translator
+	Translator translate.Translator
 	Logger     logger.Logger
 	Name       string
 }

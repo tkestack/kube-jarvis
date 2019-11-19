@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
@@ -21,11 +23,13 @@ func TestNewStdout(t *testing.T) {
 	_ = s.CoordinateBegin(ctx)
 
 	d := example.NewDiagnostic(&diagnose.CreateParam{
-		Score:  10,
-		Weight: 10,
+		Translator: translate.NewFake(),
+		Score:      10,
+		Weight:     10,
 	})
 	sum := sum2.NewEvaluator(&evaluate.CreateParam{
-		Name: "sum",
+		Translator: translate.NewFake(),
+		Name:       "sum",
 	})
 
 	// Diagnostic

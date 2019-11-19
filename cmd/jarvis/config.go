@@ -81,8 +81,8 @@ func getConfig(data []byte, log logger.Logger) (*Config, error) {
 }
 
 // GetTranslator return a translate.Translator
-func (c *Config) GetTranslator() (*translate.Translator, error) {
-	return translate.NewTranslator(c.Global.Trans, "en", c.Global.Lang)
+func (c *Config) GetTranslator() (translate.Translator, error) {
+	return translate.NewDefault(c.Global.Trans, "en", c.Global.Lang)
 }
 
 // GetClusterClient create a k8s client
@@ -125,7 +125,7 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 }
 
 // GetDiagnostics create all target Diagnostics
-func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans *translate.Translator) ([]diagnose.Diagnostic, error) {
+func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
 	for _, config := range c.Diagnostics {
 		creator, exist := diagnose.Creators[config.Type]
@@ -155,7 +155,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans *translate.Trans
 }
 
 // GetEvaluators create all target Evaluators
-func (c *Config) GetEvaluators(trans *translate.Translator) ([]evaluate.Evaluator, error) {
+func (c *Config) GetEvaluators(trans translate.Translator) ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
 	for _, config := range c.Evaluators {
 		creator, exist := evaluate.Creators[config.Type]

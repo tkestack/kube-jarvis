@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/RayHuangCN/Jarvis/pkg/translate"
+
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
 
 	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
 )
 
 func TestNewSumEva(t *testing.T) {
-	s := NewEvaluator(&evaluate.CreateParam{}).(*Evaluator)
+	s := NewEvaluator(&evaluate.CreateParam{
+		Translator: translate.NewFake(),
+	}).(*Evaluator)
 	ctx := context.Background()
 	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
 		Score: 1,

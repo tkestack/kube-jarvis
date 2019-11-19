@@ -44,7 +44,7 @@ type Diagnostic interface {
 
 // CreateParam contains core attributes of a Diagnostic
 type CreateParam struct {
-	Translator *translate.Translator
+	Translator translate.Translator
 	Logger     logger.Logger
 	Name       string
 	Score      int
