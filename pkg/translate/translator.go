@@ -3,7 +3,7 @@ package translate
 // Message is a translated string
 type Message string
 
-// Default translate string to target language
+// Translator translate string to target language
 type Translator interface {
 	// WithModule attach a module label to a Translator
 	// module will be add before ID when you call Translator.Message
