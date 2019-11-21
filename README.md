@@ -16,6 +16,7 @@ go build -o kube-jarvis cmd/kube-jarvis/*.go
 global:
   trans: "translation" #translation file root director
   lang: "en"  #target language
+  cloud: "qcloud" #cloud-provider type
   cluster:
     kubeconfig: "fake" #cluster kubeconfig filepath,use empty string to enable in cluster model
 
