@@ -51,6 +51,6 @@ docker run  -i -t docker.io/raylhuang110/kube-jarvis:latest
 > [you can found all docker images here](https://hub.docker.com/r/raylhuang110/kube-jarvis/tags)
 
 
-# all plugs
-we call coordinator, diagnostics, evaluators and exporters as "plugs"
-> [you can found all plugs lists here](https://github.com/RayHuangCN/kube-jarvis/pkg/plugs/README.md)
+# all plugins
+we call coordinator, diagnostics, evaluators and exporters as "plugins"
+> [you can found all plugins lists here](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins)
