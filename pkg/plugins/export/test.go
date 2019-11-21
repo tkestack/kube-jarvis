@@ -11,6 +11,7 @@ import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 )
 
+// RunExporterTest is a tool function for exporter testing
 func RunExporterTest(t *testing.T, exporter Exporter) {
 	ctx := context.Background()
 	_ = exporter.CoordinateBegin(ctx)
