@@ -138,6 +138,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			Logger: c.Logger.With(map[string]string{
 				"diagnostic": config.Name,
 			}),
+			Type:   config.Type,
 			Name:   config.Name,
 			Score:  config.Score,
 			Weight: config.Weight,
@@ -169,6 +170,7 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 			Logger: c.Logger.With(map[string]string{
 				"evaluator": config.Name,
 			}),
+			Type: config.Type,
 			Name: config.Name,
 		})
 
@@ -196,6 +198,7 @@ func (c *Config) GetExporters(cli kubernetes.Interface) ([]export.Exporter, erro
 			Logger: c.Logger.With(map[string]string{
 				"exporter": config.Name,
 			}),
+			Type: config.Type,
 			Name: config.Name,
 		})
 
