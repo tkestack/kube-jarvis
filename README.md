@@ -23,7 +23,7 @@ global:
 coordinator:
   type: "basic" 
 
-# diagnostics diagnose special aspects cluster
+# diagnostics diagnose special aspects of cluster
 diagnostics: #
   - type: "example"
     name: "example 1"
@@ -32,12 +32,12 @@ diagnostics: #
     config:
       message: "message"
 
-# evaluators evaluate diagnose results
+# evaluators evaluate all diagnose results
 evaluators:
   - type: "sum"
     name: "sum 1"
 
-// exporters exporte diagnostic result and evaluation results
+// exporters exporte all diagnostic result and evaluation results
 exporters:
   - type: "stdout"
     name: "stdout 1"
