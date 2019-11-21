@@ -21,7 +21,7 @@ global:
 
 # coordinator knows how to run all diagnostics, evaluators and exporters
 coordinator:
-  type: "basic" 
+  type: "default" 
 
 # diagnostics diagnose special aspects of cluster
 diagnostics: #

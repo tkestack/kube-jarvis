@@ -4,7 +4,7 @@ global:
   cluster:
     kubeconfig: "fake"
 coordinator:
-  type: "basic"
+  type: "default"
 
 diagnostics:
   - type: "example"
