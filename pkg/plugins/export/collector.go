@@ -114,6 +114,8 @@ func (c *Collector) Marshal(format string) ([]byte, error) {
 	return nil, fmt.Errorf("unknow format")
 }
 
+// Unmarshal unmarshal data to Collector
+// format can be : "json" , "yaml"
 func (c *Collector) Unmarshal(format string, data []byte) error {
 	switch format {
 	case "json":
