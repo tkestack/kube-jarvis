@@ -35,10 +35,11 @@ type Exporter interface {
 
 // CreateParam contains core attributes of a Exporter
 type CreateParam struct {
-	Cli    kubernetes.Interface
-	Logger logger.Logger
-	Type   string
-	Name   string
+	Cli       kubernetes.Interface
+	Logger    logger.Logger
+	Type      string
+	Name      string
+	CloudType string
 }
 
 // Creator is a factory to create a Exporter

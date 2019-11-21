@@ -29,6 +29,7 @@ type Config struct {
 	Global struct {
 		Trans   string
 		Lang    string
+		Cloud   string
 		Cluster struct {
 			Kubeconfig string
 		}
@@ -138,11 +139,12 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			Logger: c.Logger.With(map[string]string{
 				"diagnostic": config.Name,
 			}),
-			Type:   config.Type,
-			Name:   config.Name,
-			Score:  config.Score,
-			Weight: config.Weight,
-			Cli:    cli,
+			Type:      config.Type,
+			Name:      config.Name,
+			Score:     config.Score,
+			Weight:    config.Weight,
+			CloudType: c.Global.Cloud,
+			Cli:       cli,
 		})
 
 		if err := InitObjViaYaml(d, config.Config); err != nil {
@@ -170,8 +172,9 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 			Logger: c.Logger.With(map[string]string{
 				"evaluator": config.Name,
 			}),
-			Type: config.Type,
-			Name: config.Name,
+			Type:      config.Type,
+			Name:      config.Name,
+			CloudType: c.Global.Cloud,
 		})
 
 		if err := InitObjViaYaml(e, config.Config); err != nil {
@@ -198,8 +201,9 @@ func (c *Config) GetExporters(cli kubernetes.Interface) ([]export.Exporter, erro
 			Logger: c.Logger.With(map[string]string{
 				"exporter": config.Name,
 			}),
-			Type: config.Type,
-			Name: config.Name,
+			Type:      config.Type,
+			Name:      config.Name,
+			CloudType: c.Global.Cloud,
 		})
 
 		if err := InitObjViaYaml(e, config.Config); err != nil {

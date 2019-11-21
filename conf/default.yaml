@@ -1,8 +1,10 @@
 global:
   trans: "translation"
   lang: "en"
+  cloud: "qcloud"
   cluster:
     kubeconfig: "fake"
+
 coordinator:
   type: "default"
 
