@@ -3,7 +3,7 @@ global:
   lang: "en"
   cluster:
     kubeconfig: "fake"
-coordinate:
+coordinator:
   type: "basic"
 
 diagnostics:
