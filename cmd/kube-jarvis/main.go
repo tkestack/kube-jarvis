@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate/all"
@@ -10,8 +11,14 @@ import (
 	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/all"
 )
 
+var configFile string
+
+func init() {
+	flag.StringVar(&configFile, "config", "conf/default.yaml", "config file")
+}
+
 func main() {
-	config, err := GetConfig("conf/default.yaml", logger.NewLogger())
+	config, err := GetConfig(configFile, logger.NewLogger())
 	if err != nil {
 		panic(err)
 	}

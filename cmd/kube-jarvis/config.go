@@ -34,7 +34,7 @@ type Config struct {
 		}
 	}
 
-	Coordinate struct {
+	Coordinator struct {
 		Type   string
 		Config interface{}
 	}
@@ -109,15 +109,15 @@ func (c *Config) GetClusterClient() (kubernetes.Interface, error) {
 
 // GetCoordinator return create a coordinate.Coordinator
 func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
-	creator, exist := coordinate.Creators[c.Coordinate.Type]
+	creator, exist := coordinate.Creators[c.Coordinator.Type]
 	if !exist {
-		return nil, fmt.Errorf("can not found coordinate type %s", c.Coordinate.Type)
+		return nil, fmt.Errorf("can not found coordinate type %s", c.Coordinator.Type)
 	}
 
 	cr := creator(c.Logger.With(map[string]string{
 		"coordinator": "default",
 	}))
-	if err := InitObjViaYaml(cr, c.Coordinate.Config); err != nil {
+	if err := InitObjViaYaml(cr, c.Coordinator.Config); err != nil {
 		return nil, err
 	}
 
