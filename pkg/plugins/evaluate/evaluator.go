@@ -5,6 +5,7 @@ import (
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
@@ -27,8 +28,10 @@ type Evaluator interface {
 
 // CreateParam contains core attributes of a Evaluator
 type CreateParam struct {
+	Cli        kubernetes.Interface
 	Translator translate.Translator
 	Logger     logger.Logger
+	Type       string
 	Name       string
 }
 

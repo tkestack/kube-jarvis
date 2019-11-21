@@ -4,10 +4,9 @@ import (
 	"context"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-
-	"k8s.io/client-go/kubernetes"
 )
 
 // HealthyLevel means the healthy level of diagnostic result
@@ -44,12 +43,13 @@ type Diagnostic interface {
 
 // CreateParam contains core attributes of a Diagnostic
 type CreateParam struct {
+	Cli        kubernetes.Interface
 	Translator translate.Translator
 	Logger     logger.Logger
+	Type       string
 	Name       string
 	Score      int
 	Weight     int
-	Cli        kubernetes.Interface
 }
 
 // Creator is a factory to create a Diagnostic

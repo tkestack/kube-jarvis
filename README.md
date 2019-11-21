@@ -4,3 +4,53 @@
 [![codecov](https://codecov.io/gh/RayHuangCN/kube-jarvis/branch/master/graph/badge.svg)](https://codecov.io/gh/RayHuangCN/kube-jarvis)
 
 kube-jarvis is a tool used to check the health of the kubernetes cluster
+
+# quick start
+```bash
+go build -o kube-jarvis cmd/kube-jarvis/*.go
+./kube-jarvis --config conf/default.yaml
+```
+
+# config struct
+```yaml
+global:
+  trans: "translation" #translation file root director
+  lang: "en"  #target language
+  cluster:
+    kubeconfig: "fake" #cluster kubeconfig filepath,use empty string to enable in cluster model
+
+# coordinator knows how to run all diagnostics, evaluators and exporters
+coordinator:
+  type: "basic" 
+
+# diagnostics diagnose special aspects cluster
+diagnostics: #
+  - type: "example"
+    name: "example 1"
+    score: 10
+    weight: 10
+    config:
+      message: "message"
+
+# evaluators evaluate diagnose results
+evaluators:
+  - type: "sum"
+    name: "sum 1"
+
+// exporters exporte diagnostic result and evaluation results
+exporters:
+  - type: "stdout"
+    name: "stdout 1"
+```
+
+# run in docker
+on any node of your cluster and exec cmd:
+```bash
+docker run  -i -t docker.io/raylhuang110/kube-jarvis:latest
+```
+> [you can found all docker images here](https://hub.docker.com/r/raylhuang110/kube-jarvis/tags)
+
+
+# all plugs
+we call coordinator, diagnostics, evaluators and exporters as "plugs"
+> [you can found all plugs lists here](https://github.com/RayHuangCN/kube-jarvis/pkg/plugs/README.md)

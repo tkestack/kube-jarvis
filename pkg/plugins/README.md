@@ -1,0 +1,11 @@
+# Plugs
+## coordinators
+* [basic](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/coordinate/basic/README.md)
+## diagnostics
+* [example](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/example/README.md) 
+* [requests-limits](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/requestslimits/README.md) 
+## evaluators
+* [sum](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/evaluate/sum/README.md) 
+## exporter
+* [stdout](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/export/stdout/README.md) 
+* [config-map](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/export/configmap/README.md) 

@@ -4,9 +4,7 @@ global:
   cluster:
     kubeconfig: "fake"
 coordinate:
-  type: "default"
-# config:
-#   xxx: "123"
+  type: "basic"
 
 diagnostics:
   - type: "example"
@@ -16,19 +14,10 @@ diagnostics:
     config:
       message: "message"
 
-  - type: "requests-limits"
-    name: "pod requests-limits"
-    score: 1
-    weight: 10
-
 evaluators:
   - type: "sum"
     name: "sum 1"
-    # config:
-    #   xxx: "123"
 
 exporters:
   - type: "stdout"
     name: "stdout 1"
-    # config:
-    #   xxx: "123"
