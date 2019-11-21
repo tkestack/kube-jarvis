@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
@@ -34,7 +35,9 @@ type Exporter interface {
 
 // CreateParam contains core attributes of a Exporter
 type CreateParam struct {
+	Cli    kubernetes.Interface
 	Logger logger.Logger
+	Type   string
 	Name   string
 }
 
