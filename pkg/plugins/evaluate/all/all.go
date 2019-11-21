@@ -1,8 +1,8 @@
 package all
 
 import (
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/sum"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/sum"
 )
 
 func init() {

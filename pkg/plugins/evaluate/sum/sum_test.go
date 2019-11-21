@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 func TestNewSumEva(t *testing.T) {

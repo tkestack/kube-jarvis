@@ -3,11 +3,11 @@ package coordinate
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 )
 
 // Coordinator knows how to coordinate diagnostics,exporters,evaluators

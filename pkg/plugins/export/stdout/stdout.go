@@ -3,12 +3,12 @@ package stdout
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // Exporter just print information to logger with a simple format
@@ -32,7 +32,7 @@ func (e *Exporter) Param() export.CreateParam {
 
 // CoordinateBegin export information about coordinator Run begin
 func (e *Exporter) CoordinateBegin(ctx context.Context) error {
-	e.Logger.Infof("--------------- Jarvis [1.0] -----------------")
+	e.Logger.Infof("--------------- kube-jarvis [1.0] -----------------")
 	return nil
 }
 

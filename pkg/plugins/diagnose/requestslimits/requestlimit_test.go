@@ -2,10 +2,10 @@ package requestslimits
 
 import (
 	"context"
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 	"testing"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"

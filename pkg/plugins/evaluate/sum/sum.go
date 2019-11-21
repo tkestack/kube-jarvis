@@ -3,9 +3,9 @@ package sum
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // Evaluator sum all diagnostic result score with different healthy level

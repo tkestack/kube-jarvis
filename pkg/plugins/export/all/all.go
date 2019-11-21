@@ -1,8 +1,8 @@
 package all
 
 import (
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export/stdout"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/stdout"
 )
 
 func init() {

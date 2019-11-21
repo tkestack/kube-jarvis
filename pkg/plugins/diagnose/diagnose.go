@@ -3,9 +3,9 @@ package diagnose
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 
 	"k8s.io/client-go/kubernetes"
 )

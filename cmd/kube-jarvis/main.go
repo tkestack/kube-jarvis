@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/coordinate/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/all"
-	_ "github.com/RayHuangCN/Jarvis/pkg/plugins/export/all"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate/all"
+	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/all"
+	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/all"
+	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/all"
 )
 
 func main() {

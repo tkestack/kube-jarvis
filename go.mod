@@ -1,4 +1,4 @@
-module github.com/RayHuangCN/Jarvis
+module github.com/RayHuangCN/kube-jarvis
 
 go 1.12
 

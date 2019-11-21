@@ -3,10 +3,10 @@ package evaluate
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // Result is the result of evaluation

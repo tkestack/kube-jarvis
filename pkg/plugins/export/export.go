@@ -3,11 +3,11 @@ package export
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // Exporter export all steps and results with special way or special format

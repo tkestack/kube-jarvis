@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 
-	"github.com/RayHuangCN/Jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/coordinate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"

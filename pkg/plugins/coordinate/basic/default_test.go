@@ -4,21 +4,21 @@ import (
 	"context"
 	"testing"
 
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/export/stdout"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/stdout"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/evaluate/sum"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/sum"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose/example"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
 
-	logger2 "github.com/RayHuangCN/Jarvis/pkg/logger"
+	logger2 "github.com/RayHuangCN/kube-jarvis/pkg/logger"
 )
 
 func TestNewDefault(t *testing.T) {

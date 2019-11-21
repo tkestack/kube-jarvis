@@ -3,7 +3,7 @@ package example
 import (
 	"context"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // Diagnostic is a example diagnostic shows how to write a diagnostic

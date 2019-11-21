@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/RayHuangCN/Jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/Jarvis/pkg/translate"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 )
 
 func TestDiagnostic_StartDiagnose(t *testing.T) {
