@@ -1,6 +1,6 @@
 # Plugs
 ## coordinators
-* [basic](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/coordinate/basic/README.md)
+* [default](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/coordinate/basic/README.md)
 ## diagnostics
 * [example](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/example/README.md) 
 * [requests-limits](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/requestslimits/README.md) 
