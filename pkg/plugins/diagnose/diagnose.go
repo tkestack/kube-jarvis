@@ -15,10 +15,12 @@ type HealthyLevel string
 const (
 	// HealthyLevelPass means good healthy
 	HealthyLevelPass = "pass"
-	// HealthyLevelWarn means no serious unHealthy
+	// HealthyLevelWarn means warn unHealthy
 	HealthyLevelWarn = "warn"
-	// HealthyLevelRisk means serious unHealthy
+	// HealthyLevelRisk means risk unHealthy
 	HealthyLevelRisk = "risk"
+	// HealthyLevelRisk means serious unHealthy
+	HealthyLevelSerious = "serious"
 )
 
 // Result is a diagnostic result item
