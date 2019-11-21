@@ -155,7 +155,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 }
 
 // GetEvaluators create all target Evaluators
-func (c *Config) GetEvaluators(trans translate.Translator) ([]evaluate.Evaluator, error) {
+func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Translator) ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
 	for _, config := range c.Evaluators {
 		creator, exist := evaluate.Creators[config.Type]
@@ -164,6 +164,7 @@ func (c *Config) GetEvaluators(trans translate.Translator) ([]evaluate.Evaluator
 		}
 
 		e := creator(&evaluate.CreateParam{
+			Cli:        cli,
 			Translator: trans.WithModule("evaluators." + config.Type),
 			Logger: c.Logger.With(map[string]string{
 				"evaluator": config.Name,
@@ -182,7 +183,7 @@ func (c *Config) GetEvaluators(trans translate.Translator) ([]evaluate.Evaluator
 }
 
 // GetExporters create all target Exporters
-func (c *Config) GetExporters() ([]export.Exporter, error) {
+func (c *Config) GetExporters(cli kubernetes.Interface) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
 	for _, config := range c.Exporters {
 		creator, exist := export.Creators[config.Type]
@@ -191,6 +192,7 @@ func (c *Config) GetExporters() ([]export.Exporter, error) {
 		}
 
 		e := creator(&export.CreateParam{
+			Cli: cli,
 			Logger: c.Logger.With(map[string]string{
 				"exporter": config.Name,
 			}),

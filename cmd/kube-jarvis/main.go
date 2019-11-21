@@ -47,7 +47,7 @@ func main() {
 		coordinator.AddDiagnostic(d)
 	}
 
-	evaluators, err := config.GetEvaluators(trans)
+	evaluators, err := config.GetEvaluators(cli, trans)
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +56,7 @@ func main() {
 		coordinator.AddEvaluate(e)
 	}
 
-	exporters, err := config.GetExporters()
+	exporters, err := config.GetExporters(cli)
 	if err != nil {
 		panic(err)
 	}
