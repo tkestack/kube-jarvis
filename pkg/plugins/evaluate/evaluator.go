@@ -33,6 +33,7 @@ type CreateParam struct {
 	Logger     logger.Logger
 	Type       string
 	Name       string
+	CloudType  string
 }
 
 // Creator is a factory to create a Evaluator
