@@ -65,8 +65,6 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result
 			pt = color.Red
 		case diagnose.HealthyLevelSerious:
 			pt = color.HiRed
-		case diagnose.HealthyLevelPass:
-			pt = color.Green
 		default:
 			pt = func(format string, a ...interface{}) {
 				fmt.Printf(format, a...)
