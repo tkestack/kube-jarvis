@@ -13,8 +13,6 @@ import (
 type HealthyLevel string
 
 const (
-	// HealthyLevelPass means good healthy
-	HealthyLevelPass = "pass"
 	// HealthyLevelWarn means warn unHealthy
 	HealthyLevelWarn = "warn"
 	// HealthyLevelRisk means risk unHealthy
