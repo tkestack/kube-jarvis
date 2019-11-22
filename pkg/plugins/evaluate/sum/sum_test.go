@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
@@ -25,15 +27,15 @@ func TestNewSumEva(t *testing.T) {
 	}
 
 	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
-		Score: 1,
-		Level: diagnose.HealthyLevelPass,
+		Score: 2,
+		Level: diagnose.HealthyLevelWarn,
 	}); err != nil {
 		t.Fatalf(err.Error())
 	}
 
 	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
-		Score: 1,
-		Level: diagnose.HealthyLevelWarn,
+		Score: 3,
+		Level: diagnose.HealthyLevelSerious,
 	}); err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -45,19 +47,26 @@ func TestNewSumEva(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	if s.TotalScore != 3 {
-		t.Fatalf("total score should be 5")
+	if err := s.EvaDiagnostic(ctx, example.NewDiagnostic(&diagnose.CreateParam{
+		TotalScore: 6,
+	})); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if s.TotalScore != 6 {
+		t.Fatalf("total score should be 3")
 	}
 
 	if s.RiskScore != 1 {
 		t.Fatalf("risk score should be 1")
 	}
 
-	if s.PassScore != 1 {
-		t.Fatalf("pass score should be 1")
+	if s.WarnScore != 2 {
+		t.Fatalf("warn score should be 2")
 	}
-	if s.WarnScore != 1 {
-		t.Fatalf("warn score should be 1")
+
+	if s.SeriousScore != 3 {
+		t.Fatalf("warn score should be 3")
 	}
 
 	if s.ErrorTotal != 1 {

@@ -22,6 +22,8 @@ type Evaluator interface {
 	Param() CreateParam
 	// EvaDiagnosticResult evaluate one diagnostic result
 	EvaDiagnosticResult(ctx context.Context, result *diagnose.Result) error
+	// EvaDiagnostic evaluate one diagnostic finish
+	EvaDiagnostic(ctx context.Context, dia diagnose.Diagnostic) error
 	// Result return a final evaluation result
 	Result() *Result
 }

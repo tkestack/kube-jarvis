@@ -43,8 +43,7 @@ type Config struct {
 	Diagnostics []struct {
 		Type   string
 		Name   string
-		Score  int
-		Weight int
+		Score  float64
 		Config interface{}
 	}
 
@@ -139,10 +138,9 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			Logger: c.Logger.With(map[string]string{
 				"diagnostic": config.Name,
 			}),
-			Type:      config.Type,
-			Name:      config.Name,
-			Score:     config.Score,
-			Weight:    config.Weight,
+			Type:       config.Type,
+			Name:       config.Name,
+			TotalScore: config.Score,
 			CloudType: c.Global.Cloud,
 			Cli:       cli,
 		})

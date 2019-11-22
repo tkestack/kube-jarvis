@@ -2,8 +2,9 @@ package requestslimits
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 	"testing"
+
+	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
@@ -56,8 +57,7 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 
 	d := NewDiagnostic(&diagnose.CreateParam{
 		Translator: translate.NewFake(),
-		Score:      10,
-		Weight:     10,
+		TotalScore: 10,
 		Cli:        cli,
 	})
 	result := d.StartDiagnose(context.Background())
@@ -76,7 +76,7 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 
 		t.Logf("%+v", *s)
 	}
-	if total != 4 {
-		t.Fatalf("should return 4 result")
+	if total != 1 {
+		t.Fatalf("should return 1 result")
 	}
 }

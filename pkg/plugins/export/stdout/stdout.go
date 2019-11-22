@@ -41,13 +41,13 @@ func (e *Exporter) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic)
 	fmt.Println("Diagnostic report")
 	fmt.Printf("    Type : %s\n", dia.Param().Type)
 	fmt.Printf("    Name : %s\n", dia.Param().Name)
-	fmt.Printf("    Weight : %d\n", dia.Param().Weight)
 	fmt.Printf("- ----- results ----------------\n")
 	return nil
 }
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (e *Exporter) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
+	fmt.Printf("Diagnostic Score : %.2f/%.2f\n", dia.Param().Score, dia.Param().TotalScore)
 	fmt.Println("===================================================================")
 	return nil
 }
@@ -65,16 +65,14 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result
 			pt = color.Red
 		case diagnose.HealthyLevelSerious:
 			pt = color.HiRed
-		case diagnose.HealthyLevelPass:
-			pt = color.Green
 		default:
 			pt = func(format string, a ...interface{}) {
 				fmt.Printf(format, a...)
 			}
 		}
 		pt("[%s] %s -> %s\n", result.Level, result.Name, result.ObjName)
-		pt("    Score : %d\n", result.Score)
-		pt("    Descirbe : %s\n", result.Desc)
+		pt("    Score : -%.2f\n", result.Score)
+		pt("    Describe : %s\n", result.Desc)
 		pt("    Proposal : %s\n", result.Proposal)
 	}
 	fmt.Printf("- -----------------------------\n")
@@ -99,7 +97,7 @@ func (e *Exporter) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator)
 // EvaluationResult export information about a Evaluator result
 func (e *Exporter) EvaluationResult(ctx context.Context, result *evaluate.Result) error {
 	fmt.Printf("[%s]\n", result.Name)
-	fmt.Printf("    Descirbe : %s\n", result.Desc)
+	fmt.Printf("    Describe : %s\n", result.Desc)
 	return nil
 }
 

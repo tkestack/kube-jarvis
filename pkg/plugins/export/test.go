@@ -18,11 +18,12 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 
 	d := example.NewDiagnostic(&diagnose.CreateParam{
 		Translator: translate.NewFake(),
-		Score:      10,
-		Weight:     10,
+		Type:       "example",
+		TotalScore: 10,
 	})
 	s := sum.NewEvaluator(&evaluate.CreateParam{
 		Translator: translate.NewFake(),
+		Type:       "sum",
 		Name:       "sum",
 	})
 
@@ -48,6 +49,10 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 	}
 
 	if err := exporter.DiagnosticFinish(ctx, d); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if err := s.EvaDiagnostic(ctx, d); err != nil {
 		t.Fatalf(err.Error())
 	}
 

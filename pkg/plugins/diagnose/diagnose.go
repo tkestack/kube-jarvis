@@ -27,8 +27,7 @@ type Result struct {
 	Name     translate.Message
 	ObjName  string
 	Desc     translate.Message
-	Score    int
-	Weight   int
+	Score    float64
 	Error    error
 	Proposal translate.Message
 }
@@ -48,9 +47,8 @@ type CreateParam struct {
 	Logger     logger.Logger
 	Type       string
 	Name       string
-	Score      int
-	Weight     int
-	CloudType  string
+	TotalScore float64
+	Score      float64
 }
 
 // Creator is a factory to create a Diagnostic

@@ -29,7 +29,6 @@ func TestNewDefault(t *testing.T) {
 	d.AddDiagnostic(example.NewDiagnostic(&diagnose.CreateParam{
 		Translator: translate.NewFake(),
 		Score:      10,
-		Weight:     10,
 	}))
 	d.AddEvaluate(sum.NewEvaluator(&evaluate.CreateParam{
 		Translator: translate.NewFake(),

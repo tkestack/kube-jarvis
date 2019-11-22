@@ -1,1 +1,1 @@
-result: "总分 : {{.TotalScore}}, 通过 : {{.TotalScore}}, 警告 : {{.TotalScore}}, 高危 : {{.TotalScore}}, 异常条目 : {{.TotalScore}}"
+result: "总分 : {{.Score}}, 警告 : {{.WarnScore}}, 危险 : {{.RiskScore}}, 高危 : {{.SeriousScore}}, 异常条目 : {{.ErrorTotal}}"

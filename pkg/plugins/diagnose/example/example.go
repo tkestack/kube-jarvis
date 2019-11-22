@@ -37,8 +37,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 			Desc: d.Translator.Message("message", map[string]interface{}{
 				"Mes": d.Message,
 			}),
-			Score:    10,
-			Weight:   100,
+			Score:    d.TotalScore,
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}()
