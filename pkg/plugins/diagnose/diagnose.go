@@ -49,6 +49,7 @@ type CreateParam struct {
 	Name       string
 	TotalScore float64
 	Score      float64
+	CloudType  string
 }
 
 // Creator is a factory to create a Diagnostic

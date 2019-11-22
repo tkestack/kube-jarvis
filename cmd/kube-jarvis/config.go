@@ -141,8 +141,8 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			Type:       config.Type,
 			Name:       config.Name,
 			TotalScore: config.Score,
-			CloudType: c.Global.Cloud,
-			Cli:       cli,
+			CloudType:  c.Global.Cloud,
+			Cli:        cli,
 		})
 
 		if err := InitObjViaYaml(d, config.Config); err != nil {
