@@ -17,7 +17,7 @@ const (
 	HealthyLevelWarn = "warn"
 	// HealthyLevelRisk means risk unHealthy
 	HealthyLevelRisk = "risk"
-	// HealthyLevelRisk means serious unHealthy
+	// HealthyLevelSerious means serious unHealthy
 	HealthyLevelSerious = "serious"
 )
 
