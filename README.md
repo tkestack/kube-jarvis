@@ -29,7 +29,6 @@ diagnostics: #
   - type: "example"
     name: "example 1"
     score: 10
-    weight: 10
     config:
       message: "message"
 
