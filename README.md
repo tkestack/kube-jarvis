@@ -51,7 +51,19 @@ docker run  -i -t docker.io/raylhuang110/kube-jarvis:latest
 ```
 > [you can found all docker images here](https://hub.docker.com/r/raylhuang110/kube-jarvis/tags)
 
-
+# run as job or cronjob
+create common resource (Namespaces, ServiceAccount ...)
+```bash
+kubectl apply -f manifests/ 
+```
+run as job
+```bash
+kubectl apply -f manifests/workload/job.yaml
+```
+run as cronjob (default run at 00:00 every day)
+```bash
+kubectl apply -f manifests/workload/cronjob.yaml
+```
 # all plugins
 we call coordinator, diagnostics, evaluators and exporters as "plugins"
 > [you can found all plugins lists here](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins)

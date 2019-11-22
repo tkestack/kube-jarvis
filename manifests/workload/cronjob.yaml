@@ -1,0 +1,23 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: kube-jarvis
+  namespace: kube-jarvis
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kube-jarvis
+              image: docker.io/raylhuang110/kube-jarvis:latest
+              volumeMounts:
+              - name: config
+                mountPath: /conf
+          volumes:
+          - name: config
+            configMap:
+              name: config
+          restartPolicy: Never
+          serviceAccountName: kube-jarvis
