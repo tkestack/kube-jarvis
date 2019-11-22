@@ -18,11 +18,13 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 
 	d := example.NewDiagnostic(&diagnose.CreateParam{
 		Translator: translate.NewFake(),
+		Type:       "example",
 		Score:      10,
 		Weight:     10,
 	})
 	s := sum.NewEvaluator(&evaluate.CreateParam{
 		Translator: translate.NewFake(),
+		Type:       "sum",
 		Name:       "sum",
 	})
 

@@ -72,7 +72,7 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result
 		}
 		pt("[%s] %s -> %s\n", result.Level, result.Name, result.ObjName)
 		pt("    Score : %d\n", result.Score)
-		pt("    Descirbe : %s\n", result.Desc)
+		pt("    Describe : %s\n", result.Desc)
 		pt("    Proposal : %s\n", result.Proposal)
 	}
 	fmt.Printf("- -----------------------------\n")
@@ -97,7 +97,7 @@ func (e *Exporter) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator)
 // EvaluationResult export information about a Evaluator result
 func (e *Exporter) EvaluationResult(ctx context.Context, result *evaluate.Result) error {
 	fmt.Printf("[%s]\n", result.Name)
-	fmt.Printf("    Descirbe : %s\n", result.Desc)
+	fmt.Printf("    Describe : %s\n", result.Desc)
 	return nil
 }
 

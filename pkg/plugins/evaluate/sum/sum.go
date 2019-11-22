@@ -53,10 +53,11 @@ func (e *Evaluator) Result() *evaluate.Result {
 	return &evaluate.Result{
 		Name: "score statistics",
 		Desc: e.Translator.Message("result", map[string]interface{}{
-			"TotalScore": e.TotalScore,
-			"WarnScore":  e.WarnScore,
-			"RiskScore":  e.RiskScore,
-			"ErrorTotal": e.ErrorTotal,
+			"TotalScore":   e.TotalScore,
+			"WarnScore":    e.WarnScore,
+			"RiskScore":    e.RiskScore,
+			"SeriousScore": e.SeriousScore,
+			"ErrorTotal":   e.ErrorTotal,
 		}),
 	}
 }
