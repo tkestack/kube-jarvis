@@ -51,7 +51,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 		}
 
 		for _, pod := range pods.Items {
-			d.diagnosePod(pod, d.Score/float64(len(pods.Items)))
+			d.diagnosePod(pod, d.TotalScore/float64(len(pods.Items)))
 		}
 	}()
 	return d.result
