@@ -12,11 +12,11 @@ import (
 
 // DiagnosticResultItem collect one diagnostic and it's results
 type DiagnosticResultItem struct {
-	Type    string
-	Name    string
-	Score   int
-	Weight  int
-	Results []diagnose.Result
+	Type       string
+	Name       string
+	Score      float64
+	TotalScore float64
+	Results    []diagnose.Result
 }
 
 // EvaluationResultItem collect one evaluator and it's result
@@ -46,10 +46,9 @@ func (c *Collector) CoordinateBegin(ctx context.Context) error {
 func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
 	param := dia.Param()
 	c.Diagnostics = append(c.Diagnostics, &DiagnosticResultItem{
-		Type:   param.Type,
-		Name:   param.Name,
-		Score:  param.Score,
-		Weight: param.Weight,
+		Type:       param.Type,
+		Name:       param.Name,
+		TotalScore: param.TotalScore,
 	})
 	return nil
 }
@@ -67,6 +66,11 @@ func (c *Collector) DiagnosticResult(ctx context.Context, result *diagnose.Resul
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
+	dLen := len(c.Diagnostics)
+	if dLen == 0 {
+		return fmt.Errorf("no diagnostic found")
+	}
+	c.Diagnostics[dLen-1].Score = dia.Param().Score
 	return nil
 }
 

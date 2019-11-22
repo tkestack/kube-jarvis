@@ -1,3 +1,2 @@
-desc: "{{ .Resource }} {{ .Type }} not set"
-proposal: "{{ .Resource }} {{ .Type }} should be set"
-passDesc: "good!"
+desc: "pod resources no requests or no limits"
+proposal: "always set pod resources requests and limits"

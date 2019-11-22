@@ -1,3 +1,2 @@
-desc: "{{ .Resource }} {{ .Type }} 没有设置"
-proposal: "{{ .Resource }} {{ .Type }} 应该被设置"
-passDesc: "配置合理!"
+desc: "pod 有未设置的requests或者limits"
+proposal: "pod 应该始终设置正确的requests和limits"

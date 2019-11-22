@@ -93,7 +93,12 @@ func (c *Coordinator) diagnosticBegin(ctx context.Context, dia diagnose.Diagnost
 func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) {
 	for _, e := range c.exporters {
 		if err := e.DiagnosticFinish(ctx, dia); err != nil {
-			c.logger.Errorf("%s export diagnose begin failed : %v", err.Error())
+			c.logger.Errorf("%s export diagnose finish failed : %v", err.Error())
+		}
+	}
+	for _, e := range c.evaluators {
+		if err := e.EvaDiagnostic(ctx, dia); err != nil {
+			c.logger.Errorf("%s evaluate diagnose finish failed : %v", err.Error())
 		}
 	}
 }

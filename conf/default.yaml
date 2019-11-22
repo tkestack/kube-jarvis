@@ -9,10 +9,13 @@ coordinator:
 diagnostics:
   - type: "example"
     name: "example 1"
-    score: 10
-    weight: 10
+    score: 100
     config:
       message: "message"
+
+  - type: "requests-limits"
+    name: "pod requests-limits"
+    score: 100
 
 evaluators:
   - type: "sum"

@@ -12,7 +12,6 @@ func TestDiagnostic_StartDiagnose(t *testing.T) {
 	s := NewDiagnostic(&diagnose.CreateParam{
 		Translator: translate.NewFake().WithModule("diagnostics.example"),
 		Score:      10,
-		Weight:     10,
 		Cli:        nil,
 	})
 

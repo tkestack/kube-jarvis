@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
@@ -42,6 +44,12 @@ func TestNewSumEva(t *testing.T) {
 		Score: 1,
 		Error: fmt.Errorf("test"),
 	}); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	if err := s.EvaDiagnostic(ctx, example.NewDiagnostic(&diagnose.CreateParam{
+		TotalScore: 6,
+	})); err != nil {
 		t.Fatalf(err.Error())
 	}
 

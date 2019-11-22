@@ -41,13 +41,13 @@ func (e *Exporter) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic)
 	fmt.Println("Diagnostic report")
 	fmt.Printf("    Type : %s\n", dia.Param().Type)
 	fmt.Printf("    Name : %s\n", dia.Param().Name)
-	fmt.Printf("    Weight : %d\n", dia.Param().Weight)
 	fmt.Printf("- ----- results ----------------\n")
 	return nil
 }
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (e *Exporter) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
+	fmt.Printf("Diagnostic Score : %.2f/%.2f\n", dia.Param().Score, dia.Param().TotalScore)
 	fmt.Println("===================================================================")
 	return nil
 }
@@ -71,7 +71,7 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result
 			}
 		}
 		pt("[%s] %s -> %s\n", result.Level, result.Name, result.ObjName)
-		pt("    Score : %d\n", result.Score)
+		pt("    Score : -%.2f\n", result.Score)
 		pt("    Describe : %s\n", result.Desc)
 		pt("    Proposal : %s\n", result.Proposal)
 	}
