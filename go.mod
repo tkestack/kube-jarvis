@@ -3,6 +3,12 @@ module github.com/RayHuangCN/kube-jarvis
 go 1.12
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.3.3 // indirect
+	github.com/fatih/color v1.7.0
+	github.com/gookit/color v1.2.0 // indirect
+	github.com/jedib0t/go-pretty v4.3.0+incompatible // indirect
+	github.com/mattn/go-colorable v0.1.4 // indirect
+	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.0.3
 	github.com/pkg/errors v0.8.1
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
