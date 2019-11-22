@@ -38,7 +38,7 @@ evaluators:
   - type: "sum"
     name: "sum 1"
 
-// exporters exporte all diagnostic result and evaluation results
+# exporters exporte all diagnostic result and evaluation results
 exporters:
   - type: "stdout"
     name: "stdout 1"
