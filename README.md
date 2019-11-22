@@ -5,13 +5,13 @@
 
 kube-jarvis is a tool used to check the health of the kubernetes cluster
 
-# quick start
+# Quick start
 ```bash
 go build -o kube-jarvis cmd/kube-jarvis/*.go
 ./kube-jarvis --config conf/default.yaml
 ```
 
-# config struct
+# Config struct
 ```yaml
 global:
   trans: "translation" #translation file root director
@@ -43,14 +43,14 @@ exporters:
     name: "stdout 1"
 ```
 
-# run in docker
+# Run in docker
 on any node of your cluster and exec cmd:
 ```bash
 docker run  -i -t docker.io/raylhuang110/kube-jarvis:latest
 ```
 > [you can found all docker images here](https://hub.docker.com/r/raylhuang110/kube-jarvis/tags)
 
-# run as job or cronjob
+# Run as job or cronjob
 create common resource (Namespaces, ServiceAccount ...)
 ```bash
 kubectl apply -f manifests/ 
@@ -63,6 +63,9 @@ run as cronjob (default run at 00:00 every day)
 ```bash
 kubectl apply -f manifests/workload/cronjob.yaml
 ```
-# all plugins
+# Plugins
 we call coordinator, diagnostics, evaluators and exporters as "plugins"
 > [you can found all plugins lists here](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins)
+
+# License
+Apache License 2.0 - see LICENSE.md for more details
