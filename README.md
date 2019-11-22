@@ -44,7 +44,7 @@ exporters:
 ```
 
 # Run in docker
-on any node of your cluster and exec cmd:
+login any node of your cluster and exec cmd:
 ```bash
 docker run  -i -t docker.io/raylhuang110/kube-jarvis:latest
 ```
