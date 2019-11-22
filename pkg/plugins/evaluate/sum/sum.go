@@ -11,11 +11,11 @@ import (
 // Evaluator sum all diagnostic result score with different healthy level
 type Evaluator struct {
 	*evaluate.CreateParam
-	TotalScore int
-	PassScore  int
-	WarnScore  int
-	RiskScore  int
-	ErrorTotal int
+	TotalScore   int
+	WarnScore    int
+	SeriousScore int
+	RiskScore    int
+	ErrorTotal   int
 }
 
 // NewEvaluator return a sum Evaluator
@@ -36,12 +36,12 @@ func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Re
 		e.ErrorTotal++
 	} else {
 		switch result.Level {
-		case diagnose.HealthyLevelPass:
-			e.PassScore += result.Score
 		case diagnose.HealthyLevelWarn:
 			e.WarnScore += result.Score
 		case diagnose.HealthyLevelRisk:
 			e.RiskScore += result.Score
+		case diagnose.HealthyLevelSerious:
+			e.SeriousScore += result.Score
 		}
 		e.TotalScore += result.Score
 	}
@@ -54,7 +54,6 @@ func (e *Evaluator) Result() *evaluate.Result {
 		Name: "score statistics",
 		Desc: e.Translator.Message("result", map[string]interface{}{
 			"TotalScore": e.TotalScore,
-			"PassScore":  e.PassScore,
 			"WarnScore":  e.WarnScore,
 			"RiskScore":  e.RiskScore,
 			"ErrorTotal": e.ErrorTotal,
