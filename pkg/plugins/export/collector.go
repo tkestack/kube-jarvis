@@ -32,11 +32,6 @@ type Collector struct {
 	Evaluations []*EvaluationResultItem
 }
 
-// Param return core attributes
-func (c *Collector) Param() CreateParam {
-	return CreateParam{}
-}
-
 // CoordinateBegin export information about coordinator Run begin
 func (c *Collector) CoordinateBegin(ctx context.Context) error {
 	return nil
@@ -97,11 +92,6 @@ func (c *Collector) EvaluationResult(ctx context.Context, result *evaluate.Resul
 
 // EvaluationFinish export information about a Evaluator finish
 func (c *Collector) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator) error {
-	return nil
-}
-
-// CoordinateFinish export information about coordinator Run finished
-func (c *Collector) CoordinateFinish(ctx context.Context) error {
 	return nil
 }
 

@@ -13,9 +13,6 @@ func TestNewStdout(t *testing.T) {
 	s := NewExporter(&export.CreateParam{
 		Cli: cli,
 	}).(*Exporter)
-	s.Namespace = "default"
-	s.Name = "test"
-	s.Format = "json"
 
 	export.RunExporterTest(t, s)
 

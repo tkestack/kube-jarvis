@@ -81,5 +81,9 @@ func (e *Exporter) initDefault() {
 		e.Format = "json"
 	}
 
+	if e.Namespace == "" {
+		e.Namespace = "default"
+	}
+
 	e.DataKey = time.Now().Format("2006-01-02T15-04-05")
 }

@@ -28,10 +28,7 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 	})
 
 	// Diagnostic
-	if err := exporter.DiagnosticBegin(ctx, d); err != nil {
-		t.Fatalf(err.Error())
-	}
-
+	fatalIfError(t, exporter.DiagnosticBegin(ctx, d))
 	result := d.StartDiagnose(ctx)
 	for {
 		st, ok := <-result
@@ -39,37 +36,21 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 			break
 		}
 
-		if err := exporter.DiagnosticResult(ctx, st); err != nil {
-			t.Fatalf(err.Error())
-		}
-
-		if err := s.EvaDiagnosticResult(ctx, st); err != nil {
-			t.Fatalf(err.Error())
-		}
+		fatalIfError(t, exporter.DiagnosticResult(ctx, st))
+		fatalIfError(t, s.EvaDiagnosticResult(ctx, st))
 	}
 
-	if err := exporter.DiagnosticFinish(ctx, d); err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	if err := s.EvaDiagnostic(ctx, d); err != nil {
-		t.Fatalf(err.Error())
-	}
-
+	fatalIfError(t, exporter.DiagnosticFinish(ctx, d))
+	fatalIfError(t, s.EvaDiagnostic(ctx, d))
 	// Evaluation
-	if err := exporter.EvaluationBegin(ctx, s); err != nil {
-		t.Fatalf(err.Error())
-	}
+	fatalIfError(t, exporter.EvaluationBegin(ctx, s))
+	fatalIfError(t, exporter.EvaluationResult(ctx, s.Result()))
+	fatalIfError(t, exporter.EvaluationFinish(ctx, s))
+	fatalIfError(t, exporter.CoordinateFinish(ctx))
+}
 
-	if err := exporter.EvaluationResult(ctx, s.Result()); err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	if err := exporter.EvaluationFinish(ctx, s); err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	if err := exporter.CoordinateFinish(ctx); err != nil {
+func fatalIfError(t *testing.T, err error) {
+	if err != nil {
 		t.Fatalf(err.Error())
 	}
 }

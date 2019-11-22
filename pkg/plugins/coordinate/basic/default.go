@@ -2,6 +2,7 @@ package basic
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
 
@@ -52,18 +53,14 @@ func (c *Coordinator) Run(ctx context.Context) {
 }
 
 func (c *Coordinator) begin(ctx context.Context) {
-	for _, exp := range c.exporters {
-		if err := exp.CoordinateBegin(ctx); err != nil {
-			c.logger.Errorf("%s export coordinate begin failed : %v", err.Error())
-		}
+	for _, e := range c.exporters {
+		c.logIfError(e.CoordinateBegin(ctx), "%s export coordinate begin", e.Param().Name)
 	}
 }
 
 func (c *Coordinator) finish(ctx context.Context) {
-	for _, exp := range c.exporters {
-		if err := exp.CoordinateFinish(ctx); err != nil {
-			c.logger.Errorf("%s export coordinate finish failed : %v", err.Error())
-		}
+	for _, e := range c.exporters {
+		c.logIfError(e.CoordinateFinish(ctx), "%s export coordinate finish", e.Param().Name)
 	}
 }
 
@@ -84,36 +81,26 @@ func (c *Coordinator) diagnostic(ctx context.Context) {
 
 func (c *Coordinator) diagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) {
 	for _, e := range c.exporters {
-		if err := e.DiagnosticBegin(ctx, dia); err != nil {
-			c.logger.Errorf("%s export diagnose begin failed : %v", err.Error())
-		}
+		c.logIfError(e.DiagnosticBegin(ctx, dia), "%s export diagnose begin", e.Param().Name)
 	}
 }
 
 func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) {
 	for _, e := range c.exporters {
-		if err := e.DiagnosticFinish(ctx, dia); err != nil {
-			c.logger.Errorf("%s export diagnose finish failed : %v", err.Error())
-		}
+		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Param().Name)
 	}
 	for _, e := range c.evaluators {
-		if err := e.EvaDiagnostic(ctx, dia); err != nil {
-			c.logger.Errorf("%s evaluate diagnose finish failed : %v", err.Error())
-		}
+		c.logIfError(e.EvaDiagnostic(ctx, dia), "%s evaluate diagnose finish", e.Param().Name)
 	}
 }
 
 func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
 	for _, e := range c.exporters {
-		if err := e.DiagnosticResult(ctx, result); err != nil {
-			c.logger.Errorf("%s export diagnose result failed : %v", err.Error())
-		}
+		c.logIfError(e.DiagnosticResult(ctx, result), "%s export diagnose result", e.Param().Name)
 	}
 
 	for _, e := range c.evaluators {
-		if err := e.EvaDiagnosticResult(ctx, result); err != nil {
-			c.logger.Errorf("%s evaluator evaluate diagnose result failed : %v", err.Error())
-		}
+		c.logIfError(e.EvaDiagnosticResult(ctx, result), "%s evaluator evaluate diagnose result begin", e.Param().Name)
 	}
 }
 
@@ -121,17 +108,16 @@ func (c *Coordinator) evaluation(ctx context.Context) {
 	for _, eva := range c.evaluators {
 		result := eva.Result()
 		for _, exp := range c.exporters {
-			if err := exp.EvaluationBegin(ctx, eva); err != nil {
-				c.logger.Errorf("%s export evaluation begin failed : %v", err.Error())
-			}
-
-			if err := exp.EvaluationResult(ctx, result); err != nil {
-				c.logger.Errorf("%s export evaluation finish failed : %v", err.Error())
-			}
-
-			if err := exp.EvaluationFinish(ctx, eva); err != nil {
-				c.logger.Errorf("%s export evaluation finish failed : %v", err.Error())
-			}
+			expName := exp.Param().Name
+			c.logIfError(exp.EvaluationBegin(ctx, eva), "%s export evaluation begin", expName)
+			c.logIfError(exp.EvaluationResult(ctx, result), "%s export evaluation result", expName)
+			c.logIfError(exp.EvaluationFinish(ctx, eva), "%s export evaluation finish", expName)
 		}
+	}
+}
+
+func (c *Coordinator) logIfError(err error, format string, args ...interface{}) {
+	if err != nil {
+		c.logger.Errorf("%s failed : %v", fmt.Sprintf(format, args...), err.Error())
 	}
 }
