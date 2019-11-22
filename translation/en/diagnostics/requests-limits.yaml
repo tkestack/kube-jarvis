@@ -1,2 +1,3 @@
 desc: "{{ .Resource }} {{ .Type }} not set"
 proposal: "{{ .Resource }} {{ .Type }} should be set"
+passDesc: "good!"

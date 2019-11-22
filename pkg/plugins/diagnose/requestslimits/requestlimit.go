@@ -58,7 +58,9 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 
 func (d Diagnostic) diagnosePod(pod v12.Pod) {
 	for _, c := range pod.Spec.Containers {
+		health := true
 		if c.Resources.Limits.Memory().IsZero() {
+			health = false
 			d.result <- &diagnose.Result{
 				Level:   diagnose.HealthyLevelWarn,
 				Name:    "Pods Limits",
@@ -67,7 +69,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 					"Resource": "memory",
 					"Type":     "limits",
 				}),
-				Score:  1,
+				Score:  d.Score,
 				Weight: d.Weight,
 				Proposal: d.Translator.Message("proposal", map[string]interface{}{
 					"Resource": "memory",
@@ -77,6 +79,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 		}
 
 		if c.Resources.Limits.Cpu().IsZero() {
+			health = false
 			d.result <- &diagnose.Result{
 				Level:   diagnose.HealthyLevelWarn,
 				Name:    "Pods Limits",
@@ -85,7 +88,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 					"Resource": "cpu",
 					"Type":     "limits",
 				}),
-				Score:  1,
+				Score:  d.Score,
 				Weight: d.Weight,
 				Proposal: d.Translator.Message("proposal", map[string]interface{}{
 					"Resource": "memory",
@@ -95,6 +98,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 		}
 
 		if c.Resources.Requests.Memory().IsZero() {
+			health = false
 			d.result <- &diagnose.Result{
 				Level:   diagnose.HealthyLevelWarn,
 				Name:    "Pods Requests",
@@ -103,7 +107,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 					"Resource": "memory",
 					"Type":     "requests",
 				}),
-				Score:  1,
+				Score:  d.Score,
 				Weight: d.Weight,
 				Proposal: d.Translator.Message("proposal", map[string]interface{}{
 					"Resource": "memory",
@@ -113,6 +117,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 		}
 
 		if c.Resources.Requests.Cpu().IsZero() {
+			health = false
 			d.result <- &diagnose.Result{
 				Level:   diagnose.HealthyLevelWarn,
 				Name:    "Pods Requests",
@@ -121,7 +126,7 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 					"Resource": "cpu",
 					"Type":     "requests",
 				}),
-				Score:  1,
+				Score:  d.Score,
 				Weight: d.Weight,
 				Proposal: d.Translator.Message("proposal", map[string]interface{}{
 					"Resource": "cpu",
@@ -129,5 +134,18 @@ func (d Diagnostic) diagnosePod(pod v12.Pod) {
 				}),
 			}
 		}
+
+		if health {
+			d.result <- &diagnose.Result{
+				Level:    diagnose.HealthyLevelPass,
+				Name:     "Pods resources",
+				ObjName:  fmt.Sprintf("%s:%s", pod.Name, c.Name),
+				Desc:     d.Translator.Message("passDesc", nil),
+				Score:    d.Score,
+				Weight:   d.Weight,
+				Proposal: "",
+			}
+		}
+
 	}
 }
