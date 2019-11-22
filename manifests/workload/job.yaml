@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-jarvis
+  namespace: kube-jarvis
+spec:
+  template:
+    spec:
+      containers:
+        - name: kube-jarvis
+          image: docker.io/raylhuang110/kube-jarvis:latest
+          volumeMounts:
+            - name: config
+              mountPath: /conf
+      volumes:
+        - name: config
+          configMap:
+            name: config
+      restartPolicy: Never
+      serviceAccountName: kube-jarvis
