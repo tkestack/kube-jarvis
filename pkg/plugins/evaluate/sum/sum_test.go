@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
@@ -15,8 +17,10 @@ import (
 )
 
 func TestNewSumEva(t *testing.T) {
-	s := NewEvaluator(&evaluate.CreateParam{
-		Translator: translate.NewFake(),
+	s := NewEvaluator(&evaluate.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Translator: translate.NewFake(),
+		},
 	}).(*Evaluator)
 	ctx := context.Background()
 	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
@@ -47,7 +51,7 @@ func TestNewSumEva(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	if err := s.EvaDiagnostic(ctx, example.NewDiagnostic(&diagnose.CreateParam{
+	if err := s.EvaDiagnostic(ctx, example.NewDiagnostic(&diagnose.MetaData{
 		TotalScore: 6,
 	})); err != nil {
 		t.Fatalf(err.Error())

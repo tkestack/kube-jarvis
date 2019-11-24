@@ -13,19 +13,19 @@ import (
 
 // Exporter just print information to logger with a simple format
 type Exporter struct {
-	*export.CreateParam
+	*export.MetaData
 }
 
 // NewExporter return a stdout Exporter
-func NewExporter(p *export.CreateParam) export.Exporter {
+func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
-		CreateParam: p,
+		MetaData: m,
 	}
 }
 
-// Param return core attributes
-func (e *Exporter) Param() export.CreateParam {
-	return *e.CreateParam
+// Meta return core attributes
+func (e *Exporter) Meta() export.MetaData {
+	return *e.MetaData
 }
 
 // CoordinateBegin export information about coordinator Run begin
@@ -39,15 +39,15 @@ func (e *Exporter) CoordinateBegin(ctx context.Context) error {
 // DiagnosticBegin export information about a Diagnostic begin
 func (e *Exporter) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
 	fmt.Println("Diagnostic report")
-	fmt.Printf("    Type : %s\n", dia.Param().Type)
-	fmt.Printf("    Name : %s\n", dia.Param().Name)
+	fmt.Printf("    Type : %s\n", dia.Meta().Type)
+	fmt.Printf("    Name : %s\n", dia.Meta().Name)
 	fmt.Printf("- ----- results ----------------\n")
 	return nil
 }
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (e *Exporter) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
-	fmt.Printf("Diagnostic Score : %.2f/%.2f\n", dia.Param().Score, dia.Param().TotalScore)
+	fmt.Printf("Diagnostic Score : %.2f/%.2f\n", dia.Meta().Score, dia.Meta().TotalScore)
 	fmt.Println("===================================================================")
 	return nil
 }
@@ -82,8 +82,8 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result
 // EvaluationBegin export information about a Evaluator begin
 func (e *Exporter) EvaluationBegin(ctx context.Context, eva evaluate.Evaluator) error {
 	fmt.Println("Evaluation report")
-	fmt.Printf("    Type : %s\n", eva.Param().Type)
-	fmt.Printf("    Name : %s\n", eva.Param().Name)
+	fmt.Printf("    Type : %s\n", eva.Meta().Type)
+	fmt.Printf("    Name : %s\n", eva.Meta().Name)
 	fmt.Printf("- ----- result -----------------\n")
 	return nil
 }

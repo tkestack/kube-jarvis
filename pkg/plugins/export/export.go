@@ -3,18 +3,22 @@ package export
 import (
 	"context"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"k8s.io/client-go/kubernetes"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
+// MetaData contains core attributes of a Exporter
+type MetaData struct {
+	plugins.CommonMetaData
+}
+
 // Exporter export all steps and results with special way or special format
 type Exporter interface {
-	// Param return core attributes
-	Param() CreateParam
+	// Meta return core attributes
+	Meta() MetaData
 	// CoordinateBegin export information about coordinator Run begin
 	CoordinateBegin(ctx context.Context) error
 	// DiagnosticBegin export information about a Diagnostic begin
@@ -33,22 +37,32 @@ type Exporter interface {
 	CoordinateFinish(ctx context.Context) error
 }
 
-// CreateParam contains core attributes of a Exporter
-type CreateParam struct {
-	Cli       kubernetes.Interface
-	Logger    logger.Logger
-	Type      string
-	Name      string
-	CloudType string
+// Factory create a new Exporter
+type Factory struct {
+	// Creator is a factory function to create Exporter
+	Creator func(d *MetaData) Exporter
+	// SupportedClouds indicate what cloud providers will be supported of this exporter
+	SupportedClouds []string
 }
 
-// Creator is a factory to create a Exporter
-type Creator func(c *CreateParam) Exporter
-
 // Creators store all registered Exporter Creator
-var Creators = map[string]Creator{}
+var Factories = map[string]Factory{}
 
-// Add register a Exporter Creator
-func Add(typ string, creator Creator) {
-	Creators[typ] = creator
+// Add register a Exporter Factory
+func Add(typ string, f Factory) {
+	Factories[typ] = f
+}
+
+// IsSupported return true if cloud type is supported by Exporter
+func (f *Factory) IsSupported(cloud string) bool {
+	if len(f.SupportedClouds) == 0 {
+		return true
+	}
+
+	for _, c := range f.SupportedClouds {
+		if c == cloud {
+			return true
+		}
+	}
+	return false
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
@@ -128,21 +130,28 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
 	for _, config := range c.Diagnostics {
-		creator, exist := diagnose.Creators[config.Type]
+		factory, exist := diagnose.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
 		}
 
-		d := creator(&diagnose.CreateParam{
-			Translator: trans.WithModule("diagnostics." + config.Type),
-			Logger: c.Logger.With(map[string]string{
-				"diagnostic": config.Name,
-			}),
-			Type:       config.Type,
-			Name:       config.Name,
+		if !factory.IsSupported(c.Global.Cloud) {
+			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
+			continue
+		}
+
+		d := factory.Creator(&diagnose.MetaData{
+			CommonMetaData: plugins.CommonMetaData{
+				Translator: trans.WithModule("diagnostics." + config.Type),
+				Logger: c.Logger.With(map[string]string{
+					"diagnostic": config.Name,
+				}),
+				Type:      config.Type,
+				Name:      config.Name,
+				CloudType: c.Global.Cloud,
+				Cli:       cli,
+			},
 			TotalScore: config.Score,
-			CloudType:  c.Global.Cloud,
-			Cli:        cli,
 		})
 
 		if err := InitObjViaYaml(d, config.Config); err != nil {
@@ -159,20 +168,27 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Translator) ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
 	for _, config := range c.Evaluators {
-		creator, exist := evaluate.Creators[config.Type]
+		factory, exist := evaluate.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found evaluator type %s", config.Type)
 		}
 
-		e := creator(&evaluate.CreateParam{
-			Cli:        cli,
-			Translator: trans.WithModule("evaluators." + config.Type),
-			Logger: c.Logger.With(map[string]string{
-				"evaluator": config.Name,
-			}),
-			Type:      config.Type,
-			Name:      config.Name,
-			CloudType: c.Global.Cloud,
+		if !factory.IsSupported(c.Global.Cloud) {
+			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
+			continue
+		}
+
+		e := factory.Creator(&evaluate.MetaData{
+			CommonMetaData: plugins.CommonMetaData{
+				Translator: trans.WithModule("diagnostics." + config.Type),
+				Logger: c.Logger.With(map[string]string{
+					"diagnostic": config.Name,
+				}),
+				Type:      config.Type,
+				Name:      config.Name,
+				CloudType: c.Global.Cloud,
+				Cli:       cli,
+			},
 		})
 
 		if err := InitObjViaYaml(e, config.Config); err != nil {
@@ -186,22 +202,30 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 }
 
 // GetExporters create all target Exporters
-func (c *Config) GetExporters(cli kubernetes.Interface) ([]export.Exporter, error) {
+func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translator) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
 	for _, config := range c.Exporters {
-		creator, exist := export.Creators[config.Type]
+		factory, exist := export.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found exporter type %s", config.Type)
 		}
 
-		e := creator(&export.CreateParam{
-			Cli: cli,
-			Logger: c.Logger.With(map[string]string{
-				"exporter": config.Name,
-			}),
-			Type:      config.Type,
-			Name:      config.Name,
-			CloudType: c.Global.Cloud,
+		if !factory.IsSupported(c.Global.Cloud) {
+			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
+			continue
+		}
+
+		e := factory.Creator(&export.MetaData{
+			CommonMetaData: plugins.CommonMetaData{
+				Translator: trans.WithModule("diagnostics." + config.Type),
+				Logger: c.Logger.With(map[string]string{
+					"diagnostic": config.Name,
+				}),
+				Type:      config.Type,
+				Name:      config.Name,
+				CloudType: c.Global.Cloud,
+				Cli:       cli,
+			},
 		})
 
 		if err := InitObjViaYaml(e, config.Config); err != nil {

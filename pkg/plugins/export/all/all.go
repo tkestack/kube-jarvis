@@ -7,6 +7,10 @@ import (
 )
 
 func init() {
-	export.Add("stdout", stdout.NewExporter)
-	export.Add("config-map", configmap.NewExporter)
+	export.Add("stdout", export.Factory{
+		Creator: stdout.NewExporter,
+	})
+	export.Add("config-map", export.Factory{
+		Creator: configmap.NewExporter,
+	})
 }

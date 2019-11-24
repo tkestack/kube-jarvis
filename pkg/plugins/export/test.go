@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
@@ -16,15 +18,19 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 	ctx := context.Background()
 	_ = exporter.CoordinateBegin(ctx)
 
-	d := example.NewDiagnostic(&diagnose.CreateParam{
-		Translator: translate.NewFake(),
-		Type:       "example",
+	d := example.NewDiagnostic(&diagnose.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Translator: translate.NewFake(),
+			Type:       "example",
+		},
 		TotalScore: 10,
 	})
-	s := sum.NewEvaluator(&evaluate.CreateParam{
-		Translator: translate.NewFake(),
-		Type:       "sum",
-		Name:       "sum",
+	s := sum.NewEvaluator(&evaluate.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Translator: translate.NewFake(),
+			Type:       "sum",
+			Name:       "sum",
+		},
 	})
 
 	// Diagnostic

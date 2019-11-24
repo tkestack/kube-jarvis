@@ -6,3 +6,5 @@ evaluators:
   - type: "sum"
     name: "sum 1"
 ```
+# supported cloud providers
+* all

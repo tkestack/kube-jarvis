@@ -7,6 +7,6 @@ import (
 )
 
 func TestNewStdout(t *testing.T) {
-	s := NewExporter(&export.CreateParam{}).(*Exporter)
+	s := NewExporter(&export.MetaData{}).(*Exporter)
 	export.RunExporterTest(t, s)
 }

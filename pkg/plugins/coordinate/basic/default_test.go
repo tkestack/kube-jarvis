@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
@@ -26,13 +28,17 @@ func TestNewDefault(t *testing.T) {
 	ctx := context.Background()
 	d := NewCoordinator(logger)
 
-	d.AddDiagnostic(example.NewDiagnostic(&diagnose.CreateParam{
-		Translator: translate.NewFake(),
-		Score:      10,
+	d.AddDiagnostic(example.NewDiagnostic(&diagnose.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Translator: translate.NewFake(),
+		},
+		Score: 10,
 	}))
-	d.AddEvaluate(sum.NewEvaluator(&evaluate.CreateParam{
-		Translator: translate.NewFake(),
+	d.AddEvaluate(sum.NewEvaluator(&evaluate.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Translator: translate.NewFake(),
+		},
 	}))
-	d.AddExporter(stdout.NewExporter(&export.CreateParam{}))
+	d.AddExporter(stdout.NewExporter(&export.MetaData{}))
 	d.Run(ctx)
 }

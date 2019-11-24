@@ -54,13 +54,13 @@ func (c *Coordinator) Run(ctx context.Context) {
 
 func (c *Coordinator) begin(ctx context.Context) {
 	for _, e := range c.exporters {
-		c.logIfError(e.CoordinateBegin(ctx), "%s export coordinate begin", e.Param().Name)
+		c.logIfError(e.CoordinateBegin(ctx), "%s export coordinate begin", e.Meta().Name)
 	}
 }
 
 func (c *Coordinator) finish(ctx context.Context) {
 	for _, e := range c.exporters {
-		c.logIfError(e.CoordinateFinish(ctx), "%s export coordinate finish", e.Param().Name)
+		c.logIfError(e.CoordinateFinish(ctx), "%s export coordinate finish", e.Meta().Name)
 	}
 }
 
@@ -81,26 +81,26 @@ func (c *Coordinator) diagnostic(ctx context.Context) {
 
 func (c *Coordinator) diagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) {
 	for _, e := range c.exporters {
-		c.logIfError(e.DiagnosticBegin(ctx, dia), "%s export diagnose begin", e.Param().Name)
+		c.logIfError(e.DiagnosticBegin(ctx, dia), "%s export diagnose begin", e.Meta().Name)
 	}
 }
 
 func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) {
 	for _, e := range c.exporters {
-		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Param().Name)
+		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Meta().Name)
 	}
 	for _, e := range c.evaluators {
-		c.logIfError(e.EvaDiagnostic(ctx, dia), "%s evaluate diagnose finish", e.Param().Name)
+		c.logIfError(e.EvaDiagnostic(ctx, dia), "%s evaluate diagnose finish", e.Meta().Name)
 	}
 }
 
 func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
 	for _, e := range c.exporters {
-		c.logIfError(e.DiagnosticResult(ctx, result), "%s export diagnose result", e.Param().Name)
+		c.logIfError(e.DiagnosticResult(ctx, result), "%s export diagnose result", e.Meta().Name)
 	}
 
 	for _, e := range c.evaluators {
-		c.logIfError(e.EvaDiagnosticResult(ctx, result), "%s evaluator evaluate diagnose result begin", e.Param().Name)
+		c.logIfError(e.EvaDiagnosticResult(ctx, result), "%s evaluator evaluate diagnose result begin", e.Meta().Name)
 	}
 }
 
@@ -108,7 +108,7 @@ func (c *Coordinator) evaluation(ctx context.Context) {
 	for _, eva := range c.evaluators {
 		result := eva.Result()
 		for _, exp := range c.exporters {
-			expName := exp.Param().Name
+			expName := exp.Meta().Name
 			c.logIfError(exp.EvaluationBegin(ctx, eva), "%s export evaluation begin", expName)
 			c.logIfError(exp.EvaluationResult(ctx, result), "%s export evaluation result", expName)
 			c.logIfError(exp.EvaluationFinish(ctx, eva), "%s export evaluation finish", expName)

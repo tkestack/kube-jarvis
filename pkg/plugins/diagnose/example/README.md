@@ -11,3 +11,5 @@ This is the example that shows how to write a diagnostic plugins
     config:
       message: "message"     #extra message
 ```
+# supported cloud providers
+* all

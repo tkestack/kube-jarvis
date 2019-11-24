@@ -56,7 +56,7 @@ func main() {
 		coordinator.AddEvaluate(e)
 	}
 
-	exporters, err := config.GetExporters(cli)
+	exporters, err := config.GetExporters(cli, trans)
 	if err != nil {
 		panic(err)
 	}

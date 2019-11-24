@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
@@ -55,10 +57,12 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	d := NewDiagnostic(&diagnose.CreateParam{
-		Translator: translate.NewFake(),
+	d := NewDiagnostic(&diagnose.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Cli:        cli,
+			Translator: translate.NewFake().WithModule("diagnostics.example"),
+		},
 		TotalScore: 10,
-		Cli:        cli,
 	})
 	result := d.StartDiagnose(context.Background())
 

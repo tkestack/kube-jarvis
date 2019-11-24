@@ -11,3 +11,6 @@ evaluators:
       name: "kube-jarvis" # ConfigMap name
       format: "json"
 ```
+
+# supported cloud providers
+* all
