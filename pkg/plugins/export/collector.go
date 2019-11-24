@@ -37,9 +37,14 @@ func (c *Collector) CoordinateBegin(ctx context.Context) error {
 	return nil
 }
 
+// CoordinateFinish export information about coordinator Run finish
+func (c *Collector) CoordinateFinish(ctx context.Context) error {
+	return nil
+}
+
 // DiagnosticBegin export information about a Diagnostic begin
 func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
-	param := dia.Param()
+	param := dia.Meta()
 	c.Diagnostics = append(c.Diagnostics, &DiagnosticResultItem{
 		Type:       param.Type,
 		Name:       param.Name,
@@ -65,13 +70,13 @@ func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnosti
 	if dLen == 0 {
 		return fmt.Errorf("no diagnostic found")
 	}
-	c.Diagnostics[dLen-1].Score = dia.Param().Score
+	c.Diagnostics[dLen-1].Score = dia.Meta().Score
 	return nil
 }
 
 // EvaluationBegin export information about a Evaluator begin
 func (c *Collector) EvaluationBegin(ctx context.Context, eva evaluate.Evaluator) error {
-	param := eva.Param()
+	param := eva.Meta()
 	c.Evaluations = append(c.Evaluations, &EvaluationResultItem{
 		Type: param.Type,
 		Name: param.Name,

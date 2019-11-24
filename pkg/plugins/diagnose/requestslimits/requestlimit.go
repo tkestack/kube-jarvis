@@ -12,21 +12,21 @@ import (
 
 // Diagnostic report the healthy of pods's resources requests limits configuration
 type Diagnostic struct {
-	*diagnose.CreateParam
+	*diagnose.MetaData
 	result chan *diagnose.Result
 }
 
 // NewDiagnostic return a requests-limits Diagnostic
-func NewDiagnostic(config *diagnose.CreateParam) diagnose.Diagnostic {
+func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	return &Diagnostic{
-		CreateParam: config,
-		result:      make(chan *diagnose.Result, 1000),
+		MetaData: meta,
+		result:   make(chan *diagnose.Result, 1000),
 	}
 }
 
-// Param return core attributes
-func (d *Diagnostic) Param() diagnose.CreateParam {
-	return *d.CreateParam
+// Meta return core attributes
+func (d *Diagnostic) Meta() diagnose.MetaData {
+	return *d.MetaData
 }
 
 // StartDiagnose return a result chan that will output results

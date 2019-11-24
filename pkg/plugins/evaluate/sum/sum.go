@@ -11,7 +11,7 @@ import (
 
 // Evaluator sum all diagnostic result score with different healthy level
 type Evaluator struct {
-	*evaluate.CreateParam
+	*evaluate.MetaData
 	TotalScore   float64
 	Score        float64
 	WarnScore    float64
@@ -21,15 +21,15 @@ type Evaluator struct {
 }
 
 // NewEvaluator return a sum Evaluator
-func NewEvaluator(param *evaluate.CreateParam) evaluate.Evaluator {
+func NewEvaluator(param *evaluate.MetaData) evaluate.Evaluator {
 	return &Evaluator{
-		CreateParam: param,
+		MetaData: param,
 	}
 }
 
-// Param return core attributes
-func (e *Evaluator) Param() evaluate.CreateParam {
-	return *e.CreateParam
+// Meta return core attributes
+func (e *Evaluator) Meta() evaluate.MetaData {
+	return *e.MetaData
 }
 
 // EvaDiagnosticResult evaluate one diagnostic result
@@ -51,8 +51,8 @@ func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Re
 
 // EvaDiagnostic evaluate one diagnostic finish
 func (e *Evaluator) EvaDiagnostic(ctx context.Context, dia diagnose.Diagnostic) error {
-	e.TotalScore += dia.Param().TotalScore
-	e.Score += dia.Param().Score
+	e.TotalScore += dia.Meta().TotalScore
+	e.Score += dia.Meta().Score
 	return nil
 }
 

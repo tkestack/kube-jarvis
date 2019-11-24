@@ -13,7 +13,7 @@ import (
 
 // Exporter save result to K8S ConfigMap with format "json" or  "yaml"
 type Exporter struct {
-	*export.CreateParam
+	*export.MetaData
 	export.Collector
 	Namespace string
 	Name      string
@@ -22,15 +22,15 @@ type Exporter struct {
 }
 
 // NewExporter return a config-map Exporter
-func NewExporter(p *export.CreateParam) export.Exporter {
+func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
-		CreateParam: p,
+		MetaData: m,
 	}
 }
 
-// Param return core attributes
-func (e *Exporter) Param() export.CreateParam {
-	return *e.CreateParam
+// Meta return core attributes
+func (e *Exporter) Meta() export.MetaData {
+	return *e.MetaData
 }
 
 // CoordinateFinish export save collected data to config-map

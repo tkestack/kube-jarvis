@@ -9,3 +9,5 @@ diagnostics:
   name: "pod requests-limits"
   score: 100
 ```
+# supported cloud providers
+* all

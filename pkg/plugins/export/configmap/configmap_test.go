@@ -3,6 +3,8 @@ package configmap
 import (
 	"testing"
 
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
@@ -10,8 +12,10 @@ import (
 
 func TestNewStdout(t *testing.T) {
 	cli := fake.NewSimpleClientset()
-	s := NewExporter(&export.CreateParam{
-		Cli: cli,
+	s := NewExporter(&export.MetaData{
+		CommonMetaData: plugins.CommonMetaData{
+			Cli: cli,
+		},
 	}).(*Exporter)
 
 	export.RunExporterTest(t, s)

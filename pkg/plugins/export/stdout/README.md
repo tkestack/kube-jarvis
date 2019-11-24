@@ -7,3 +7,6 @@ exporters:
   - type: "stdout"
     name: "stdout 1"
 ```
+
+# supported cloud providers
+* all
