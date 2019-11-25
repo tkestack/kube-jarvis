@@ -68,7 +68,7 @@ type Factory struct {
 	SupportedClouds []string
 }
 
-// Creators store all registered Diagnostic Creator
+// Factories store all registered Diagnostic Creator
 var Factories = map[string]Factory{}
 
 // Add register a Diagnostic Factory

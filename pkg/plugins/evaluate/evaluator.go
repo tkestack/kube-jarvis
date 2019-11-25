@@ -43,7 +43,7 @@ type Factory struct {
 	SupportedClouds []string
 }
 
-// Creators store all registered Evaluator Creator
+// Factories store all registered Evaluator Creator
 var Factories = map[string]Factory{}
 
 // Add register a Evaluator Factory

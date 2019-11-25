@@ -45,7 +45,7 @@ type Factory struct {
 	SupportedClouds []string
 }
 
-// Creators store all registered Exporter Creator
+// Factories store all registered Exporter Creator
 var Factories = map[string]Factory{}
 
 // Add register a Exporter Factory
