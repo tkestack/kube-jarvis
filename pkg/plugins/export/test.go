@@ -42,15 +42,15 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 			break
 		}
 
-		fatalIfError(t, exporter.DiagnosticResult(ctx, st))
-		fatalIfError(t, s.EvaDiagnosticResult(ctx, st))
+		fatalIfError(t, exporter.DiagnosticResult(ctx, d, st))
+		fatalIfError(t, s.EvaDiagnosticResult(ctx, d, st))
 	}
 
 	fatalIfError(t, exporter.DiagnosticFinish(ctx, d))
 	fatalIfError(t, s.EvaDiagnostic(ctx, d))
 	// Evaluation
 	fatalIfError(t, exporter.EvaluationBegin(ctx, s))
-	fatalIfError(t, exporter.EvaluationResult(ctx, s.Result()))
+	fatalIfError(t, exporter.EvaluationResult(ctx, s, s.Result()))
 	fatalIfError(t, exporter.EvaluationFinish(ctx, s))
 	fatalIfError(t, exporter.CoordinateFinish(ctx))
 }

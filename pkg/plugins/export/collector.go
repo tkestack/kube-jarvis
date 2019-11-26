@@ -12,6 +12,7 @@ import (
 
 // DiagnosticResultItem collect one diagnostic and it's results
 type DiagnosticResultItem struct {
+	Catalogue  diagnose.Catalogue
 	Type       string
 	Name       string
 	Score      float64
@@ -46,6 +47,7 @@ func (c *Collector) CoordinateFinish(ctx context.Context) error {
 func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
 	param := dia.Meta()
 	c.Diagnostics = append(c.Diagnostics, &DiagnosticResultItem{
+		Catalogue:  dia.Meta().Catalogue,
 		Type:       param.Type,
 		Name:       param.Name,
 		TotalScore: param.TotalScore,
@@ -54,7 +56,7 @@ func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic
 }
 
 // DiagnosticResult export information about one diagnose.Result
-func (c *Collector) DiagnosticResult(ctx context.Context, result *diagnose.Result) error {
+func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
 	dLen := len(c.Diagnostics)
 	if dLen == 0 {
 		return fmt.Errorf("no diagnostic found")
@@ -85,7 +87,7 @@ func (c *Collector) EvaluationBegin(ctx context.Context, eva evaluate.Evaluator)
 }
 
 // EvaluationResult export information about a Evaluator result
-func (c *Collector) EvaluationResult(ctx context.Context, result *evaluate.Result) error {
+func (c *Collector) EvaluationResult(ctx context.Context, eva evaluate.Evaluator, result *evaluate.Result) error {
 	eLen := len(c.Evaluations)
 	if eLen == 0 {
 		return fmt.Errorf("no evaluations found")

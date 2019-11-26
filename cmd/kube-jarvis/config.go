@@ -129,7 +129,13 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 // GetDiagnostics create all target Diagnostics
 func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
+	nameSet := map[string]bool{}
 	for _, config := range c.Diagnostics {
+		if nameSet[config.Name] {
+			return nil, fmt.Errorf("diagnostic [%s] name already exist", config.Name)
+		}
+		nameSet[config.Name] = true
+
 		factory, exist := diagnose.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
@@ -152,6 +158,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 				Cli:       cli,
 			},
 			TotalScore: config.Score,
+			Catalogue:  factory.Catalogue,
 		})
 
 		if err := InitObjViaYaml(d, config.Config); err != nil {
@@ -167,7 +174,13 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 // GetEvaluators create all target Evaluators
 func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Translator) ([]evaluate.Evaluator, error) {
 	es := make([]evaluate.Evaluator, 0)
+	nameSet := map[string]bool{}
 	for _, config := range c.Evaluators {
+		if nameSet[config.Name] {
+			return nil, fmt.Errorf("evaluator [%s] name already exist", config.Name)
+		}
+		nameSet[config.Name] = true
+
 		factory, exist := evaluate.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found evaluator type %s", config.Type)
@@ -182,7 +195,7 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 			CommonMetaData: plugins.CommonMetaData{
 				Translator: trans.WithModule("diagnostics." + config.Type),
 				Logger: c.Logger.With(map[string]string{
-					"diagnostic": config.Name,
+					"evaluator": config.Name,
 				}),
 				Type:      config.Type,
 				Name:      config.Name,
@@ -204,7 +217,13 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 // GetExporters create all target Exporters
 func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translator) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
+	nameSet := map[string]bool{}
 	for _, config := range c.Exporters {
+		if nameSet[config.Name] {
+			return nil, fmt.Errorf("exporter [%s] name already exist", config.Name)
+		}
+		nameSet[config.Name] = true
+
 		factory, exist := export.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found exporter type %s", config.Type)
@@ -248,6 +267,5 @@ func InitObjViaYaml(obj interface{}, config interface{}) error {
 	if err != nil {
 		return err
 	}
-
 	return yaml.Unmarshal(data, obj)
 }

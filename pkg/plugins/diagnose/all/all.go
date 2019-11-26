@@ -7,10 +7,12 @@ import (
 
 func init() {
 	diagnose.Add("example", diagnose.Factory{
-		Creator: example.NewDiagnostic,
+		Creator:   example.NewDiagnostic,
+		Catalogue: diagnose.CatalogueOther,
 	})
 
 	diagnose.Add("requests-limits", diagnose.Factory{
-		Creator: example.NewDiagnostic,
+		Creator:   example.NewDiagnostic,
+		Catalogue: diagnose.CatalogueClusterResource,
 	})
 }

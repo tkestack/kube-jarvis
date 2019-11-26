@@ -96,11 +96,11 @@ func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnos
 
 func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
 	for _, e := range c.exporters {
-		c.logIfError(e.DiagnosticResult(ctx, result), "%s export diagnose result", e.Meta().Name)
+		c.logIfError(e.DiagnosticResult(ctx, dia, result), "%s export diagnose result", e.Meta().Name)
 	}
 
 	for _, e := range c.evaluators {
-		c.logIfError(e.EvaDiagnosticResult(ctx, result), "%s evaluator evaluate diagnose result begin", e.Meta().Name)
+		c.logIfError(e.EvaDiagnosticResult(ctx, dia, result), "%s evaluator evaluate diagnose result begin", e.Meta().Name)
 	}
 }
 
@@ -110,7 +110,7 @@ func (c *Coordinator) evaluation(ctx context.Context) {
 		for _, exp := range c.exporters {
 			expName := exp.Meta().Name
 			c.logIfError(exp.EvaluationBegin(ctx, eva), "%s export evaluation begin", expName)
-			c.logIfError(exp.EvaluationResult(ctx, result), "%s export evaluation result", expName)
+			c.logIfError(exp.EvaluationResult(ctx, eva, result), "%s export evaluation result", expName)
 			c.logIfError(exp.EvaluationFinish(ctx, eva), "%s export evaluation finish", expName)
 		}
 	}

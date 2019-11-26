@@ -57,7 +57,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 	return d.result
 }
 
-func (d Diagnostic) diagnosePod(pod v12.Pod, score float64) {
+func (d *Diagnostic) diagnosePod(pod v12.Pod, score float64) {
 	for _, c := range pod.Spec.Containers {
 		if c.Resources.Limits.Memory().IsZero() ||
 			c.Resources.Limits.Cpu().IsZero() ||
