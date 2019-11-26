@@ -149,7 +149,16 @@ func (d *Diagnostic) sendCapacityGoodResult(name string, resource string, nTotal
 }
 
 func (d *Diagnostic) targetCapacity() (Capacity, int, error) {
-	nodes, err := d.Cli.CoreV1().Nodes().List(v1.ListOptions{})
+	label := labels.NewSelector()
+	req, err := labels.NewRequirement("node-role.kubernetes.io/master", selection.DoesNotExist, nil)
+	if err != nil {
+		return Capacity{}, 0, err
+	}
+
+	label = label.Add(*req)
+	nodes, err := d.Cli.CoreV1().Nodes().List(v1.ListOptions{
+		LabelSelector: label.String(),
+	})
 	if err != nil {
 		return Capacity{}, 0, err
 	}
