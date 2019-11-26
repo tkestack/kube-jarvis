@@ -43,10 +43,11 @@ type Config struct {
 	}
 
 	Diagnostics []struct {
-		Type   string
-		Name   string
-		Score  float64
-		Config interface{}
+		Type      string
+		Name      string
+		Score     float64
+		Catalogue diagnose.Catalogue
+		Config    interface{}
 	}
 
 	Evaluators []struct {
@@ -146,6 +147,11 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			continue
 		}
 
+		catalogue := config.Catalogue
+		if catalogue == "" {
+			catalogue = factory.Catalogue
+		}
+
 		d := factory.Creator(&diagnose.MetaData{
 			CommonMetaData: plugins.CommonMetaData{
 				Translator: trans.WithModule("diagnostics." + config.Type),
@@ -158,7 +164,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 				Cli:       cli,
 			},
 			TotalScore: config.Score,
-			Catalogue:  factory.Catalogue,
+			Catalogue:  catalogue,
 		})
 
 		if err := InitObjViaYaml(d, config.Config); err != nil {
