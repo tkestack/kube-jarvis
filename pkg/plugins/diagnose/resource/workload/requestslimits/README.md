@@ -1,6 +1,6 @@
 # requests-limits diagnostic
 
-This diagnostic report the healthy of pods's resources requests limits configuration  
+This diagnostic report the healthy of workload's resources requests limits configuration  
 
 # config
 ```yaml

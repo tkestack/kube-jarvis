@@ -11,6 +11,11 @@ import (
 	"github.com/fatih/color"
 )
 
+const (
+	// ExporterType is type name of this Exporter
+	ExporterType = "stdout"
+)
+
 // Exporter just print information to logger with a simple format
 type Exporter struct {
 	*export.MetaData
@@ -21,11 +26,6 @@ func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
 		MetaData: m,
 	}
-}
-
-// Meta return core attributes
-func (e *Exporter) Meta() export.MetaData {
-	return *e.MetaData
 }
 
 // CoordinateBegin export information about coordinator Run begin
@@ -59,6 +59,8 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic
 	} else {
 		var pt func(format string, a ...interface{})
 		switch result.Level {
+		case diagnose.HealthyLevelGood:
+			pt = color.Green
 		case diagnose.HealthyLevelWarn:
 			pt = color.Yellow
 		case diagnose.HealthyLevelRisk:
@@ -70,7 +72,7 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic
 				fmt.Printf(format, a...)
 			}
 		}
-		pt("[%s] %s -> %s\n", result.Level, result.Name, result.ObjName)
+		pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
 		pt("    Score : -%.2f\n", result.Score)
 		pt("    Describe : %s\n", result.Desc)
 		pt("    Proposal : %s\n", result.Proposal)

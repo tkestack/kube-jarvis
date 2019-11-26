@@ -15,9 +15,15 @@ type MetaData struct {
 	plugins.CommonMetaData
 }
 
+// Meta return core MetaData
+// this function can be use for struct implement Evaluator interface
+func (m *MetaData) Meta() MetaData {
+	return *m
+}
+
 // Result is the result of evaluation
 type Result struct {
-	// Name is the short description of evaluation result
+	// Title is the short description of evaluation result
 	Name translate.Message
 	// Desc is the full description of evaluation result
 	Desc translate.Message
@@ -49,18 +55,4 @@ var Factories = map[string]Factory{}
 // Add register a Evaluator Factory
 func Add(typ string, f Factory) {
 	Factories[typ] = f
-}
-
-// IsSupported return true if cloud type is supported by Evaluator
-func (f *Factory) IsSupported(cloud string) bool {
-	if len(f.SupportedClouds) == 0 {
-		return true
-	}
-
-	for _, c := range f.SupportedClouds {
-		if c == cloud {
-			return true
-		}
-	}
-	return false
 }

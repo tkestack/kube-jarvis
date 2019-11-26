@@ -10,6 +10,11 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// DiagnosticType is type name of this Diagnostic
+	DiagnosticType = "requests-limits"
+)
+
 // Diagnostic report the healthy of pods's resources requests limits configuration
 type Diagnostic struct {
 	*diagnose.MetaData
@@ -24,14 +29,8 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
-// Meta return core attributes
-func (d *Diagnostic) Meta() diagnose.MetaData {
-	return *d.MetaData
-}
-
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
-	d.Score = d.TotalScore
 	go func() {
 		defer close(d.result)
 		defer func() {
@@ -39,6 +38,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 				d.result <- &diagnose.Result{
 					Error: fmt.Errorf("%v", err),
 				}
+				d.Score = 0
 			}
 		}()
 
@@ -47,6 +47,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 			d.result <- &diagnose.Result{
 				Error: err,
 			}
+			d.Score = 0
 			return
 		}
 
@@ -65,7 +66,7 @@ func (d *Diagnostic) diagnosePod(pod v12.Pod, score float64) {
 			c.Resources.Requests.Cpu().IsZero() {
 			d.result <- &diagnose.Result{
 				Level:    diagnose.HealthyLevelWarn,
-				Name:     "Pods Requests Limits",
+				Title:    "Pods Requests Limits",
 				ObjName:  fmt.Sprintf("%s:%s", pod.Namespace, pod.Name),
 				Desc:     d.Translator.Message("desc", nil),
 				Score:    score,

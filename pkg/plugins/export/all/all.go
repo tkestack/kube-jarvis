@@ -7,10 +7,10 @@ import (
 )
 
 func init() {
-	export.Add("stdout", export.Factory{
+	export.Add(stdout.ExporterType, export.Factory{
 		Creator: stdout.NewExporter,
 	})
-	export.Add("config-map", export.Factory{
+	export.Add(configmap.ExporterType, export.Factory{
 		Creator: configmap.NewExporter,
 	})
 }

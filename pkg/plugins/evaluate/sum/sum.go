@@ -9,6 +9,11 @@ import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
+const (
+	// EvaluatorType is type name of this Evaluator
+	EvaluatorType = "sum"
+)
+
 // Evaluator sum all diagnostic result score with different healthy level
 type Evaluator struct {
 	*evaluate.MetaData
@@ -25,11 +30,6 @@ func NewEvaluator(param *evaluate.MetaData) evaluate.Evaluator {
 	return &Evaluator{
 		MetaData: param,
 	}
-}
-
-// Meta return core attributes
-func (e *Evaluator) Meta() evaluate.MetaData {
-	return *e.MetaData
 }
 
 // EvaDiagnosticResult evaluate one diagnostic result
