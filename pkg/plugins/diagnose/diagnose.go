@@ -22,9 +22,27 @@ const (
 	HealthyLevelSerious = "serious"
 )
 
+// Catalogue is the catalogue type of a Diagnostic
+type Catalogue string
+
+const (
+	// CatalogueCluster Diagnostic diagnose cluster global states
+	CatalogueCluster = "cluster"
+	// CatalogueNode Diagnostics diagnose nodes states
+	CatalogueNode = "node"
+	// CatalogueResource Diagnostics diagnose cluster resources states
+	CatalogueClusterResource = "cluster-resource"
+	// CatalogueCloudResource Diagnostics diagnose cloud resources states
+	CatalogueCloudResource = "cloud-resources"
+	// CatalogueOther Diagnostics have no certain catalogue
+	CatalogueOther = "other"
+)
+
 // MetaData contains core attributes of a Diagnostic
 type MetaData struct {
 	plugins.CommonMetaData
+	// Catalogue is the catalogue type of the Diagnostic
+	Catalogue Catalogue
 	// TotalScore is the score that this diagnostic has
 	TotalScore float64
 	// Score is th score result of this diagnostic
@@ -66,6 +84,8 @@ type Factory struct {
 	Creator func(d *MetaData) Diagnostic
 	// SupportedClouds indicate what cloud providers will be supported of this diagnostic
 	SupportedClouds []string
+	// Catalogue is the catalogue type of the Diagnostic
+	Catalogue Catalogue
 }
 
 // Factories store all registered Diagnostic Creator

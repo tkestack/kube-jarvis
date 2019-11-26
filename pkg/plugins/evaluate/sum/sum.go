@@ -33,7 +33,7 @@ func (e *Evaluator) Meta() evaluate.MetaData {
 }
 
 // EvaDiagnosticResult evaluate one diagnostic result
-func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, result *diagnose.Result) error {
+func (e *Evaluator) EvaDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
 	if result.Error != nil {
 		e.ErrorTotal++
 	} else {

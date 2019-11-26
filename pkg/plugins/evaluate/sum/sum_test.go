@@ -23,28 +23,35 @@ func TestNewSumEva(t *testing.T) {
 		},
 	}).(*Evaluator)
 	ctx := context.Background()
-	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
+	d := example.NewDiagnostic(&diagnose.MetaData{
+		CommonMetaData: plugins.CommonMetaData{},
+		Catalogue:      "",
+		TotalScore:     0,
+		Score:          0,
+	})
+
+	if err := s.EvaDiagnosticResult(ctx, d, &diagnose.Result{
 		Score: 1,
 		Level: diagnose.HealthyLevelRisk,
 	}); err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
+	if err := s.EvaDiagnosticResult(ctx, d, &diagnose.Result{
 		Score: 2,
 		Level: diagnose.HealthyLevelWarn,
 	}); err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
+	if err := s.EvaDiagnosticResult(ctx, d, &diagnose.Result{
 		Score: 3,
 		Level: diagnose.HealthyLevelSerious,
 	}); err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if err := s.EvaDiagnosticResult(ctx, &diagnose.Result{
+	if err := s.EvaDiagnosticResult(ctx, d, &diagnose.Result{
 		Score: 1,
 		Error: fmt.Errorf("test"),
 	}); err != nil {

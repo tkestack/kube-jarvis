@@ -53,7 +53,7 @@ func (e *Exporter) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic
 }
 
 // DiagnosticResult export information about one diagnose.Result
-func (e *Exporter) DiagnosticResult(ctx context.Context, result *diagnose.Result) error {
+func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
 	if result.Error != nil {
 		color.HiRed("[!!ERROR] %s\n", result.Error.Error())
 	} else {
@@ -95,7 +95,7 @@ func (e *Exporter) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator)
 }
 
 // EvaluationResult export information about a Evaluator result
-func (e *Exporter) EvaluationResult(ctx context.Context, result *evaluate.Result) error {
+func (e *Exporter) EvaluationResult(ctx context.Context, eva evaluate.Evaluator, result *evaluate.Result) error {
 	fmt.Printf("[%s]\n", result.Name)
 	fmt.Printf("    Describe : %s\n", result.Desc)
 	return nil
