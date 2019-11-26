@@ -37,6 +37,7 @@ diagnostics: #
   - type: "example"
     name: "example 1"
     score: 10
+    catalogue: "c1" # every diagnostic has a default catalogue, you can use this field to change it
     config:
       message: "message"
 
