@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	evaluate.Add("sum", evaluate.Factory{
+	evaluate.Add(sum.EvaluatorType, evaluate.Factory{
 		Creator: sum.NewEvaluator,
 	})
 }

@@ -11,6 +11,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	// ExporterType is type name of this Exporter
+	ExporterType = "config-map"
+)
+
 // Exporter save result to K8S ConfigMap with format "json" or  "yaml"
 type Exporter struct {
 	*export.MetaData
@@ -26,11 +31,6 @@ func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
 		MetaData: m,
 	}
-}
-
-// Meta return core attributes
-func (e *Exporter) Meta() export.MetaData {
-	return *e.MetaData
 }
 
 // CoordinateFinish export save collected data to config-map

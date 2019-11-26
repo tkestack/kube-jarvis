@@ -15,6 +15,12 @@ type MetaData struct {
 	plugins.CommonMetaData
 }
 
+// Meta return core MetaData
+// this function can be use for struct implement Exporter interface
+func (m *MetaData) Meta() MetaData {
+	return *m
+}
+
 // Exporter export all steps and results with special way or special format
 type Exporter interface {
 	// Meta return core attributes
@@ -51,18 +57,4 @@ var Factories = map[string]Factory{}
 // Add register a Exporter Factory
 func Add(typ string, f Factory) {
 	Factories[typ] = f
-}
-
-// IsSupported return true if cloud type is supported by Exporter
-func (f *Factory) IsSupported(cloud string) bool {
-	if len(f.SupportedClouds) == 0 {
-		return true
-	}
-
-	for _, c := range f.SupportedClouds {
-		if c == cloud {
-			return true
-		}
-	}
-	return false
 }

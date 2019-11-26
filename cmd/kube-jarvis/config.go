@@ -132,6 +132,10 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 	ds := make([]diagnose.Diagnostic, 0)
 	nameSet := map[string]bool{}
 	for _, config := range c.Diagnostics {
+		if config.Name == "" {
+			config.Name = config.Type
+		}
+
 		if nameSet[config.Name] {
 			return nil, fmt.Errorf("diagnostic [%s] name already exist", config.Name)
 		}
@@ -142,7 +146,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
 		}
 
-		if !factory.IsSupported(c.Global.Cloud) {
+		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
 			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
 			continue
 		}
@@ -164,6 +168,7 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 				Cli:       cli,
 			},
 			TotalScore: config.Score,
+			Score:      config.Score,
 			Catalogue:  catalogue,
 		})
 
@@ -182,6 +187,10 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 	es := make([]evaluate.Evaluator, 0)
 	nameSet := map[string]bool{}
 	for _, config := range c.Evaluators {
+		if config.Name == "" {
+			config.Name = config.Type
+		}
+
 		if nameSet[config.Name] {
 			return nil, fmt.Errorf("evaluator [%s] name already exist", config.Name)
 		}
@@ -192,14 +201,14 @@ func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Transla
 			return nil, fmt.Errorf("can not found evaluator type %s", config.Type)
 		}
 
-		if !factory.IsSupported(c.Global.Cloud) {
+		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
 			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
 			continue
 		}
 
 		e := factory.Creator(&evaluate.MetaData{
 			CommonMetaData: plugins.CommonMetaData{
-				Translator: trans.WithModule("diagnostics." + config.Type),
+				Translator: trans.WithModule("evaluators." + config.Type),
 				Logger: c.Logger.With(map[string]string{
 					"evaluator": config.Name,
 				}),
@@ -225,6 +234,10 @@ func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translat
 	es := make([]export.Exporter, 0)
 	nameSet := map[string]bool{}
 	for _, config := range c.Exporters {
+		if config.Name == "" {
+			config.Name = config.Type
+		}
+
 		if nameSet[config.Name] {
 			return nil, fmt.Errorf("exporter [%s] name already exist", config.Name)
 		}
@@ -235,7 +248,7 @@ func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translat
 			return nil, fmt.Errorf("can not found exporter type %s", config.Type)
 		}
 
-		if !factory.IsSupported(c.Global.Cloud) {
+		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
 			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
 			continue
 		}

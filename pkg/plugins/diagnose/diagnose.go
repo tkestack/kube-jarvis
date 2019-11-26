@@ -26,10 +26,11 @@ const (
 type Catalogue string
 
 const (
-	// CatalogueCluster Diagnostic diagnose cluster global status
-	CatalogueCluster = "cluster"
-	// CatalogueNode Diagnostics diagnose nodes status
-	CatalogueNode = "node"
+	// CatalogueMaster Diagnostic diagnose controller panel status
+	// master nodes status should belong to this catalogue
+	CatalogueMaster = "master"
+	// CatalogueWorker Diagnostics diagnose worker nodes status
+	CatalogueWorker = "worker"
 	// CatalogueResource Diagnostics diagnose cluster resources status
 	CatalogueResource = "resource"
 	// CatalogueOther Diagnostics have no certain catalogue
@@ -48,12 +49,18 @@ type MetaData struct {
 	Score float64
 }
 
+// Meta return core MetaData
+// this function can be use for struct implement Diagnostic interface
+func (m *MetaData) Meta() MetaData {
+	return *m
+}
+
 // Result is a diagnostic result item
 type Result struct {
 	// Level is the healthy status
 	Level HealthyLevel
-	// Name is the short description of Result,that is, the title of Result
-	Name translate.Message
+	// Title is the short description of Result,that is, the title of Result
+	Title translate.Message
 	// ObjName is the name of diagnosed object
 	ObjName string
 	// Desc is the full description of Result
@@ -92,18 +99,4 @@ var Factories = map[string]Factory{}
 // Add register a Diagnostic Factory
 func Add(typ string, f Factory) {
 	Factories[typ] = f
-}
-
-// IsSupported return true if cloud type is supported by Diagnostic
-func (f *Factory) IsSupported(cloud string) bool {
-	if len(f.SupportedClouds) == 0 {
-		return true
-	}
-
-	for _, c := range f.SupportedClouds {
-		if c == cloud {
-			return true
-		}
-	}
-	return false
 }

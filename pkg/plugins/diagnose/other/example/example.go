@@ -6,6 +6,11 @@ import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
+const (
+	// DiagnosticType is type name of this Diagnostic
+	DiagnosticType = "example"
+)
+
 // Diagnostic is a example diagnostic shows how to write a diagnostic
 type Diagnostic struct {
 	*diagnose.MetaData
@@ -21,18 +26,13 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
-// Meta return core attributes
-func (d *Diagnostic) Meta() diagnose.MetaData {
-	return *d.MetaData
-}
-
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 	go func() {
 		defer close(d.result)
 		d.result <- &diagnose.Result{
 			Level:   diagnose.HealthyLevelRisk,
-			Name:    "example",
+			Title:   "example",
 			ObjName: "example-obj",
 			Desc: d.Translator.Message("message", map[string]interface{}{
 				"Mes": d.Message,

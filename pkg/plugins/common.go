@@ -16,8 +16,22 @@ type CommonMetaData struct {
 	Logger logger.Logger
 	// Type is the type of Diagnostic
 	Type string
-	// Name is the custom name of Diagnostic
+	// Title is the custom name of Diagnostic
 	Name string
 	// CloudType indicate the type of cloud provider
 	CloudType string
+}
+
+// IsSupportedCloud return true if cloud type is supported
+func IsSupportedCloud(supported []string, cloud string) bool {
+	if len(supported) == 0 {
+		return true
+	}
+
+	for _, c := range supported {
+		if c == cloud {
+			return true
+		}
+	}
+	return false
 }

@@ -1,0 +1,4 @@
+capacity-title: "Master 节点 {{.Resource}} 配置"
+capacity-desc: "Master({{.NodeName}}) {{.CurValue}} {{.Resource}} 不足以支持 {{.NodeTotal}} 节点的集群"
+capacity-proposal: "拥有 {{.NodeTotal}} 节点的集群至少需要 {{.TargetValue}} {{.Resource}}"
+capacity-good-desc: "Master({{.NodeName}}) {{.CurVal}} {{.Resource}} 足以支持 {{.NodeTotal}} 节点的集群"

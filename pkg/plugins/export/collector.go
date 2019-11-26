@@ -58,10 +58,6 @@ func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic
 // DiagnosticResult export information about one diagnose.Result
 func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
 	dLen := len(c.Diagnostics)
-	if dLen == 0 {
-		return fmt.Errorf("no diagnostic found")
-	}
-
 	c.Diagnostics[dLen-1].Results = append(c.Diagnostics[dLen-1].Results, *result)
 	return nil
 }
@@ -69,9 +65,6 @@ func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnosti
 // DiagnosticFinish export information about a Diagnostic finished
 func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
 	dLen := len(c.Diagnostics)
-	if dLen == 0 {
-		return fmt.Errorf("no diagnostic found")
-	}
 	c.Diagnostics[dLen-1].Score = dia.Meta().Score
 	return nil
 }
@@ -89,10 +82,6 @@ func (c *Collector) EvaluationBegin(ctx context.Context, eva evaluate.Evaluator)
 // EvaluationResult export information about a Evaluator result
 func (c *Collector) EvaluationResult(ctx context.Context, eva evaluate.Evaluator, result *evaluate.Result) error {
 	eLen := len(c.Evaluations)
-	if eLen == 0 {
-		return fmt.Errorf("no evaluations found")
-	}
-
 	c.Evaluations[eLen-1].Result = *result
 	return nil
 }
