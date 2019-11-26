@@ -1,4 +1,4 @@
 capacity-title: "Master node {{.Resource}} capacity"
 capacity-desc: "Master({{.NodeName}}) with {{.CurValue}} {{.Resource}} is insufficient for cluster with {{.NodeTotal}} nodes"
 capacity-proposal: "{{.TargetValue}} {{.Resource}} needed for cluster with {{.NodeTotal}} nodes"
-capacity-good-desc: "Master({{.NodeName}}) with {{.CurVal}} {{.Resource}} is sufficient for cluster with {{.NodeTotal}} nodes"
+capacity-good-desc: "Master({{.NodeName}}) with {{.CurValue}} {{.Resource}} is sufficient for cluster with {{.NodeTotal}} nodes"
