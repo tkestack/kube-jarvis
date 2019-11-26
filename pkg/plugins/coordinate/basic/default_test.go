@@ -18,7 +18,7 @@ import (
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/sum"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/other/example"
 
 	logger2 "github.com/RayHuangCN/kube-jarvis/pkg/logger"
 )

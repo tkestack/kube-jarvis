@@ -2,7 +2,8 @@ package all
 
 import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/other/example"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
 )
 
 func init() {
@@ -12,7 +13,7 @@ func init() {
 	})
 
 	diagnose.Add("requests-limits", diagnose.Factory{
-		Creator:   example.NewDiagnostic,
-		Catalogue: diagnose.CatalogueClusterResource,
+		Creator:   requestslimits.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
 	})
 }

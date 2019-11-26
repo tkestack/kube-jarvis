@@ -26,14 +26,12 @@ const (
 type Catalogue string
 
 const (
-	// CatalogueCluster Diagnostic diagnose cluster global states
+	// CatalogueCluster Diagnostic diagnose cluster global status
 	CatalogueCluster = "cluster"
-	// CatalogueNode Diagnostics diagnose nodes states
+	// CatalogueNode Diagnostics diagnose nodes status
 	CatalogueNode = "node"
-	// CatalogueResource Diagnostics diagnose cluster resources states
-	CatalogueClusterResource = "cluster-resource"
-	// CatalogueCloudResource Diagnostics diagnose cloud resources states
-	CatalogueCloudResource = "cloud-resources"
+	// CatalogueResource Diagnostics diagnose cluster resources status
+	CatalogueResource = "resource"
 	// CatalogueOther Diagnostics have no certain catalogue
 	CatalogueOther = "other"
 )

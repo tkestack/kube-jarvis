@@ -7,7 +7,7 @@ import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/example"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/other/example"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/sum"
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
