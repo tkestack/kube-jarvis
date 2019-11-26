@@ -5,6 +5,14 @@
 
 kube-jarvis is a tool used to check the health of the kubernetes cluster
 
+# Feature
+
+* Comprehensively check the cluster health status
+* Support a variety of cloud manufacturers
+* Highly configurable
+* Highly extensible
+* Description statements can be customized
+
 # Quick start
 ```bash
 go build -o kube-jarvis cmd/kube-jarvis/*.go
