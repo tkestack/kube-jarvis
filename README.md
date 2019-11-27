@@ -35,11 +35,11 @@ coordinator:
 # diagnostics diagnose special aspects of cluster
 diagnostics: #
   - type: "example"
-    name: "example 1"
-    score: 10
+    name: "example 1" # the name of this item, default to the same as type 
+    score: 10 # default 100 
     catalogue: "c1" # every diagnostic has a default catalogue, you can use this field to change it
-    config:
-      message: "message"
+    config: # plugin special config
+      message: "message" 
 
 # evaluators evaluate all diagnose results
 evaluators:
