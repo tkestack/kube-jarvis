@@ -3,26 +3,20 @@ global:
   lang: "en"
   cloud: "qcloud"
   cluster:
-    kubeconfig: "fake"
+    kubeconfig: ""
 
 coordinator:
   type: "default"
 
 diagnostics:
-  - type: "example"
-    name: "example 1"
-    score: 100
-    config:
-      message: "message"
-
+  # items for master
+  - type: "master-capacity"
+  # items for resources
   - type: "requests-limits"
-    name: "pod requests-limits"
-    score: 100
+
 
 evaluators:
   - type: "sum"
-    name: "sum 1"
 
 exporters:
   - type: "stdout"
-    name: "stdout 1"

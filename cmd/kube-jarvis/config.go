@@ -136,6 +136,10 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			config.Name = config.Type
 		}
 
+		if config.Score == 0 {
+			config.Score = 100
+		}
+
 		if nameSet[config.Name] {
 			return nil, fmt.Errorf("diagnostic [%s] name already exist", config.Name)
 		}
