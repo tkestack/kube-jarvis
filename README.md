@@ -14,42 +14,38 @@ kube-jarvis is a tool used to check the health of the kubernetes cluster
 * Description statements can be customized
 
 # Quick start
+On any node has "/$HOME/.kube/config"
 ```bash
-go build -o kube-jarvis cmd/kube-jarvis/*.go
-./kube-jarvis --config conf/default.yaml
+wget -O -  https://kube-jarvis-1251707795.cos.ap-guangzhou.myqcloud.com/run.sh | bash
 ```
 
 # Config struct
 ```yaml
 global:
-  trans: "translation" #translation file root director
-  lang: "en"  #target language
-  cloud: "qcloud" #cloud-provider type
-  cluster:
-    kubeconfig: "fake" #cluster kubeconfig filepath,use empty string to enable in cluster model
+  trans: "translation"
+  lang: "en"
 
-# coordinator knows how to run all diagnostics, evaluators and exporters
-coordinator:
-  type: "default" 
+cluster:
+  # see detail of custom cluster here:
+  type: "custom"
+  kubeconfig: ""
 
-# diagnostics diagnose special aspects of cluster
-diagnostics: #
-  - type: "example"
-    name: "example 1" # the name of this item, default to the same as type 
-    score: 10 # default 100 
-    catalogue: "c1" # every diagnostic has a default catalogue, you can use this field to change it
-    config: # plugin special config
-      message: "message" 
+diagnostics:
+  - type: "master-capacity"
+  - type: "master-apiserver"
+  - type: "node-sys"
+  - type: "requests-limits"
 
-# evaluators evaluate all diagnose results
-evaluators:
-  - type: "sum"
-    name: "sum 1"
-
-# exporters exporte all diagnostic result and evaluation results
 exporters:
   - type: "stdout"
-    name: "stdout 1"
+
+  - type: "file"
+    name: "for json"
+    config:
+      format: "json"
+      path: "result.json"
+
+
 ```
 
 # Run in docker
