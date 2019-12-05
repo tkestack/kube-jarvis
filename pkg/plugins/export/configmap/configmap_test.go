@@ -13,11 +13,9 @@ import (
 func TestNewStdout(t *testing.T) {
 	cli := fake.NewSimpleClientset()
 	s := NewExporter(&export.MetaData{
-		CommonMetaData: plugins.CommonMetaData{
-			Cli: cli,
-		},
+		CommonMetaData: plugins.CommonMetaData{},
 	}).(*Exporter)
-
+	s.Cli = cli
 	export.RunExporterTest(t, s)
 
 	cm, err := cli.CoreV1().ConfigMaps(s.Namespace).Get(s.Name, metav1.GetOptions{})
@@ -28,8 +26,10 @@ func TestNewStdout(t *testing.T) {
 	data := cm.Data[s.DataKey]
 	t.Logf(data)
 
-	c := export.Collector{}
-	if err := c.Unmarshal(s.Format, []byte(data)); err != nil {
+	c := export.Collector{
+		Format: s.Format,
+	}
+	if err := c.Unmarshal([]byte(data)); err != nil {
 		t.Fatalf(err.Error())
 	}
 
@@ -41,11 +41,4 @@ func TestNewStdout(t *testing.T) {
 		t.Fatalf("no diagnostics results found")
 	}
 
-	if len(c.Evaluations) < 1 {
-		t.Fatalf("no Evaluations found")
-	}
-
-	if c.Evaluations[0].Result.Name == "" {
-		t.Fatalf("empty evalution result")
-	}
 }

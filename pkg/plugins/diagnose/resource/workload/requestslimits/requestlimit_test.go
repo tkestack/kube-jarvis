@@ -2,6 +2,7 @@ package requestslimits
 
 import (
 	"context"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
 	"testing"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
@@ -12,11 +13,12 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/client-go/kubernetes/fake"
 )
 
 func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
-	cli := fake.NewSimpleClientset()
+	res := cluster.NewResources()
+	res.Pods = &v1.PodList{}
+
 	kubeDNSlimit := make(map[v1.ResourceName]resource.Quantity)
 	kubeDNSRequest := make(map[v1.ResourceName]resource.Quantity)
 
@@ -25,7 +27,7 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 	kubeDNSRequest[v1.ResourceCPU] = resource.MustParse("100m")
 	kubeDNSRequest[v1.ResourceMemory] = resource.MustParse("30M")
 
-	pod := &v1.Pod{}
+	pod := v1.Pod{}
 	pod.Name = "pod1"
 	pod.Namespace = "default"
 	pod.Spec.Containers = []v1.Container{
@@ -38,12 +40,9 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 			},
 		},
 	}
+	res.Pods.Items = append(res.Pods.Items, pod)
 
-	if _, err := cli.CoreV1().Pods("default").Create(pod); err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	pod = &v1.Pod{}
+	pod = v1.Pod{}
 	pod.Name = "pod2"
 	pod.Namespace = "default"
 	pod.Spec.Containers = []v1.Container{
@@ -52,19 +51,21 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 			Image: "1",
 		},
 	}
-
-	if _, err := cli.CoreV1().Pods("default").Create(pod); err != nil {
-		t.Fatalf(err.Error())
-	}
+	res.Pods.Items = append(res.Pods.Items, pod)
 
 	d := NewDiagnostic(&diagnose.MetaData{
 		CommonMetaData: plugins.CommonMetaData{
-			Cli:        cli,
-			Translator: translate.NewFake().WithModule("diagnostics.example"),
+			Translator: translate.NewFake(),
 		},
-		TotalScore: 10,
 	})
-	result := d.StartDiagnose(context.Background())
+
+	if err := d.Init(); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	result := d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
+		Resources: res,
+	})
 
 	total := 0
 	for {

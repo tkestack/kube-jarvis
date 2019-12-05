@@ -1,0 +1,3 @@
+apiserver-para-title: "Kube-apiserver Parameters"
+apiserver-para-desc: "Node {{.Node}} Kube-apiserver Parameters[ {{.Name}}={{.CurVal}} ] is not recommended"
+apiserver-para-proposal: "Set {{.Name}}={{.TargetVal}}"

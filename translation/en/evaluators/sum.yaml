@@ -1,1 +1,0 @@
-result: "Score : {{ .Score }}, WarnScore : {{ .WarnScore }}, RiskScore : {{ .RiskScore }}, SeriousScore : {{ .SeriousScore }} , ErrorTotal : {{ .ErrorTotal }}"

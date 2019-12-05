@@ -8,8 +8,6 @@ import (
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/other/example"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/sum"
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 )
 
@@ -23,19 +21,10 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 			Translator: translate.NewFake(),
 			Type:       "example",
 		},
-		TotalScore: 10,
 	})
-	s := sum.NewEvaluator(&evaluate.MetaData{
-		CommonMetaData: plugins.CommonMetaData{
-			Translator: translate.NewFake(),
-			Type:       "sum",
-			Name:       "sum",
-		},
-	})
-
 	// Diagnostic
 	fatalIfError(t, exporter.DiagnosticBegin(ctx, d))
-	result := d.StartDiagnose(ctx)
+	result := d.StartDiagnose(ctx, diagnose.StartDiagnoseParam{})
 	for {
 		st, ok := <-result
 		if !ok {
@@ -43,15 +32,10 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 		}
 
 		fatalIfError(t, exporter.DiagnosticResult(ctx, d, st))
-		fatalIfError(t, s.EvaDiagnosticResult(ctx, d, st))
 	}
 
 	fatalIfError(t, exporter.DiagnosticFinish(ctx, d))
-	fatalIfError(t, s.EvaDiagnostic(ctx, d))
 	// Evaluation
-	fatalIfError(t, exporter.EvaluationBegin(ctx, s))
-	fatalIfError(t, exporter.EvaluationResult(ctx, s, s.Result()))
-	fatalIfError(t, exporter.EvaluationFinish(ctx, s))
 	fatalIfError(t, exporter.CoordinateFinish(ctx))
 }
 

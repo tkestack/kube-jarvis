@@ -3,14 +3,13 @@ package capacity
 import (
 	"context"
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/cloud"
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 )
 
@@ -85,9 +84,9 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("Pass=%v", cs.Pass), func(t *testing.T) {
-			cli := fake.NewSimpleClientset()
+			res := cluster.NewResources()
 			// create master
-			node := &v1.Node{}
+			node := v1.Node{}
 			node.Name = "master"
 			node.Labels = map[string]string{
 				"node-role.kubernetes.io/master": "true",
@@ -96,37 +95,35 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 				v1.ResourceCPU:    cs.MasterCpu,
 				v1.ResourceMemory: cs.MasterMemory,
 			}
-
-			if _, err := cli.CoreV1().Nodes().Create(node); err != nil {
-				t.Fatalf(err.Error())
-			}
+			res.Nodes = &v1.NodeList{Items: []v1.Node{node}}
 
 			// create nodes
 			for i := 0; i < cs.NodeTotal; i++ {
-				node := &v1.Node{}
+				node := v1.Node{}
 				node.Name = fmt.Sprintf("node-%d", i)
-				if _, err := cli.CoreV1().Nodes().Create(node); err != nil {
-					t.Fatalf(err.Error())
-				}
+				res.Nodes.Items = append(res.Nodes.Items, node)
 			}
 
 			// start diagnostic
-			trans := translate.NewFake()
 			d := NewDiagnostic(&diagnose.MetaData{
 				CommonMetaData: plugins.CommonMetaData{
-					Cli:        cli,
-					Translator: trans,
+					Translator: translate.NewFake(),
 					Logger:     logger.NewLogger(),
 					Type:       DiagnosticType,
 					Name:       DiagnosticType,
-					CloudType:  cloud.Qcloud,
 				},
-				Catalogue:  diagnose.CatalogueMaster,
-				TotalScore: 100,
+				Catalogue: diagnose.CatalogueMaster,
 			}).(*Diagnostic)
 			d.Capacities = cs.Capacities
 
-			d.StartDiagnose(context.Background())
+			if err := d.Init(); err != nil {
+				t.Fatalf(err.Error())
+			}
+
+			d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
+				CloudType: "fake",
+				Resources: res,
+			})
 			total := 0
 			for {
 				r, ok := <-d.result

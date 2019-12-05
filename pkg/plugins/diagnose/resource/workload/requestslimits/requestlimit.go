@@ -7,7 +7,6 @@ import (
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
 	v12 "k8s.io/api/core/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -19,6 +18,7 @@ const (
 type Diagnostic struct {
 	*diagnose.MetaData
 	result chan *diagnose.Result
+	param  *diagnose.StartDiagnoseParam
 }
 
 // NewDiagnostic return a requests-limits Diagnostic
@@ -29,36 +29,23 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
+func (d *Diagnostic) Init() error {
+	return nil
+}
+
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
+func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
+	d.param = &param
 	go func() {
-		defer close(d.result)
-		defer func() {
-			if err := recover(); err != nil {
-				d.result <- &diagnose.Result{
-					Error: fmt.Errorf("%v", err),
-				}
-				d.Score = 0
-			}
-		}()
-
-		pods, err := d.Cli.CoreV1().Pods("").List(v1.ListOptions{})
-		if err != nil {
-			d.result <- &diagnose.Result{
-				Error: err,
-			}
-			d.Score = 0
-			return
-		}
-
-		for _, pod := range pods.Items {
-			d.diagnosePod(pod, d.TotalScore/float64(len(pods.Items)))
+		defer diagnose.CommonDeafer(d.result)
+		for _, pod := range d.param.Resources.Pods.Items {
+			d.diagnosePod(pod)
 		}
 	}()
 	return d.result
 }
 
-func (d *Diagnostic) diagnosePod(pod v12.Pod, score float64) {
+func (d *Diagnostic) diagnosePod(pod v12.Pod) {
 	for _, c := range pod.Spec.Containers {
 		if c.Resources.Limits.Memory().IsZero() ||
 			c.Resources.Limits.Cpu().IsZero() ||
@@ -69,10 +56,8 @@ func (d *Diagnostic) diagnosePod(pod v12.Pod, score float64) {
 				Title:    "Pods Requests Limits",
 				ObjName:  fmt.Sprintf("%s:%s", pod.Namespace, pod.Name),
 				Desc:     d.Translator.Message("desc", nil),
-				Score:    score,
 				Proposal: d.Translator.Message("proposal", nil),
 			}
-			d.Score -= score
 			return
 		}
 	}

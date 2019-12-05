@@ -4,42 +4,47 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 	"gopkg.in/yaml.v2"
 )
 
 // DiagnosticResultItem collect one diagnostic and it's results
 type DiagnosticResultItem struct {
-	Catalogue  diagnose.Catalogue
-	Type       string
-	Name       string
-	Score      float64
-	TotalScore float64
-	Results    []diagnose.Result
-}
-
-// EvaluationResultItem collect one evaluator and it's result
-type EvaluationResultItem struct {
-	Type   string
-	Name   string
-	Result evaluate.Result
+	Catalogue diagnose.Catalogue
+	Type      string
+	Name      string
+	Results   []diagnose.Result
 }
 
 // Collector just collect diagnostic results and evaluation results
 type Collector struct {
+	Format      string
 	Diagnostics []*DiagnosticResultItem
-	Evaluations []*EvaluationResultItem
+	Output      []io.Writer
 }
 
 // CoordinateBegin export information about coordinator Run begin
 func (c *Collector) CoordinateBegin(ctx context.Context) error {
+	if c.Format == "" {
+		c.Format = "json"
+	}
 	return nil
 }
 
 // CoordinateFinish export information about coordinator Run finish
 func (c *Collector) CoordinateFinish(ctx context.Context) error {
+	data, err := c.Marshal()
+	if err != nil {
+		return err
+	}
+
+	for _, out := range c.Output {
+		if _, err := out.Write(data); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -47,10 +52,9 @@ func (c *Collector) CoordinateFinish(ctx context.Context) error {
 func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
 	param := dia.Meta()
 	c.Diagnostics = append(c.Diagnostics, &DiagnosticResultItem{
-		Catalogue:  dia.Meta().Catalogue,
-		Type:       param.Type,
-		Name:       param.Name,
-		TotalScore: param.TotalScore,
+		Catalogue: dia.Meta().Catalogue,
+		Type:      param.Type,
+		Name:      param.Name,
 	})
 	return nil
 }
@@ -64,37 +68,13 @@ func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnosti
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
-	dLen := len(c.Diagnostics)
-	c.Diagnostics[dLen-1].Score = dia.Meta().Score
-	return nil
-}
-
-// EvaluationBegin export information about a Evaluator begin
-func (c *Collector) EvaluationBegin(ctx context.Context, eva evaluate.Evaluator) error {
-	param := eva.Meta()
-	c.Evaluations = append(c.Evaluations, &EvaluationResultItem{
-		Type: param.Type,
-		Name: param.Name,
-	})
-	return nil
-}
-
-// EvaluationResult export information about a Evaluator result
-func (c *Collector) EvaluationResult(ctx context.Context, eva evaluate.Evaluator, result *evaluate.Result) error {
-	eLen := len(c.Evaluations)
-	c.Evaluations[eLen-1].Result = *result
-	return nil
-}
-
-// EvaluationFinish export information about a Evaluator finish
-func (c *Collector) EvaluationFinish(ctx context.Context, eva evaluate.Evaluator) error {
 	return nil
 }
 
 // Marshal marshal Collected results to byte data according to format
 // format can be : "json" , "yaml"
-func (c *Collector) Marshal(format string) ([]byte, error) {
-	switch format {
+func (c *Collector) Marshal() ([]byte, error) {
+	switch c.Format {
 	case "json":
 		return json.Marshal(c)
 	case "yaml":
@@ -106,8 +86,8 @@ func (c *Collector) Marshal(format string) ([]byte, error) {
 
 // Unmarshal unmarshal data to Collector
 // format can be : "json" , "yaml"
-func (c *Collector) Unmarshal(format string, data []byte) error {
-	switch format {
+func (c *Collector) Unmarshal(data []byte) error {
+	switch c.Format {
 	case "json":
 		return json.Unmarshal(data, c)
 	case "yaml":

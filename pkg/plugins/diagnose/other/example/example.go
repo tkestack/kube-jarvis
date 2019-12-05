@@ -2,7 +2,6 @@ package example
 
 import (
 	"context"
-
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -26,8 +25,13 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
+// Init do initialization
+func (d *Diagnostic) Init() error {
+	return nil
+}
+
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
+func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
 	go func() {
 		defer close(d.result)
 		d.result <- &diagnose.Result{
@@ -37,7 +41,6 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context) chan *diagnose.Result {
 			Desc: d.Translator.Message("message", map[string]interface{}{
 				"Mes": d.Message,
 			}),
-			Score:    d.TotalScore,
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}()

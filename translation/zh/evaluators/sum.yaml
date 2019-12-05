@@ -1,1 +1,0 @@
-result: "总分 : {{.Score}}, 警告 : {{.WarnScore}}, 危险 : {{.RiskScore}}, 高危 : {{.SeriousScore}}, 异常条目 : {{.ErrorTotal}}"
