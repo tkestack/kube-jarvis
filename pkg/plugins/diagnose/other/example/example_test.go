@@ -13,13 +13,15 @@ import (
 func TestDiagnostic_StartDiagnose(t *testing.T) {
 	s := NewDiagnostic(&diagnose.MetaData{
 		CommonMetaData: plugins.CommonMetaData{
-			Cli:        nil,
 			Translator: translate.NewFake().WithModule("diagnostics.example"),
 		},
-		Score: 10,
 	})
 
-	result := s.StartDiagnose(context.Background())
+	if err := s.Init(); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	result := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
 
 	for {
 		res, ok := <-result

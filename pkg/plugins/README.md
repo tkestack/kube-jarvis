@@ -2,11 +2,8 @@
 ## coordinators
 * [default](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/coordinate/basic/README.md)
 ## diagnostics
-### master
 * [master-capacity](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/master/capacity/README.md)  
-### resource
 * [requests-limits](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/resource/workload/requestslimits/README.md)
-### other
 * [example](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/diagnose/other/example/README.md) 
 ## evaluators
 * [sum](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins/evaluate/sum/README.md) 

@@ -3,6 +3,7 @@ package configmap
 import (
 	"context"
 	"fmt"
+	"k8s.io/client-go/kubernetes"
 	"time"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
@@ -20,10 +21,11 @@ const (
 type Exporter struct {
 	*export.MetaData
 	export.Collector
-	Namespace string
-	Name      string
-	Format    string
-	DataKey   string
+	Cli        kubernetes.Interface
+	Namespace  string
+	Name       string
+	DataKey    string
+	Kubeconfig string
 }
 
 // NewExporter return a config-map Exporter
@@ -41,7 +43,7 @@ func (e *Exporter) CoordinateFinish(ctx context.Context) error {
 		return err
 	}
 
-	data, err := e.Marshal(e.Format)
+	data, err := e.Marshal()
 	if err != nil {
 		return fmt.Errorf("unmaral data failed : %v", err)
 	}

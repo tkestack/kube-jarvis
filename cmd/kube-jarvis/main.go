@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"flag"
-
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/all"
 	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate/all"
 	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/all"
-	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate/all"
 	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/all"
 )
 
@@ -23,12 +22,12 @@ func main() {
 		panic(err)
 	}
 
-	cli, err := config.GetClusterClient()
+	cls, err := config.GetCluster()
 	if err != nil {
 		panic(err)
 	}
 
-	coordinator, err := config.GetCoordinator()
+	coordinator, err := config.GetCoordinator(cls)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +37,7 @@ func main() {
 		panic(err)
 	}
 
-	diagnostics, err := config.GetDiagnostics(cli, trans)
+	diagnostics, err := config.GetDiagnostics(cls, trans)
 	if err != nil {
 		panic(err)
 	}
@@ -47,16 +46,7 @@ func main() {
 		coordinator.AddDiagnostic(d)
 	}
 
-	evaluators, err := config.GetEvaluators(cli, trans)
-	if err != nil {
-		panic(err)
-	}
-
-	for _, e := range evaluators {
-		coordinator.AddEvaluate(e)
-	}
-
-	exporters, err := config.GetExporters(cli, trans)
+	exporters, err := config.GetExporters(cls, trans)
 	if err != nil {
 		panic(err)
 	}

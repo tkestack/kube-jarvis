@@ -2,39 +2,39 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+	"github.com/RayHuangCN/kube-jarvis/pkg/util"
+	"io/ioutil"
+	"k8s.io/client-go/tools/clientcmd"
+	"os"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/fake"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
+	"k8s.io/client-go/kubernetes"
 )
 
 // Config is the struct for config file
 type Config struct {
 	Logger logger.Logger
 	Global struct {
-		Trans   string
-		Lang    string
-		Cloud   string
-		Cluster struct {
-			Kubeconfig string
-		}
+		Trans string
+		Lang  string
+	}
+
+	Cluster struct {
+		Type       string
+		Kubeconfig string
+		Config     interface{}
 	}
 
 	Coordinator struct {
@@ -88,39 +88,61 @@ func (c *Config) GetTranslator() (translate.Translator, error) {
 	return translate.NewDefault(c.Global.Trans, "en", c.Global.Lang)
 }
 
-// GetClusterClient create a k8s client
-func (c *Config) GetClusterClient() (kubernetes.Interface, error) {
-	if c.Global.Cluster.Kubeconfig == "fake" {
-		return fake.NewSimpleClientset(), nil
-	}
-
-	if c.Global.Cluster.Kubeconfig == "" {
-		config, err := rest.InClusterConfig()
-		if err != nil {
-			return nil, errors.Wrap(err, "inCluster config failed")
-		}
-		return kubernetes.NewForConfig(config)
-	}
-
-	config, err := clientcmd.BuildConfigFromFlags("", c.Global.Cluster.Kubeconfig)
+// GetCluster create a cluster.Cluster
+func (c *Config) GetCluster() (cluster.Cluster, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", c.Cluster.Kubeconfig)
 	if err != nil {
-		return nil, errors.Wrap(err, "BuildConfigFromFlags failed")
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err.Error())
+		}
+
+		config, err = clientcmd.BuildConfigFromFlags("", fmt.Sprintf("%s/.kube/config", home))
+		if err != nil {
+			panic(err.Error())
+		}
 	}
 
-	return kubernetes.NewForConfig(config)
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic("failed to create client-go client:" + err.Error())
+	}
+
+	factory, exist := cluster.Factories[c.Cluster.Type]
+	if !exist {
+		return nil, fmt.Errorf("can not found cluster type %s", c.Cluster.Type)
+	}
+
+	cls := factory.Creator(c.Logger.With(map[string]string{
+		"cluster": c.Cluster.Type,
+	}), clientset, config)
+
+	if err := util.InitObjViaYaml(cls, c.Cluster.Config); err != nil {
+		return nil, errors.Wrap(err, "init cluster config failed")
+	}
+
+	if err := cls.Init(); err != nil {
+		return nil, errors.Wrap(err, "init cluster failed")
+	}
+
+	return cls, nil
 }
 
 // GetCoordinator return create a coordinate.Coordinator
-func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
+func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, error) {
+	if c.Coordinator.Type == "" {
+		c.Coordinator.Type = "default"
+	}
+
 	creator, exist := coordinate.Creators[c.Coordinator.Type]
 	if !exist {
 		return nil, fmt.Errorf("can not found coordinate type %s", c.Coordinator.Type)
 	}
 
 	cr := creator(c.Logger.With(map[string]string{
-		"coordinator": "default",
-	}))
-	if err := InitObjViaYaml(cr, c.Coordinator.Config); err != nil {
+		"coordinator": c.Coordinator.Type,
+	}), cls)
+	if err := util.InitObjViaYaml(cr, c.Coordinator.Config); err != nil {
 		return nil, err
 	}
 
@@ -128,7 +150,7 @@ func (c *Config) GetCoordinator() (coordinate.Coordinator, error) {
 }
 
 // GetDiagnostics create all target Diagnostics
-func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Translator) ([]diagnose.Diagnostic, error) {
+func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
 	nameSet := map[string]bool{}
 	for _, config := range c.Diagnostics {
@@ -150,8 +172,8 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
 		}
 
-		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
-			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
+		if !plugins.IsSupportedCloud(factory.SupportedClouds, cls.CloudType()) {
+			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, cls.CloudType())
 			continue
 		}
 
@@ -166,17 +188,17 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,
 				}),
-				Type:      config.Type,
-				Name:      config.Name,
-				CloudType: c.Global.Cloud,
-				Cli:       cli,
+				Type: config.Type,
+				Name: config.Name,
 			},
-			TotalScore: config.Score,
-			Score:      config.Score,
-			Catalogue:  catalogue,
+			Catalogue: catalogue,
 		})
 
-		if err := InitObjViaYaml(d, config.Config); err != nil {
+		if err := util.InitObjViaYaml(d, config.Config); err != nil {
+			return nil, err
+		}
+
+		if err := d.Init(); err != nil {
 			return nil, err
 		}
 
@@ -186,55 +208,8 @@ func (c *Config) GetDiagnostics(cli kubernetes.Interface, trans translate.Transl
 	return ds, nil
 }
 
-// GetEvaluators create all target Evaluators
-func (c *Config) GetEvaluators(cli kubernetes.Interface, trans translate.Translator) ([]evaluate.Evaluator, error) {
-	es := make([]evaluate.Evaluator, 0)
-	nameSet := map[string]bool{}
-	for _, config := range c.Evaluators {
-		if config.Name == "" {
-			config.Name = config.Type
-		}
-
-		if nameSet[config.Name] {
-			return nil, fmt.Errorf("evaluator [%s] name already exist", config.Name)
-		}
-		nameSet[config.Name] = true
-
-		factory, exist := evaluate.Factories[config.Type]
-		if !exist {
-			return nil, fmt.Errorf("can not found evaluator type %s", config.Type)
-		}
-
-		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
-			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
-			continue
-		}
-
-		e := factory.Creator(&evaluate.MetaData{
-			CommonMetaData: plugins.CommonMetaData{
-				Translator: trans.WithModule("evaluators." + config.Type),
-				Logger: c.Logger.With(map[string]string{
-					"evaluator": config.Name,
-				}),
-				Type:      config.Type,
-				Name:      config.Name,
-				CloudType: c.Global.Cloud,
-				Cli:       cli,
-			},
-		})
-
-		if err := InitObjViaYaml(e, config.Config); err != nil {
-			return nil, err
-		}
-
-		es = append(es, e)
-	}
-
-	return es, nil
-}
-
 // GetExporters create all target Exporters
-func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translator) ([]export.Exporter, error) {
+func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
 	nameSet := map[string]bool{}
 	for _, config := range c.Exporters {
@@ -252,8 +227,8 @@ func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translat
 			return nil, fmt.Errorf("can not found exporter type %s", config.Type)
 		}
 
-		if !plugins.IsSupportedCloud(factory.SupportedClouds, c.Global.Cloud) {
-			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, c.Global.Cloud)
+		if !plugins.IsSupportedCloud(factory.SupportedClouds, cls.CloudType()) {
+			c.Logger.Infof("diagnostic [%s] don't support cloud [%s], skipped", config.Name, cls.CloudType())
 			continue
 		}
 
@@ -263,14 +238,12 @@ func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translat
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,
 				}),
-				Type:      config.Type,
-				Name:      config.Name,
-				CloudType: c.Global.Cloud,
-				Cli:       cli,
+				Type: config.Type,
+				Name: config.Name,
 			},
 		})
 
-		if err := InitObjViaYaml(e, config.Config); err != nil {
+		if err := util.InitObjViaYaml(e, config.Config); err != nil {
 			return nil, err
 		}
 
@@ -278,17 +251,4 @@ func (c *Config) GetExporters(cli kubernetes.Interface, trans translate.Translat
 	}
 
 	return es, nil
-}
-
-// InitObjViaYaml marshal "config" to yaml data, then unMarshal data to "obj"
-func InitObjViaYaml(obj interface{}, config interface{}) error {
-	if obj == nil || config == nil {
-		return nil
-	}
-
-	data, err := yaml.Marshal(config)
-	if err != nil {
-		return err
-	}
-	return yaml.Unmarshal(data, obj)
 }

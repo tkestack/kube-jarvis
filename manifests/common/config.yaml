@@ -4,29 +4,27 @@ data:
     global:
       trans: "translation"
       lang: "en"
-      cloud: "qcloud"
-      cluster:
-        kubeconfig: ""
 
-    coordinator:
-      type: "default"
+    cluster:
+      # see detail of custom cluster here:
+      type: "custom"
+      kubeconfig: ""
 
     diagnostics:
-      - type: "requests-limits"
-        score: 100
       - type: "master-capacity"
-        score: 100
-
-    evaluators:
-      - type: "sum"
+      - type: "master-apiserver"
+      - type: "node-sys"
+      - type: "requests-limits"
 
     exporters:
       - type: "stdout"
-      - type: "config-map"
+
+      - type: "file"
+        name: "for json"
         config:
-          namespace: "kube-jarvis"
-          name: "results"
           format: "json"
+          path: "result.json"
+
 kind: ConfigMap
 metadata:
   name: config

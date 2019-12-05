@@ -1,22 +1,24 @@
 global:
   trans: "translation"
   lang: "en"
-  cloud: "qcloud"
-  cluster:
-    kubeconfig: ""
 
-coordinator:
-  type: "default"
+cluster:
+  # see detail of custom cluster here:
+  type: "custom"
+  kubeconfig: ""
 
 diagnostics:
-  # items for master
   - type: "master-capacity"
-  # items for resources
+  - type: "master-apiserver"
+  - type: "node-sys"
   - type: "requests-limits"
-
-
-evaluators:
-  - type: "sum"
 
 exporters:
   - type: "stdout"
+
+  - type: "file"
+    name: "for json"
+    config:
+      format: "json"
+      path: "result.json"
+

@@ -3,29 +3,27 @@ package basic
 import (
 	"context"
 	"fmt"
-
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
-
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/evaluate"
-
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
-
 	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
 	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
+	"os"
 )
 
 // Coordinator Coordinate diagnostics,exporters,evaluators with simple way
 type Coordinator struct {
+	cls         cluster.Cluster
 	logger      logger.Logger
 	diagnostics []diagnose.Diagnostic
 	exporters   []export.Exporter
-	evaluators  []evaluate.Evaluator
 }
 
 // NewCoordinator return a default Coordinator
-func NewCoordinator(logger logger.Logger) coordinate.Coordinator {
+func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordinator {
 	return &Coordinator{
 		logger: logger,
+		cls:    cls,
 	}
 }
 
@@ -39,16 +37,14 @@ func (c *Coordinator) AddExporter(exporter export.Exporter) {
 	c.exporters = append(c.exporters, exporter)
 }
 
-// AddEvaluate add a evaluate to Coordinator
-func (c *Coordinator) AddEvaluate(evaluate evaluate.Evaluator) {
-	c.evaluators = append(c.evaluators, evaluate)
-}
-
 // Run will do all diagnostics, evaluations, then export it by exporters
 func (c *Coordinator) Run(ctx context.Context) {
+	if err := c.cls.SyncResources(); err != nil {
+		c.logger.Errorf("fetch resources failed :%v", err)
+		os.Exit(1)
+	}
 	c.begin(ctx)
 	c.diagnostic(ctx)
-	c.evaluation(ctx)
 	c.finish(ctx)
 }
 
@@ -67,7 +63,11 @@ func (c *Coordinator) finish(ctx context.Context) {
 func (c *Coordinator) diagnostic(ctx context.Context) {
 	for _, dia := range c.diagnostics {
 		c.diagnosticBegin(ctx, dia)
-		result := dia.StartDiagnose(ctx)
+		result := dia.StartDiagnose(ctx, diagnose.StartDiagnoseParam{
+			CloudType: c.cls.CloudType(),
+			Resources: c.cls.Resources(),
+		})
+
 		for {
 			s, ok := <-result
 			if !ok {
@@ -89,9 +89,6 @@ func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnos
 	for _, e := range c.exporters {
 		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Meta().Name)
 	}
-	for _, e := range c.evaluators {
-		c.logIfError(e.EvaDiagnostic(ctx, dia), "%s evaluate diagnose finish", e.Meta().Name)
-	}
 }
 
 func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
@@ -99,21 +96,6 @@ func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.D
 		c.logIfError(e.DiagnosticResult(ctx, dia, result), "%s export diagnose result", e.Meta().Name)
 	}
 
-	for _, e := range c.evaluators {
-		c.logIfError(e.EvaDiagnosticResult(ctx, dia, result), "%s evaluator evaluate diagnose result begin", e.Meta().Name)
-	}
-}
-
-func (c *Coordinator) evaluation(ctx context.Context) {
-	for _, eva := range c.evaluators {
-		result := eva.Result()
-		for _, exp := range c.exporters {
-			expName := exp.Meta().Name
-			c.logIfError(exp.EvaluationBegin(ctx, eva), "%s export evaluation begin", expName)
-			c.logIfError(exp.EvaluationResult(ctx, eva, result), "%s export evaluation result", expName)
-			c.logIfError(exp.EvaluationFinish(ctx, eva), "%s export evaluation finish", expName)
-		}
-	}
 }
 
 func (c *Coordinator) logIfError(err error, format string, args ...interface{}) {

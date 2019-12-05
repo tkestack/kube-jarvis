@@ -1,0 +1,3 @@
+kernel-para-title: "内核参数"
+kernel-para-desc: "节点 {{.Node}} 参数[ {{.Name}}={{.CurVal}} ] 不是推荐设置"
+kernel-para-proposal: "推荐设置为 {{.Name}}={{.TargetVal}}"
