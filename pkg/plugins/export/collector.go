@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	"gopkg.in/yaml.v2"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // DiagnosticResultItem collect one diagnostic and it's results

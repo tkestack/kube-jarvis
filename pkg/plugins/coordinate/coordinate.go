@@ -2,12 +2,12 @@ package coordinate
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/logger"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 
 // Coordinator knows how to coordinate diagnostics,exporters,evaluators

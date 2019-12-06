@@ -2,14 +2,14 @@ package compexplorer
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
 	"github.com/pkg/errors"
 	v12 "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"strings"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 )
 
 // StaticPods get component information from static pod

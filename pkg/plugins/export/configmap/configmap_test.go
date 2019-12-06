@@ -3,11 +3,11 @@ package configmap
 import (
 	"testing"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 
 func TestNewStdout(t *testing.T) {

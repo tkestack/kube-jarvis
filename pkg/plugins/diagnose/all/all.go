@@ -1,12 +1,12 @@
 package all
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/master/apiserver"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/master/capacity"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/node/sys"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/other/example"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/apiserver"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
 )
 
 func init() {

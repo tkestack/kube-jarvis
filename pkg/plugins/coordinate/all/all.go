@@ -1,8 +1,8 @@
 package all
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate/basic"
+	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
+	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/basic"
 )
 
 func init() {

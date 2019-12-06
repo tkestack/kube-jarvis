@@ -2,7 +2,7 @@ package example
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 const (

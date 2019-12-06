@@ -3,7 +3,6 @@ package nodeexec
 import (
 	"bytes"
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,6 +12,7 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 	"net/url"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 type remoteExecutor interface {

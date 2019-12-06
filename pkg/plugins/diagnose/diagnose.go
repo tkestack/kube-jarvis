@@ -2,11 +2,11 @@ package diagnose
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 // HealthyLevel means the healthy level of diagnostic result

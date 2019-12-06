@@ -1,6 +1,6 @@
 package compexplorer
 
-import "github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+import "tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
 const (
 	TypeStaticPod = "StaticPod"

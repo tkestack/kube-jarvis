@@ -3,9 +3,9 @@ package capacity
 import (
 	"context"
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	v12 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 const (

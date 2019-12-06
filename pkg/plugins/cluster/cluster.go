@@ -1,9 +1,9 @@
 package cluster
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 // Cluster is the abstract of target cluster

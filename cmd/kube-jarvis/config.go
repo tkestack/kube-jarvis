@@ -2,25 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
-	"github.com/RayHuangCN/kube-jarvis/pkg/util"
 	"io/ioutil"
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
+	"tkestack.io/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/util"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"tkestack.io/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/logger"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/kubernetes"
+	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 )
 
 // Config is the struct for config file

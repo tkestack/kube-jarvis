@@ -3,14 +3,14 @@ package capacity
 import (
 	"context"
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 func TestDiagnostic_diagnoseCapacity(t *testing.T) {

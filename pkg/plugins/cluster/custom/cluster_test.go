@@ -1,12 +1,12 @@
 package custom
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
 )
 
 type fakeComp struct {

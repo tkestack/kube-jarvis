@@ -2,8 +2,8 @@ package compexplorer
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 type fakeNodeExecutor struct {

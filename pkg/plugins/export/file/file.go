@@ -2,10 +2,10 @@ package file
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
 	"github.com/pkg/errors"
 	"io"
 	"os"
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 
 const (

@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/export"
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
 	"github.com/fatih/color"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 const (

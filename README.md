@@ -1,6 +1,6 @@
 # kube-jarvis
 [![Build Status](https://travis-ci.org/RayHuangCN/kube-jarvis.svg?branch=master)](https://travis-ci.org/RayHuangCN/kube-jarvis)
-[![Go Report Card](https://goreportcard.com/badge/github.com/RayHuangCN/kube-jarvis)](https://goreportcard.com/report/github.com/RayHuangCN/kube-jarvis)
+[![Go Report Card](https://goreportcard.com/badge/tkestack.io/kube-jarvis)](https://goreportcard.com/report/tkestack.io/kube-jarvis)
 [![codecov](https://codecov.io/gh/RayHuangCN/kube-jarvis/branch/master/graph/badge.svg)](https://codecov.io/gh/RayHuangCN/kube-jarvis)
 
 kube-jarvis is a tool used to check the health of the kubernetes cluster
@@ -70,7 +70,7 @@ kubectl apply -f manifests/workload/cronjob.yaml
 ```
 # Plugins
 we call coordinator, diagnostics, evaluators and exporters as "plugins"
-> [you can found all plugins lists here](https://github.com/RayHuangCN/kube-jarvis/tree/master/pkg/plugins)
+> [you can found all plugins lists here](https://tkestack.io/kube-jarvis/tree/master/pkg/plugins)
 
 # License
 Apache License 2.0 - see LICENSE.md for more details

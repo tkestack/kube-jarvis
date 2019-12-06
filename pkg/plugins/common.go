@@ -1,8 +1,8 @@
 package plugins
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 // CommonMetaData is the common attributes of a plugins

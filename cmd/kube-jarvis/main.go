@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/all"
-	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/coordinate/all"
-	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose/all"
-	_ "github.com/RayHuangCN/kube-jarvis/pkg/plugins/export/all"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	_ "tkestack.io/kube-jarvis/pkg/plugins/cluster/all"
+	_ "tkestack.io/kube-jarvis/pkg/plugins/coordinate/all"
+	_ "tkestack.io/kube-jarvis/pkg/plugins/diagnose/all"
+	_ "tkestack.io/kube-jarvis/pkg/plugins/export/all"
 )
 
 var configFile string

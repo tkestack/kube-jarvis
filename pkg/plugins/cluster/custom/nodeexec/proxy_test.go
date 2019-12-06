@@ -2,7 +2,6 @@ package nodeexec
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
@@ -15,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 type fakeStream struct {

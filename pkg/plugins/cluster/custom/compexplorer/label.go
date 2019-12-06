@@ -1,14 +1,14 @@
 package compexplorer
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"strings"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 )
 
 // LabelExp get select pod with labels and try get component from

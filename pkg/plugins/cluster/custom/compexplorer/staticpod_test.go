@@ -2,10 +2,10 @@ package compexplorer
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 func TestStaticPods_Component(t *testing.T) {

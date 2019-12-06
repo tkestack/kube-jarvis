@@ -2,14 +2,14 @@ package requestslimits
 
 import (
 	"context"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/translate"
+	"tkestack.io/kube-jarvis/pkg/translate"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"

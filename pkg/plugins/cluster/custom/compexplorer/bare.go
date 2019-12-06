@@ -2,12 +2,12 @@ package compexplorer
 
 import (
 	"fmt"
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 	"golang.org/x/sync/errgroup"
 	"strings"
 	"sync"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 // Bare get component information from cmd

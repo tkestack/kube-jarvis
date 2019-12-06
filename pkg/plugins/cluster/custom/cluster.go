@@ -1,10 +1,6 @@
 package custom
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,6 +8,10 @@ import (
 	"k8s.io/client-go/rest"
 	"strings"
 	"sync"
+	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 const (

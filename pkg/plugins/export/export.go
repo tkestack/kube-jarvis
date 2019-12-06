@@ -3,8 +3,8 @@ package export
 import (
 	"context"
 
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins"
-	"github.com/RayHuangCN/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // MetaData contains core attributes of a Exporter

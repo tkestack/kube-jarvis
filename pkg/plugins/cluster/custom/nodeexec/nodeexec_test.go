@@ -1,9 +1,9 @@
 package nodeexec
 
 import (
-	"github.com/RayHuangCN/kube-jarvis/pkg/logger"
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
+	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
 func TestConfig_Executor(t *testing.T) {

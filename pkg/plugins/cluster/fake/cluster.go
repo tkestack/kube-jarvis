@@ -1,6 +1,6 @@
 package fake
 
-import "github.com/RayHuangCN/kube-jarvis/pkg/plugins/cluster"
+import "tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
 type Cluster struct {
 	Res *cluster.Resources
