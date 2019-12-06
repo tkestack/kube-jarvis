@@ -2,6 +2,7 @@
 echo "Download kube-jarvis...."
 wget https://kube-jarvis-1251707795.cos.ap-guangzhou.myqcloud.com/kube-jarvis.tar.gz
 tar xf kube-jarvis.tar.gz
+cd kube-jarvis
 echo "Creating Namespace kube-jarvis..."
 kubectl apply -f manifests/common/namespace.yaml
 echo "Creating Daemonset kube-jarvis-agent..."
