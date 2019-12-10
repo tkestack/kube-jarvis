@@ -1,5 +1,5 @@
 # kube-jarvis
-[![Build Status](https://travis-ci.org/RayHuangCN/kube-jarvis.svg?branch=master)](https://travis-ci.org/RayHuangCN/kube-jarvis)
+[![Build Status](https://travis-ci.com/RayHuangCN/kube-jarvis.svg?token=nJm3RqJv2hocVN6fWNzx&branch=master)](https://travis-ci.com/RayHuangCN/kube-jarvis.svg?token=nJm3RqJv2hocVN6fWNzx&branch=master)
 [![Go Report Card](https://goreportcard.com/badge/tkestack.io/kube-jarvis)](https://goreportcard.com/report/tkestack.io/kube-jarvis)
 [![codecov](https://codecov.io/gh/RayHuangCN/kube-jarvis/branch/master/graph/badge.svg)](https://codecov.io/gh/RayHuangCN/kube-jarvis)
 
