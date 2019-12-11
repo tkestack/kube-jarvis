@@ -57,11 +57,6 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
-// Init do initialization
-func (d *Diagnostic) Init() error {
-	return nil
-}
-
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
 	d.param = &param

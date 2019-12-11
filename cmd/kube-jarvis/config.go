@@ -215,10 +215,6 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 			return nil, err
 		}
 
-		if err := d.Init(); err != nil {
-			return nil, err
-		}
-
 		ds = append(ds, d)
 	}
 

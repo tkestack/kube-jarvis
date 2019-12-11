@@ -34,10 +34,6 @@ func TestDiagnostic_StartDiagnose(t *testing.T) {
 		},
 	})
 
-	if err := s.Init(); err != nil {
-		t.Fatalf(err.Error())
-	}
-
 	result := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
 
 	for {

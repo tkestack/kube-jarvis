@@ -94,8 +94,6 @@ type StartDiagnoseParam struct {
 
 // Diagnostic diagnose some aspects of cluster
 type Diagnostic interface {
-	// Init do initialization
-	Init() error
 	// Meta return core MetaData
 	Meta() MetaData
 	// StartDiagnose return a result chan that will output results

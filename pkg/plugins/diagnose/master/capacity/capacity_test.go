@@ -133,10 +133,6 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 			}).(*Diagnostic)
 			d.Capacities = cs.Capacities
 
-			if err := d.Init(); err != nil {
-				t.Fatalf(err.Error())
-			}
-
 			d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
 				CloudType: "fake",
 				Resources: res,

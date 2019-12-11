@@ -76,10 +76,6 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 		},
 	})
 
-	if err := d.Init(); err != nil {
-		t.Fatalf(err.Error())
-	}
-
 	result := d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
 		Resources: res,
 	})
