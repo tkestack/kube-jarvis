@@ -20,6 +20,7 @@ package basic
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"os"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -66,15 +67,15 @@ func (c *Coordinator) Run(ctx context.Context) {
 }
 
 func (c *Coordinator) begin(ctx context.Context) {
-	for _, e := range c.exporters {
+	c.everyExporterDo(func(e export.Exporter) {
 		c.logIfError(e.CoordinateBegin(ctx), "%s export coordinate begin", e.Meta().Name)
-	}
+	})
 }
 
 func (c *Coordinator) finish(ctx context.Context) {
-	for _, e := range c.exporters {
+	c.everyExporterDo(func(e export.Exporter) {
 		c.logIfError(e.CoordinateFinish(ctx), "%s export coordinate finish", e.Meta().Name)
-	}
+	})
 }
 
 func (c *Coordinator) diagnostic(ctx context.Context) {
@@ -97,26 +98,37 @@ func (c *Coordinator) diagnostic(ctx context.Context) {
 }
 
 func (c *Coordinator) diagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) {
-	for _, e := range c.exporters {
+	c.everyExporterDo(func(e export.Exporter) {
 		c.logIfError(e.DiagnosticBegin(ctx, dia), "%s export diagnose begin", e.Meta().Name)
-	}
+	})
 }
 
 func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) {
-	for _, e := range c.exporters {
+	c.everyExporterDo(func(e export.Exporter) {
 		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Meta().Name)
-	}
+	})
 }
 
 func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
-	for _, e := range c.exporters {
+	c.everyExporterDo(func(e export.Exporter) {
 		c.logIfError(e.DiagnosticResult(ctx, dia, result), "%s export diagnose result", e.Meta().Name)
-	}
-
+	})
 }
 
 func (c *Coordinator) logIfError(err error, format string, args ...interface{}) {
 	if err != nil {
 		c.logger.Errorf("%s failed : %v", fmt.Sprintf(format, args...), err.Error())
 	}
+}
+
+func (c *Coordinator) everyExporterDo(f func(e export.Exporter)) {
+	g := errgroup.Group{}
+	for _, tmp := range c.exporters {
+		e := tmp
+		g.Go(func() error {
+			f(e)
+			return nil
+		})
+	}
+	_ = g.Wait()
 }
