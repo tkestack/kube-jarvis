@@ -19,7 +19,6 @@ package all
 
 import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
-	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/apiserver"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
@@ -36,11 +35,6 @@ func init() {
 func addMasterDiagnostics() {
 	diagnose.Add(capacity.DiagnosticType, diagnose.Factory{
 		Creator:   capacity.NewDiagnostic,
-		Catalogue: diagnose.CatalogueMaster,
-	})
-
-	diagnose.Add(apiserver.DiagnosticType, diagnose.Factory{
-		Creator:   apiserver.NewDiagnostic,
 		Catalogue: diagnose.CatalogueMaster,
 	})
 }

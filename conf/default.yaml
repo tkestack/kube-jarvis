@@ -9,7 +9,6 @@ cluster:
 
 diagnostics:
   - type: "master-capacity"
-  - type: "master-apiserver"
   - type: "node-sys"
   - type: "requests-limits"
 

@@ -1,3 +1,0 @@
-apiserver-para-title: "Kube-apiserver 参数"
-apiserver-para-desc: "节点 {{.Node}} 上的Kube-apiserver 参数[ {{.Name}}={{.CurVal}} ] 不是推荐配置"
-apiserver-para-proposal: "推荐设置为 {{.Name}}={{.TargetVal}}"
