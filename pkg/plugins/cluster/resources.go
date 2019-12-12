@@ -55,6 +55,10 @@ type Component struct {
 	Args map[string]string
 	// IsRunning is true if Component run normally
 	IsRunning bool
+	// Error if not nil if fetching this Component failed
+	Error error
+	// Pod is not nil if this Component run as pod
+	Pod *corev1.Pod
 }
 
 type Resources struct {
