@@ -76,10 +76,6 @@ func TestAuto_Init(t *testing.T) {
 			if !cs.masterNodes && len(cs.nodes) == 0 && len(a.Nodes) != 6 {
 				t.Fatalf("want 6 nodes")
 			}
-
-			if len(cs.labels) == 0 && a.Labels["k8s-app"] != "kube-apiserver" {
-				t.Fatalf("want labels k8s-app=kube-apiserver")
-			}
 		})
 	}
 }
@@ -87,7 +83,6 @@ func TestAuto_Init(t *testing.T) {
 func TestAuto_Component(t *testing.T) {
 	fk := fake.NewSimpleClientset()
 	a := NewAuto("kube-apiserver", false)
-	a.PreType = TypeLabel
 	a.Nodes = []string{"node1"}
 	if err := a.Init(logger.NewLogger(), fk, &fakeNodeExecutor{success: true}); err != nil {
 		t.Fatalf(err.Error())
@@ -112,15 +107,5 @@ func TestAuto_Component(t *testing.T) {
 
 	if cmp[0].Args["b"] != "321" {
 		t.Fatalf("want key a valuer 321 but get %s", cmp[0].Args["a"])
-	}
-
-	a.Type = TypeLabel
-	cmp, err = a.Component()
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-
-	if len(cmp) != 0 {
-		t.Fatalf("shoud not found")
 	}
 }

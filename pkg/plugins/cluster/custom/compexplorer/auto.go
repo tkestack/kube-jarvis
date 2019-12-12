@@ -30,35 +30,54 @@ import (
 
 type Auto struct {
 	logger      logger.Logger
-	PreType     string
 	Type        string
 	Name        string
 	Namespace   string
 	Nodes       []string
 	MasterNodes bool
 	Labels      map[string]string
-	explorers   map[string]Explorer
+	exps        []Explorer
 }
 
 // NewAuto create a ComponentConfig with default value
 func NewAuto(defName string, masterNodes bool) *Auto {
 	return &Auto{
-		Type:      TypeAuto,
-		PreType:   TypeBare,
-		Name:      defName,
-		Namespace: "kube-system",
-		Nodes:     []string{},
-		Labels: map[string]string{
-			"k8s-app": defName,
-		},
+		Type:        TypeAuto,
+		Name:        defName,
+		Namespace:   "kube-system",
+		Nodes:       []string{},
 		MasterNodes: masterNodes,
-		explorers:   map[string]Explorer{},
 	}
 }
 
 // Init do init
 func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor nodeexec.Executor) error {
-	a.explorers = map[string]Explorer{TypeLabel: NewLabelExp(logger, cli, a.Namespace, a.Name, a.Labels)}
+	specialNodes := false
+	if a.MasterNodes == true || len(a.Nodes) != 0 {
+		specialNodes = true
+	}
+
+	if err := a.initNodes(cli); err != nil {
+		return err
+	}
+
+	if a.Type == TypeAuto || a.Type == TypeLabel {
+		a.exps = append(a.exps, NewLabelExp(a.logger, cli, a.Namespace, a.Name, a.Labels, nodeExecutor))
+	}
+
+	// only special nodes is supported for use static pod
+	if (a.Type == TypeAuto || a.Type == TypeStaticPod) && specialNodes {
+		a.exps = append(a.exps, NewStaticPods(a.logger, cli, a.Namespace, a.Name, a.Nodes, nodeExecutor))
+	}
+
+	if a.Type == TypeAuto || a.Type == TypeBare {
+		a.exps = append(a.exps, NewBare(a.logger, a.Name, a.Nodes, nodeExecutor))
+	}
+
+	return nil
+}
+
+func (a *Auto) initNodes(cli kubernetes.Interface) error {
 	// get masters as nodes
 	if a.MasterNodes {
 		label := labels.NewSelector()
@@ -90,13 +109,6 @@ func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor
 		for _, n := range nodes.Items {
 			a.Nodes = append(a.Nodes, n.Name)
 		}
-	} else {
-		// static pod only allowed on special nodes
-		a.explorers[TypeStaticPod] = NewStaticPods(logger, cli, a.Namespace, a.Name, a.Nodes)
-	}
-
-	if nodeExecutor != nil {
-		a.explorers[TypeBare] = NewBare(logger, a.Name, a.Nodes, nodeExecutor)
 	}
 
 	return nil
@@ -104,47 +116,24 @@ func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor
 
 // Component get cluster components
 func (a *Auto) Component() ([]cluster.Component, error) {
-	if a.Type != TypeAuto {
-		exp, exist := a.explorers[a.Type]
-		if !exist {
-			panic("unsupported component executor type " + a.Type)
-		}
-		return exp.Component()
-	} else {
-		if a.PreType != "" {
-			exp, exist := a.explorers[a.PreType]
-			if exist {
-				ok, result, err := a.tryExplore(exp)
-				if err != nil {
-					return nil, errors.Wrapf(err, "component do exec type %s failed", a.PreType)
-				}
-
-				if ok {
-					return result, nil
-				}
-			}
+	for _, exp := range a.exps {
+		ok, result, err := a.tryExplore(exp)
+		if err != nil {
+			return nil, err
 		}
 
-		for t, exp := range a.explorers {
-			if a.PreType != "" && a.PreType != t {
-				ok, result, err := a.tryExplore(exp)
-				if err != nil {
-					return nil, errors.Wrapf(err, "component do exec type %s failed", a.PreType)
-				}
-
-				if ok {
-					return result, nil
-				}
-			}
+		if ok {
+			return result, nil
 		}
-		return []cluster.Component{}, nil
 	}
+
+	return []cluster.Component{}, nil
 }
 
 func (a *Auto) tryExplore(exp Explorer) (bool, []cluster.Component, error) {
 	result, err := exp.Component()
 	if err != nil {
-		return false, nil, errors.Wrapf(err, "component do exec type %s failed", a.PreType)
+		return false, nil, errors.Wrapf(err, "component do explore failed ")
 	}
 
 	if len(result) == 0 {

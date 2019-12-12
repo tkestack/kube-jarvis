@@ -24,34 +24,39 @@ import (
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"strings"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 // StaticPods get component information from static pod
 type StaticPods struct {
-	logger    logger.Logger
-	cli       kubernetes.Interface
-	podName   string
-	namespace string
-	nodes     []string
+	logger      logger.Logger
+	cli         kubernetes.Interface
+	podName     string
+	namespace   string
+	nodes       []string
+	exec        nodeexec.Executor
+	ExplorePods func(logger logger.Logger, name string, pods []v12.Pod, exec nodeexec.Executor) []cluster.Component
 }
 
 // NewStaticPods create and int a StaticPods ComponentExecutor
-func NewStaticPods(logger logger.Logger, cli kubernetes.Interface, namespace string, podPrefix string, nodes []string) *StaticPods {
+func NewStaticPods(logger logger.Logger, cli kubernetes.Interface, namespace string, podPrefix string, nodes []string, exe nodeexec.Executor) *StaticPods {
 	return &StaticPods{
-		logger:    logger,
-		cli:       cli,
-		podName:   podPrefix,
-		namespace: namespace,
-		nodes:     nodes,
+		logger:      logger,
+		cli:         cli,
+		podName:     podPrefix,
+		namespace:   namespace,
+		nodes:       nodes,
+		exec:        exe,
+		ExplorePods: ExplorePods,
 	}
 }
 
 // Component get cluster components
 func (s *StaticPods) Component() ([]cluster.Component, error) {
 	result := make([]cluster.Component, 0)
+	pods := make([]v12.Pod, 0)
 	for _, n := range s.nodes {
 		cmp := cluster.Component{
 			Name: s.podName,
@@ -60,37 +65,15 @@ func (s *StaticPods) Component() ([]cluster.Component, error) {
 
 		pod, err := s.cli.CoreV1().Pods(s.namespace).Get(fmt.Sprintf("%s-%s", s.podName, n), v1.GetOptions{})
 		if err != nil {
-			if k8serr.IsNotFound(err) {
-				result = append(result, cmp)
-				continue
+			if !k8serr.IsNotFound(err) {
+				cmp.Error = errors.Wrapf(err, "get target pod %s failed", cmp.Name)
 			}
-			return nil, errors.Wrapf(err, "get target pod %s failed", cmp.Name)
+			result = append(result, cmp)
+			continue
 		}
 
-		cmp.IsRunning = true
-		cmp.Args = s.getArgs(pod)
-		cmp.Pod = pod
-		result = append(result, cmp)
+		pods = append(pods, *pod)
 	}
-	return result, nil
-}
 
-func (s *StaticPods) getArgs(pod *v12.Pod) map[string]string {
-	result := make(map[string]string)
-	for _, c := range pod.Spec.Containers {
-		if c.Name == s.podName {
-			for _, arg := range c.Args {
-				arg = strings.TrimLeft(arg, "-")
-				spIndex := strings.IndexAny(arg, "=")
-				if spIndex == -1 {
-					continue
-				}
-
-				k := arg[0:spIndex]
-				v := arg[spIndex+1:]
-				result[strings.TrimSpace(k)] = strings.TrimSpace(v)
-			}
-		}
-	}
-	return result
+	return append(result, s.ExplorePods(s.logger, s.podName, pods, s.exec)...), nil
 }

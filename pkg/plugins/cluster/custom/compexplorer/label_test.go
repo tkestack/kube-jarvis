@@ -22,6 +22,8 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 func TestDaemonSet_Component(t *testing.T) {
@@ -31,18 +33,6 @@ func TestDaemonSet_Component(t *testing.T) {
 	pod1.Namespace = "kube-system"
 	pod1.Labels = map[string]string{
 		"k8s-app": "p1",
-	}
-
-	pod1.Spec.NodeName = "node1"
-
-	pod1.Spec.Containers = []v1.Container{
-		{
-			Name: "p1",
-			Args: []string{
-				"--a = 123",
-				"--b = 321",
-			},
-		},
 	}
 
 	if _, err := fk.CoreV1().Pods("kube-system").Create(pod1); err != nil {
@@ -60,36 +50,20 @@ func TestDaemonSet_Component(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	l := NewLabelExp(logger.NewLogger(), fk, "kube-system", "p1", map[string]string{
-		"k8s-app": "p1",
-	})
+	l := NewLabelExp(logger.NewLogger(), fk, "kube-system", "p1", nil, nil)
+	l.ExplorePods = func(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
+		if name != "p1" {
+			t.Fatalf("name want p1 but get %s", name)
+		}
 
-	cmp, err := l.Component()
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
+		if len(pods) != 1 {
+			t.Fatalf("want 1 pods but get %d", len(pods))
+		}
 
-	if len(cmp) != 1 {
-		t.Fatalf("want 1 result")
-	}
+		if pods[0].Name != "p1" {
+			t.Fatalf("want p1 pod but get %s", pods[0].Name)
+		}
 
-	if !cmp[0].IsRunning {
-		t.Fatalf("wan Runing")
-	}
-
-	if cmp[0].Name != pod1.Name {
-		t.Fatalf("want name %s ,but get %s", pod1.Name, cmp[0].Name)
-	}
-
-	if cmp[0].Node != pod1.Spec.NodeName {
-		t.Fatalf("want nodeName %s, but get %s ", pod1.Spec.NodeName, cmp[0].Node)
-	}
-
-	if cmp[0].Args["a"] != "123" {
-		t.Fatalf("want key a value 123 , but get %s", cmp[0].Args["a"])
-	}
-
-	if cmp[0].Args["b"] != "321" {
-		t.Fatalf("want key b value 321 , but get %s", cmp[0].Args["a"])
+		return nil
 	}
 }

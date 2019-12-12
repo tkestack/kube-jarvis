@@ -23,19 +23,17 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 func TestStaticPods_Component(t *testing.T) {
 	fk := fake.NewSimpleClientset()
-	total := 3
+	total := 2
 	nodes := make([]string, 0)
 	for i := 0; i < total; i++ {
 		n := &v1.Node{}
 		n.Name = fmt.Sprintf("10.0.0.%d", i)
-		n.Labels = map[string]string{
-			"node-role.kubernetes.io/master": "true",
-		}
-
 		if _, err := fk.CoreV1().Nodes().Create(n); err != nil {
 			t.Fatalf("create master %s failed", n.Name)
 		}
@@ -50,50 +48,35 @@ func TestStaticPods_Component(t *testing.T) {
 		pod.Spec.NodeName = n.Name
 		pod.Namespace = "kube-system"
 		pod.Name = fmt.Sprintf("test-%s", n.Name)
-		pod.Spec.Containers = []v1.Container{
-			{
-				Name: "test",
-				Args: []string{
-					"--a = 123",
-					"--b = 321",
-				},
-			},
-		}
 
 		if _, err := fk.CoreV1().Pods("kube-system").Create(pod); err != nil {
 			t.Fatalf(err.Error())
 		}
 	}
 
-	sd := NewStaticPods(logger.NewLogger(), fk, "kube-system", "test", nodes)
+	sd := NewStaticPods(logger.NewLogger(), fk, "kube-system", "test", nodes, nil)
+	sd.ExplorePods = func(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
+		if name != "test" {
+			t.Fatalf("want name test but get %s", name)
+		}
+
+		if len(pods) != 1 {
+			t.Fatalf("want 1 pods but get %d", len(pods))
+		}
+
+		return nil
+	}
+
 	cmp, err := sd.Component()
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if len(cmp) != total {
-		t.Fatalf("want 3 component results")
+	if len(cmp) != 1 {
+		t.Fatalf("want 2 result but get %d", len(cmp))
 	}
 
-	for _, c := range cmp {
-		if c.Node != "10.0.0.0" && !c.IsRunning {
-			t.Fatalf("IsRunning want true")
-		}
-
-		if c.Node == "10.0.0.0" && c.IsRunning {
-			t.Fatalf("IsRunning want false")
-		}
-
-		if !c.IsRunning {
-			continue
-		}
-
-		if c.Args["a"] != "123" {
-			t.Fatalf("key a want value 123")
-		}
-
-		if c.Args["b"] != "321" {
-			t.Fatalf("key b want value 321")
-		}
+	if cmp[0].IsRunning {
+		t.Fatalf("want cmponent not running ")
 	}
 }
