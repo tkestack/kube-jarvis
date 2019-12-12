@@ -8,7 +8,7 @@ Coordinator is responsible for coordinating the work of the other plug-ins, exec
 ## Diagnostic
 Diagnostic is responsible for diagnosing an aspect of the cluster, outputting diagnostic results and repair recommendations
 * [master-capacity](./diagnose/master/capacity/README.md)  
-* [master-components] (./diagnose/master/components/README.md)  
+* [master-components](./diagnose/master/components/README.md)  
 * [requests-limits](./diagnose/resource/workload/requestslimits/README.md)
 * [example](./diagnose/other/example/README.md) 
 ## Exporter
