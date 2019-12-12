@@ -19,28 +19,46 @@ package example
 
 import (
 	"context"
+	"fmt"
 	"testing"
-
 	"tkestack.io/kube-jarvis/pkg/plugins"
-
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 func TestDiagnostic_StartDiagnose(t *testing.T) {
-	s := NewDiagnostic(&diagnose.MetaData{
-		CommonMetaData: plugins.CommonMetaData{
-			Translator: translate.NewFake().WithModule("diagnostics.example"),
+	cases := []struct {
+		message string
+	}{
+		{
+			message: "mes1",
 		},
-	})
+		{
+			message: "mes2",
+		},
+	}
 
-	result, _ := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
+	for _, cs := range cases {
+		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
+			s := NewDiagnostic(&diagnose.MetaData{
+				CommonMetaData: plugins.CommonMetaData{
+					Translator: translate.NewFake(),
+				},
+			}).(*Diagnostic)
 
-	for {
-		res, ok := <-result
-		if !ok {
-			break
-		}
-		t.Logf("%+v", res)
+			s.Message = cs.message
+			result, err := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
+			if err != nil {
+				t.Fatalf(err.Error())
+			}
+
+			for {
+				res, ok := <-result
+				if !ok {
+					break
+				}
+				t.Logf("%+v", res)
+			}
+		})
 	}
 }
