@@ -43,7 +43,7 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
+func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
 	go func() {
 		defer close(d.result)
@@ -75,5 +75,5 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			}
 		}
 	}()
-	return d.result
+	return d.result, nil
 }

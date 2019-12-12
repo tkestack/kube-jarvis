@@ -43,7 +43,7 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
+func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		// send a risk result
@@ -68,5 +68,5 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}()
-	return d.result
+	return d.result, nil
 }

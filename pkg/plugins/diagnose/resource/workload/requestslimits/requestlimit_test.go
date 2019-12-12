@@ -76,7 +76,7 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 		},
 	})
 
-	result := d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
+	result, _ := d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
 		Resources: res,
 	})
 
@@ -87,10 +87,6 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 			break
 		}
 		total++
-
-		if s.Error != nil {
-			t.Fatalf(s.Error.Error())
-		}
 
 		t.Logf("%+v", *s)
 	}

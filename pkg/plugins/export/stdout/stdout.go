@@ -92,24 +92,23 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic
 		return e.Collector.DiagnosticResult(ctx, dia, result)
 	}
 
-	if result.Error != nil {
-		color.HiRed("[!!ERROR] %s\n", result.Error.Error())
-	} else {
-		var pt func(format string, a ...interface{})
-		switch result.Level {
-		case diagnose.HealthyLevelGood:
-			pt = color.Green
-		case diagnose.HealthyLevelWarn:
-			pt = color.Yellow
-		case diagnose.HealthyLevelRisk:
-			pt = color.Red
-		case diagnose.HealthyLevelSerious:
-			pt = color.HiRed
-		default:
-			pt = func(format string, a ...interface{}) {
-				fmt.Printf(format, a...)
-			}
+	var pt func(format string, a ...interface{})
+	switch result.Level {
+	case diagnose.HealthyLevelFailed:
+		pt = color.HiRed
+	case diagnose.HealthyLevelGood:
+		pt = color.Green
+	case diagnose.HealthyLevelWarn:
+		pt = color.Yellow
+	case diagnose.HealthyLevelRisk:
+		pt = color.Red
+	case diagnose.HealthyLevelSerious:
+		pt = color.HiRed
+	default:
+		pt = func(format string, a ...interface{}) {
+			fmt.Printf(format, a...)
 		}
+
 		pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
 		pt("    Describe : %s\n", result.Desc)
 		pt("    Proposal : %s\n", result.Proposal)

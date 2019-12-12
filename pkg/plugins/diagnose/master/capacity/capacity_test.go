@@ -133,7 +133,7 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 			}).(*Diagnostic)
 			d.Capacities = cs.Capacities
 
-			d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
+			_, _ = d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
 				CloudType: "fake",
 				Resources: res,
 			})

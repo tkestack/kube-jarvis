@@ -41,7 +41,11 @@ func RunExporterTest(t *testing.T, exporter Exporter) {
 	})
 	// Diagnostic
 	fatalIfError(t, exporter.DiagnosticBegin(ctx, d))
-	result := d.StartDiagnose(ctx, diagnose.StartDiagnoseParam{})
+	result, err := d.StartDiagnose(ctx, diagnose.StartDiagnoseParam{})
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+
 	for {
 		st, ok := <-result
 		if !ok {

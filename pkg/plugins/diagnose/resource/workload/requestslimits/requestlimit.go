@@ -47,7 +47,7 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
+func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
@@ -55,7 +55,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			d.diagnosePod(pod)
 		}
 	}()
-	return d.result
+	return d.result, nil
 }
 
 func (d *Diagnostic) diagnosePod(pod v12.Pod) {

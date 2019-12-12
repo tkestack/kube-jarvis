@@ -34,7 +34,7 @@ func TestDiagnostic_StartDiagnose(t *testing.T) {
 		},
 	})
 
-	result := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
+	result, _ := s.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{})
 
 	for {
 		res, ok := <-result

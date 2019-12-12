@@ -100,7 +100,7 @@ type Diagnostic interface {
 	// StartDiagnose return a result chan that will output results
 	// [chan *Result] will pop results one by one
 	// diagnostic is deemed to finish if [chan *Result] is closed
-	StartDiagnose(ctx context.Context, param StartDiagnoseParam) chan *Result
+	StartDiagnose(ctx context.Context, param StartDiagnoseParam) (chan *Result, error)
 }
 
 // Factory create a new Diagnostic

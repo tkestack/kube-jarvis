@@ -81,10 +81,14 @@ func (c *Coordinator) finish(ctx context.Context) {
 func (c *Coordinator) diagnostic(ctx context.Context) {
 	for _, dia := range c.diagnostics {
 		c.diagnosticBegin(ctx, dia)
-		result := dia.StartDiagnose(ctx, diagnose.StartDiagnoseParam{
+		result, err := dia.StartDiagnose(ctx, diagnose.StartDiagnoseParam{
 			CloudType: c.cls.CloudType(),
 			Resources: c.cls.Resources(),
 		})
+		if err != nil {
+			c.logger.Errorf("start diagnostic type[%s] name[%s] failed : %v", dia.Meta().Type, dia.Meta().Name, err)
+			os.Exit(1)
+		}
 
 		for {
 			s, ok := <-result
