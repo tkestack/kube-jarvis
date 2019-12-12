@@ -27,5 +27,5 @@ diagnostics:
       memory: "128000000Ki"
       cpu: "16000m"    
 ```
-# supported cloud type 
+# supported cluster type 
 * all

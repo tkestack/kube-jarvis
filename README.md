@@ -70,7 +70,7 @@ kubectl apply -f manifests/workload/cronjob.yaml
 ```
 # Plugins
 we call coordinator, diagnostics, evaluators and exporters as "plugins"
-> [you can found all plugins lists here](https://tkestack.io/kube-jarvis/tree/master/pkg/plugins)
+> [you can found all plugins lists here](./pkg/plugins/README.md)
 
 # License
 Apache License 2.0 - see LICENSE.md for more details
