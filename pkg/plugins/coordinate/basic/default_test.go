@@ -34,6 +34,7 @@ func TestNewDefault(t *testing.T) {
 	logger := logger2.NewLogger()
 	ctx := context.Background()
 	d := NewCoordinator(logger, fake.NewCluster())
+	_ = d.Complete()
 
 	d.AddDiagnostic(example.NewDiagnostic(&diagnose.MetaData{
 		CommonMetaData: plugins.CommonMetaData{

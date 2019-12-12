@@ -50,6 +50,16 @@ func NewAuto(defName string, masterNodes bool) *Auto {
 	}
 }
 
+func (a *Auto) Complete() {
+	if a.Type == "" {
+		a.Type = TypeAuto
+	}
+
+	if a.Namespace == "" {
+		a.Namespace = "kube-system"
+	}
+}
+
 // Init do init
 func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor nodeexec.Executor) error {
 	specialNodes := false

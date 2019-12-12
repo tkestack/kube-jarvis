@@ -95,6 +95,8 @@ type StartDiagnoseParam struct {
 
 // Diagnostic diagnose some aspects of cluster
 type Diagnostic interface {
+	// Complete check and complete config items
+	Complete() error
 	// Meta return core MetaData
 	Meta() MetaData
 	// StartDiagnose return a result chan that will output results

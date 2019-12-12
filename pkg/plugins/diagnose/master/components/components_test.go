@@ -76,6 +76,9 @@ func TestDiagnostic_StartDiagnose(t *testing.T) {
 
 			d := NewDiagnostic(param).(*Diagnostic)
 			d.Components = []string{cmpName}
+			if err := d.Complete(); err != nil {
+				t.Fatalf(err.Error())
+			}
 
 			result, err := d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{
 				CloudType: "test",

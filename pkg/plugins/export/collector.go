@@ -42,6 +42,14 @@ type Collector struct {
 	Output      []io.Writer
 }
 
+// Complete check and complete config items
+func (c *Collector) Complete() error {
+	if c.Format == "" {
+		c.Format = "json"
+	}
+	return nil
+}
+
 // CoordinateBegin export information about coordinator Run begin
 func (c *Collector) CoordinateBegin(ctx context.Context) error {
 	if c.Format == "" {
@@ -91,11 +99,15 @@ func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnosti
 // Marshal marshal Collected results to byte data according to format
 // format can be : "json" , "yaml"
 func (c *Collector) Marshal() ([]byte, error) {
+	result := map[string]interface{}{
+		"Diagnostics": c.Diagnostics,
+	}
+
 	switch c.Format {
 	case "json":
-		return json.Marshal(c)
+		return json.Marshal(result)
 	case "yaml":
-		return yaml.Marshal(c)
+		return yaml.Marshal(result)
 	}
 
 	return nil, fmt.Errorf("unknow format")

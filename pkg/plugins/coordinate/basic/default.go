@@ -45,6 +45,11 @@ func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordi
 	}
 }
 
+// Complete check and complete check config items
+func (c *Coordinator) Complete() error {
+	return nil
+}
+
 // AddDiagnostic add a diagnostic to Coordinator
 func (c *Coordinator) AddDiagnostic(dia diagnose.Diagnostic) {
 	c.diagnostics = append(c.diagnostics, dia)

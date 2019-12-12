@@ -131,6 +131,11 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 				},
 				Catalogue: diagnose.CatalogueMaster,
 			}).(*Diagnostic)
+
+			if err := d.Complete(); err != nil {
+				t.Fatalf(err.Error())
+			}
+
 			d.Capacities = cs.Capacities
 
 			_, _ = d.StartDiagnose(context.Background(), diagnose.StartDiagnoseParam{

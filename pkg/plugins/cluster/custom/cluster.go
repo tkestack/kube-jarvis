@@ -61,21 +61,59 @@ func NewCluster(log logger.Logger, cli kubernetes.Interface, config *rest.Config
 		Node:       nodeexec.NewConfig(),
 		resources:  cluster.NewResources(),
 		compExps:   map[string]compexplorer.Explorer{},
-		Components: map[string]*compexplorer.Auto{
-			cluster.ComponentApiserver:         compexplorer.NewAuto(cluster.ComponentApiserver, true),
-			cluster.ComponentScheduler:         compexplorer.NewAuto(cluster.ComponentScheduler, true),
-			cluster.ComponentControllerManager: compexplorer.NewAuto(cluster.ComponentControllerManager, true),
-			cluster.ComponentETCD:              compexplorer.NewAuto(cluster.ComponentETCD, true),
-			cluster.ComponentKubeProxy:         compexplorer.NewAuto(cluster.ComponentKubeProxy, false),
-			cluster.ComponentCoreDNS:           compexplorer.NewAuto(cluster.ComponentCoreDNS, false),
-			cluster.ComponentKubeDNS:           compexplorer.NewAuto(cluster.ComponentKubeDNS, false),
-			cluster.ComponentKubelet:           compexplorer.NewAuto(cluster.ComponentKubelet, false),
-			cluster.ComponentDockerd:           compexplorer.NewAuto(cluster.ComponentKubelet, false),
-			cluster.ComponentContainerd:        compexplorer.NewAuto(cluster.ComponentContainerd, false),
-		},
+		Components: map[string]*compexplorer.Auto{},
 	}
 
 	return c
+}
+
+// Complete check and complete config items
+func (c *Cluster) Complete() error {
+	if _, exist := c.Components[cluster.ComponentApiserver]; !exist {
+		c.Components[cluster.ComponentApiserver] = compexplorer.NewAuto(cluster.ComponentApiserver, true)
+	}
+
+	if _, exist := c.Components[cluster.ComponentScheduler]; !exist {
+		c.Components[cluster.ComponentScheduler] = compexplorer.NewAuto(cluster.ComponentScheduler, true)
+	}
+
+	if _, exist := c.Components[cluster.ComponentControllerManager]; !exist {
+		c.Components[cluster.ComponentControllerManager] = compexplorer.NewAuto(cluster.ComponentControllerManager, true)
+	}
+	if _, exist := c.Components[cluster.ComponentETCD]; !exist {
+		c.Components[cluster.ComponentETCD] = compexplorer.NewAuto(cluster.ComponentETCD, true)
+	}
+	if _, exist := c.Components[cluster.ComponentKubeProxy]; !exist {
+		c.Components[cluster.ComponentKubeProxy] = compexplorer.NewAuto(cluster.ComponentKubeProxy, false)
+	}
+
+	if _, exist := c.Components[cluster.ComponentCoreDNS]; !exist {
+		c.Components[cluster.ComponentCoreDNS] = compexplorer.NewAuto(cluster.ComponentCoreDNS, false)
+	}
+
+	if _, exist := c.Components[cluster.ComponentKubeDNS]; !exist {
+		c.Components[cluster.ComponentKubeDNS] = compexplorer.NewAuto(cluster.ComponentKubeDNS, false)
+	}
+
+	if _, exist := c.Components[cluster.ComponentKubelet]; !exist {
+		c.Components[cluster.ComponentKubelet] = compexplorer.NewAuto(cluster.ComponentKubelet, false)
+	}
+
+	if _, exist := c.Components[cluster.ComponentDockerd]; !exist {
+		c.Components[cluster.ComponentDockerd] = compexplorer.NewAuto(cluster.ComponentDockerd, false)
+	}
+
+	if _, exist := c.Components[cluster.ComponentContainerd]; !exist {
+		c.Components[cluster.ComponentContainerd] = compexplorer.NewAuto(cluster.ComponentContainerd, false)
+	}
+
+	for _, cmp := range c.Components {
+		cmp.Complete()
+	}
+
+	c.Node.Complete()
+
+	return nil
 }
 
 // Init do initialization for Cluster

@@ -37,6 +37,8 @@ func (m *MetaData) Meta() MetaData {
 
 // Exporter export all steps and results with special way or special format
 type Exporter interface {
+	// Complete check and complete config items
+	Complete() error
 	// Meta return core attributes
 	Meta() MetaData
 	// CoordinateBegin export information about coordinator Run begin

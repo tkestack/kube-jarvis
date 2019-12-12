@@ -61,6 +61,7 @@ type Component struct {
 	Pod *corev1.Pod
 }
 
+// Resources containers all cluster information from k8s , machine or process
 type Resources struct {
 	Nodes                           *corev1.NodeList
 	PersistentVolumes               *corev1.PersistentVolumeList

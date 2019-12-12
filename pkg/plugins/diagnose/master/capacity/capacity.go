@@ -52,10 +52,18 @@ type Diagnostic struct {
 // NewDiagnostic return a master-node diagnostic
 func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	return &Diagnostic{
-		result:     make(chan *diagnose.Result, 100),
-		MetaData:   meta,
-		Capacities: DefCapacities,
+		result:   make(chan *diagnose.Result, 100),
+		MetaData: meta,
 	}
+}
+
+// Complete check and complete config items
+func (d *Diagnostic) Complete() error {
+	if len(d.Capacities) == 0 {
+		d.Capacities = DefCapacities
+	}
+
+	return nil
 }
 
 // StartDiagnose return a result chan that will output results

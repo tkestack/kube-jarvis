@@ -62,7 +62,6 @@ type Config struct {
 	Diagnostics []struct {
 		Type      string
 		Name      string
-		Score     float64
 		Catalogue diagnose.Catalogue
 		Config    interface{}
 	}
@@ -138,6 +137,10 @@ func (c *Config) GetCluster() (cluster.Cluster, error) {
 		return nil, errors.Wrap(err, "init cluster config failed")
 	}
 
+	if err := cls.Complete(); err != nil {
+		return nil, err
+	}
+
 	if err := cls.Init(); err != nil {
 		return nil, errors.Wrap(err, "init cluster failed")
 	}
@@ -159,7 +162,12 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 	cr := creator(c.Logger.With(map[string]string{
 		"coordinator": c.Coordinator.Type,
 	}), cls)
+
 	if err := util.InitObjViaYaml(cr, c.Coordinator.Config); err != nil {
+		return nil, err
+	}
+
+	if err := cr.Complete(); err != nil {
 		return nil, err
 	}
 
@@ -169,21 +177,7 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 // GetDiagnostics create all target Diagnostics
 func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	ds := make([]diagnose.Diagnostic, 0)
-	nameSet := map[string]bool{}
 	for _, config := range c.Diagnostics {
-		if config.Name == "" {
-			config.Name = config.Type
-		}
-
-		if config.Score == 0 {
-			config.Score = 100
-		}
-
-		if nameSet[config.Name] {
-			return nil, fmt.Errorf("diagnostic [%s] name already exist", config.Name)
-		}
-		nameSet[config.Name] = true
-
 		factory, exist := diagnose.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
@@ -215,6 +209,10 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 			return nil, err
 		}
 
+		if err := d.Complete(); err != nil {
+			return nil, err
+		}
+
 		ds = append(ds, d)
 	}
 
@@ -224,17 +222,7 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 // GetExporters create all target Exporters
 func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
-	nameSet := map[string]bool{}
 	for _, config := range c.Exporters {
-		if config.Name == "" {
-			config.Name = config.Type
-		}
-
-		if nameSet[config.Name] {
-			return nil, fmt.Errorf("exporter [%s] name already exist", config.Name)
-		}
-		nameSet[config.Name] = true
-
 		factory, exist := export.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found exporter type %s", config.Type)
@@ -257,6 +245,10 @@ func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) (
 		})
 
 		if err := util.InitObjViaYaml(e, config.Config); err != nil {
+			return nil, err
+		}
+
+		if err := e.Complete(); err != nil {
 			return nil, err
 		}
 

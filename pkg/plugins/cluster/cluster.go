@@ -26,6 +26,8 @@ import (
 // Cluster is the abstract of target cluster
 // other plugins should get Resources from Cluster
 type Cluster interface {
+	// Complete check and complete config items
+	Complete() error
 	// Init Instantiation for cluster, it will fetch Resources
 	Init() error
 	// SyncResources reFetch all resource from cluster

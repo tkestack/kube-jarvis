@@ -45,9 +45,16 @@ func NewExporter(m *export.MetaData) export.Exporter {
 	e := &Exporter{
 		MetaData: m,
 	}
-
-	e.Format = "fmt"
 	return e
+}
+
+// Complete check and complete config items
+func (e *Exporter) Complete() error {
+	if e.Format == "" {
+		e.Format = "fmt"
+	}
+
+	return e.Collector.Complete()
 }
 
 // CoordinateBegin export information about coordinator Run begin

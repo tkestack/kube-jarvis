@@ -43,10 +43,24 @@ type Diagnostic struct {
 // NewDiagnostic return a master-components diagnostic
 func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	return &Diagnostic{
-		result:      make(chan *diagnose.Result, 1000),
-		MetaData:    meta,
-		RestartTime: "24h",
-		Components: []string{
+		result:   make(chan *diagnose.Result, 1000),
+		MetaData: meta,
+	}
+}
+
+// Complete check and complete config items
+func (d *Diagnostic) Complete() error {
+	if d.RestartTime != "" {
+		_, err := time.ParseDuration(d.RestartTime)
+		if err != nil {
+			return errors.Wrapf(err, "wrong config : restarttime=%s : %v", d.RestartTime, err)
+		}
+	} else {
+		d.RestartTime = "24h"
+	}
+
+	if len(d.Components) == 0 {
+		d.Components = []string{
 			cluster.ComponentApiserver,
 			cluster.ComponentScheduler,
 			cluster.ComponentControllerManager,
@@ -57,8 +71,10 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 			cluster.ComponentKubelet,
 			cluster.ComponentDockerd,
 			cluster.ComponentContainerd,
-		},
+		}
 	}
+
+	return nil
 }
 
 func isMasterCoreComp(comp string) bool {

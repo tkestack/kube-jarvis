@@ -19,6 +19,7 @@ package file
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	"io"
 	"os"
@@ -42,6 +43,17 @@ func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
 		MetaData: m,
 	}
+}
+
+// Complete check and complete config items
+func (e *Exporter) Complete() error {
+	_ = e.Collector.Complete()
+
+	if e.Path == "" {
+		e.Path = fmt.Sprintf("result.%s", e.Format)
+	}
+
+	return nil
 }
 
 // CoordinateBegin export information about coordinator Run begin

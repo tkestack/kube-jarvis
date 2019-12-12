@@ -25,6 +25,8 @@ import (
 
 func TestConfig_Executor(t *testing.T) {
 	n := NewConfig()
+	n.Complete()
+
 	exe, err := n.Executor(logger.NewLogger(), fake.NewSimpleClientset(), nil)
 	if err != nil {
 		t.Fatalf(err.Error())

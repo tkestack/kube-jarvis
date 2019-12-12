@@ -6,9 +6,9 @@ A custom cluster is a user-built cluster that can be highly customized through a
 ```yaml
 cluster:
   type: "custom"
+  kubeconfig: "" # the path of kubeconfig file, use "" to use $HOMEDIR/.kube/.config or use in-cluster way
   # default config value
   config:
-    kubeconfig: "" # the path of kubeconfig file, use "" to use $HOMEDIR/.kube/.config or use in-cluster way
     node: # the way to fetch node machine level data
       type: "proxy" # via the a agent DaemonSet 
       namespace: "kube-jarvis" # the namespace of agent 

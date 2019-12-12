@@ -100,6 +100,10 @@ func TestCluster_Resources(t *testing.T) {
 		t.Fatalf("wrong cloud type")
 	}
 
+	if err := cls.Complete(); err != nil {
+		t.Fatalf(err.Error())
+	}
+
 	cls.Components = map[string]*compexplorer.Auto{}
 	if err := cls.Init(); err != nil {
 		t.Fatalf(err.Error())

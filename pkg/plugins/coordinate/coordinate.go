@@ -29,6 +29,8 @@ import (
 
 // Coordinator knows how to coordinate diagnostics,exporters,evaluators
 type Coordinator interface {
+	// Complete check and complete config items
+	Complete() error
 	// AddDiagnostic add a diagnostic to Coordinator
 	AddDiagnostic(dia diagnose.Diagnostic)
 	// AddExporter add a Exporter to Coordinator

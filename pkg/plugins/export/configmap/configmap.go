@@ -52,9 +52,26 @@ func NewExporter(m *export.MetaData) export.Exporter {
 	}
 }
 
+// Complete check and complete config items
+func (e *Exporter) Complete() error {
+	if e.Name == "" {
+		e.Name = "kube-jarvis"
+	}
+
+	if e.Format == "" {
+		e.Format = "json"
+	}
+
+	if e.Namespace == "" {
+		e.Namespace = "default"
+	}
+
+	e.DataKey = time.Now().Format("2006-01-02T15-04-05")
+	return nil
+}
+
 // CoordinateFinish export save collected data to config-map
 func (e *Exporter) CoordinateFinish(ctx context.Context) error {
-	e.initDefault()
 	cm, err := e.getConfigMap()
 	if err != nil {
 		return err
@@ -89,20 +106,4 @@ func (e *Exporter) getConfigMap() (*v1.ConfigMap, error) {
 	}
 
 	return cm, nil
-}
-
-func (e *Exporter) initDefault() {
-	if e.Name == "" {
-		e.Name = "kube-jarvis"
-	}
-
-	if e.Format == "" {
-		e.Format = "json"
-	}
-
-	if e.Namespace == "" {
-		e.Namespace = "default"
-	}
-
-	e.DataKey = time.Now().Format("2006-01-02T15-04-05")
 }

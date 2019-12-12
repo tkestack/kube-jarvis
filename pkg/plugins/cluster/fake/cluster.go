@@ -27,6 +27,11 @@ func NewCluster() *Cluster {
 	return &Cluster{Res: cluster.NewResources()}
 }
 
+// Complete check and complete config items
+func (c *Cluster) Complete() error {
+	return nil
+}
+
 // Init Instantiation for cluster, it will fetch Resources
 func (c *Cluster) Init() error {
 	return nil

@@ -42,6 +42,11 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	}
 }
 
+// Complete check and complete config items
+func (d *Diagnostic) Complete() error {
+	return nil
+}
+
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	go func() {

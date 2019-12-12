@@ -33,6 +33,8 @@ func TestNewStdout(t *testing.T) {
 		CommonMetaData: plugins.CommonMetaData{},
 	}).(*Exporter)
 	s.Cli = cli
+
+	_ = s.Complete()
 	export.RunExporterTest(t, s)
 
 	cm, err := cli.CoreV1().ConfigMaps(s.Namespace).Get(s.Name, metav1.GetOptions{})

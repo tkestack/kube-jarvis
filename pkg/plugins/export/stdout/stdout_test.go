@@ -25,5 +25,6 @@ import (
 
 func TestNewStdout(t *testing.T) {
 	s := NewExporter(&export.MetaData{}).(*Exporter)
+	_ = s.Complete()
 	export.RunExporterTest(t, s)
 }

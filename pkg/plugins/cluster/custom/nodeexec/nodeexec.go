@@ -43,17 +43,27 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	return &Config{
-		Type:      "proxy",
-		Namespace: "kube-jarvis",
-		DaemonSet: "kube-jarvis-agent",
+	return &Config{}
+}
+
+func (c *Config) Complete() {
+	if c.Type == "" {
+		c.Type = "proxy"
+	}
+
+	if c.Namespace == "" {
+		c.Namespace = "kube-jarvis"
+	}
+
+	if c.DaemonSet == "" {
+		c.DaemonSet = "kube-jarvis-agent"
 	}
 }
 
-func (n *Config) Executor(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
-	switch n.Type {
+func (c *Config) Executor(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
+	switch c.Type {
 	case "proxy":
-		return NewDaemonSetProxy(logger, cli, config, n.Namespace, n.DaemonSet)
+		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet)
 	case "none":
 		return nil, NoneExecutor
 	}
