@@ -23,6 +23,7 @@ const (
 	TypeStaticPod = "StaticPod"
 	TypeLabel     = "Label"
 	TypeBare      = "Bare"
+	TypeAuto      = "Auto"
 )
 
 // Explorer get component information

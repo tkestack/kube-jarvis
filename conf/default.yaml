@@ -13,11 +13,10 @@ diagnostics:
   - type: "requests-limits"
 
 exporters:
-  - type: "stdout"
 
   - type: "file"
     name: "for json"
     config:
-      format: "json"
-      path: "result.json"
+    format: "json"
+    path: "result.json"
 

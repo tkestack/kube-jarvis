@@ -5,10 +5,10 @@ stdout exporter just print result to stdout with a simple format
 ```yaml
 exporters:
   - type: "stdout"
-    name: "stdout 1"
+    name: "stdout"
     config:
       format: "fmt" # fmt or json or yaml
 ```
 
-# supported cloud providers
+# supported cluster type 
 * all

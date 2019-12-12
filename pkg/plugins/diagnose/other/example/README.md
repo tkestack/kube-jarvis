@@ -4,12 +4,13 @@ This is the example that shows how to write a diagnostic plugins
 
 # config
 ```yaml
-- diagnostics:
+diagnostics:
   - type: "example"
-    name: "example for test"
-    score: 10
+   # default values
+    name: "example"
+    catalogue: ["other"]    
     config:
       message: "message"     #extra message
 ```
-# supported cloud providers
+# supported cluster type
 * all

@@ -21,13 +21,14 @@ wget -O -  https://kube-jarvis-1251707795.cos.ap-guangzhou.myqcloud.com/run.sh |
 # Config struct
 ```yaml
 global:
-  trans: "translation"
-  lang: "en"
+  trans: "translation" # the translation file dir 
+  lang: "en" # target lang 
 
-cluster:
-  # see detail of custom cluster here:
+cluster: 
   type: "custom"
-  kubeconfig: ""
+
+coordinator:
+  type: "default"
 
 diagnostics:
   - type: "master-capacity"

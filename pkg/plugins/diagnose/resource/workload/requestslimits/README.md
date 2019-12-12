@@ -5,9 +5,10 @@ This diagnostic report the healthy of workload's resources requests limits confi
 # config
 ```yaml
 diagnostics:
-- type: "requests-limits"
-  name: "pod requests-limits"
-  score: 100
+  - type: "requests-limits"
+    # default values
+    name: "requests-limits"
+    catalogue: ["resource"]
 ```
-# supported cloud providers
+# supported cluster type 
 * all

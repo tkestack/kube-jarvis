@@ -35,8 +35,8 @@ const (
 type Capacity struct {
 	// Memory is total memory of master node
 	Memory resource.Quantity
-	// CpuCore is total core number of master node
-	CpuCore resource.Quantity
+	// Cpu is total core number of master node
+	Cpu resource.Quantity
 	// MaxNodeTotal indicate the max node number of this master scale
 	MaxNodeTotal int
 }
@@ -93,10 +93,10 @@ func (d *Diagnostic) diagnoseCapacity(ctx context.Context) {
 	}
 
 	for _, m := range masters {
-		if m.Status.Capacity.Cpu().Cmp(scale.CpuCore) < 0 {
-			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.CpuCore.String())
+		if m.Status.Capacity.Cpu().Cmp(scale.Cpu) < 0 {
+			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.Cpu.String())
 		} else {
-			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.CpuCore.String())
+			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.Cpu.String())
 		}
 
 		if m.Status.Capacity.Memory().Cmp(scale.Memory) < 0 {

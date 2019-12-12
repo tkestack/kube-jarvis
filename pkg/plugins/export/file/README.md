@@ -11,5 +11,5 @@ exporters:
       path: "result.json"
 ```
 
-# supported cloud providers
+# supported cluster type 
 * all

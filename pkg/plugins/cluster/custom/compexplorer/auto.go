@@ -43,7 +43,7 @@ type Auto struct {
 // NewAuto create a ComponentConfig with default value
 func NewAuto(defName string, masterNodes bool) *Auto {
 	return &Auto{
-		Type:      "auto",
+		Type:      TypeAuto,
 		PreType:   TypeBare,
 		Name:      defName,
 		Namespace: "kube-system",
@@ -104,7 +104,7 @@ func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor
 
 // Component get cluster components
 func (a *Auto) Component() ([]cluster.Component, error) {
-	if a.Type != "auto" {
+	if a.Type != TypeAuto {
 		exp, exist := a.explorers[a.Type]
 		if !exist {
 			panic("unsupported component executor type " + a.Type)

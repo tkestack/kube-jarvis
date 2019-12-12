@@ -12,5 +12,5 @@ evaluators:
       format: "json"
 ```
 
-# supported cloud providers
+# supported cluster type 
 * all

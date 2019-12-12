@@ -45,12 +45,12 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 			Capacities: []Capacity{
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 8,
 				},
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 3,
 				},
 			},
@@ -64,12 +64,12 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 			Capacities: []Capacity{
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 8,
 				},
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 3,
 				},
 			},
@@ -84,12 +84,12 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 			Capacities: []Capacity{
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 8,
 				},
 				{
 					Memory:       resource.MustParse("2Gi"),
-					CpuCore:      resource.MustParse("2000m"),
+					Cpu:          resource.MustParse("2000m"),
 					MaxNodeTotal: 3,
 				},
 			},
