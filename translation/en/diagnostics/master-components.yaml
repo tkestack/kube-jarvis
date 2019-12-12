@@ -1,0 +1,15 @@
+err-title: "Error occur"
+err-desc: "There is unexpected error"
+err-proposal: "See running logs"
+
+not-run-title: "Component is not running"
+not-run-desc: "{{.Name}} on {{.Node}} is not running, it may crashed"
+not-run-proposal: "Check your {{.Name}} on {{.Node}}"
+
+restart-title: "Component restarted"
+restart-desc: "{{.Name}} run as pod, and restart count is {{.Count}}, last restartTime is {{.LastTime}}"
+restart-proposal: "Check your {{.Name}} pod status and event know the restart reason"
+
+good-title: "Component status is good"
+good-desc: "{{.Name}} on {{.Node}} is running and never restart recently"
+good-proposal: ""

@@ -9,6 +9,7 @@ cluster:
 
 diagnostics:
   - type: "master-capacity"
+  - type: "master-components"
   - type: "node-sys"
   - type: "requests-limits"
 

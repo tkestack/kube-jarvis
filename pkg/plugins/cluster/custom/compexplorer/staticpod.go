@@ -69,6 +69,7 @@ func (s *StaticPods) Component() ([]cluster.Component, error) {
 
 		cmp.IsRunning = true
 		cmp.Args = s.getArgs(pod)
+		cmp.Pod = pod
 		result = append(result, cmp)
 	}
 	return result, nil

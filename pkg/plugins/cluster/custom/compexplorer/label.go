@@ -60,11 +60,13 @@ func (n *LabelExp) Component() ([]cluster.Component, error) {
 	}
 
 	for _, pod := range pods.Items {
+		tempPod := pod
 		result = append(result, cluster.Component{
 			Name:      pod.Name,
 			Node:      pod.Spec.NodeName,
 			Args:      n.getArgs(&pod),
 			IsRunning: true,
+			Pod:       &tempPod,
 		})
 	}
 
