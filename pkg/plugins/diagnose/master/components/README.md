@@ -13,16 +13,16 @@ diagnostics:
    config: 
      restarttime: "24h"  
      components:
-	 - "kube-apiserver"
-	 - "kube-scheduler"
-	 - "kube-controller-manager"
-	 - "etcd"
-	 - "kube-proxy"
-	 - "coredns"
-	 - "kube-dns"
-	 - "kubelet"
-	 - "dockerd"
-	 - "containerd"
+       - "kube-apiserver"
+       - "kube-scheduler"
+	   - "kube-controller-manager"
+	   - "etcd"
+	   - "kube-proxy"
+	   - "coredns"
+	   - "kube-dns"
+	   - "kubelet"
+	   - "dockerd"
+	   - "containerd"
 ```
 # supported cluster type 
 * all
