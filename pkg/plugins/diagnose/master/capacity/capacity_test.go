@@ -145,8 +145,8 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 				}
 				total++
 				if cs.Err {
-					if r.Error == nil {
-						t.Fatalf("want a err")
+					if r.Level != diagnose.HealthyLevelFailed {
+						t.Fatalf("want failed result")
 					}
 					return
 				}

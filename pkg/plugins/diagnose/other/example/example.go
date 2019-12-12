@@ -45,9 +45,21 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) chan *diagnose.Result {
 	go func() {
-		defer close(d.result)
+		defer diagnose.CommonDeafer(d.result)
+		// send a risk result
 		d.result <- &diagnose.Result{
 			Level:   diagnose.HealthyLevelRisk,
+			Title:   "example",
+			ObjName: "example-obj",
+			Desc: d.Translator.Message("message", map[string]interface{}{
+				"Mes": d.Message,
+			}),
+			Proposal: d.Translator.Message("proposal", nil),
+		}
+
+		// if any Error occur , send a failed result
+		d.result <- &diagnose.Result{
+			Level:   diagnose.HealthyLevelFailed,
 			Title:   "example",
 			ObjName: "example-obj",
 			Desc: d.Translator.Message("message", map[string]interface{}{

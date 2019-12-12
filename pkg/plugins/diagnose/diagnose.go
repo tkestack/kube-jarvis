@@ -30,6 +30,9 @@ import (
 type HealthyLevel string
 
 const (
+	// HealthyLevelFailed means diagnostic is failed
+	// this is not a error but an acceptable failed
+	HealthyLevelFailed HealthyLevel = "failed"
 	// HealthyLevelGood means no health problem
 	HealthyLevelGood HealthyLevel = "good"
 	// HealthyLevelWarn means warn unHealthy
@@ -40,19 +43,19 @@ const (
 	HealthyLevelSerious HealthyLevel = "serious"
 )
 
-// Catalogue is the catalogue type of a Diagnostic
-type Catalogue string
+// Catalogue is the default catalogue type of a Diagnostic
+type Catalogue []string
 
-const (
+var (
 	// CatalogueMaster Diagnostic diagnose controller panel status
 	// master nodes status should belong to this catalogue
-	CatalogueMaster Catalogue = "master"
+	CatalogueMaster Catalogue = []string{"master"}
 	// CatalogueNode Diagnostics diagnose nodes status
-	CatalogueNode Catalogue = "node"
+	CatalogueNode Catalogue = []string{"node"}
 	// CatalogueResource Diagnostics diagnose cluster resources status
-	CatalogueResource Catalogue = "resource"
+	CatalogueResource Catalogue = []string{"resource"}
 	// CatalogueOther Diagnostics have no certain catalogue
-	CatalogueOther Catalogue = "other"
+	CatalogueOther Catalogue = []string{"other"}
 )
 
 // MetaData contains core attributes of a Diagnostic
@@ -72,14 +75,12 @@ func (m *MetaData) Meta() MetaData {
 type Result struct {
 	// Level is the healthy status
 	Level HealthyLevel
-	// Title is the short description of Result,that is, the title of Result
-	Title translate.Message
 	// ObjName is the name of diagnosed object
 	ObjName string
+	// Title is the short description of Result,that is, the title of Result
+	Title translate.Message
 	// Desc is the full description of Result
 	Desc translate.Message
-	// Error is the error detail if diagnostic failed
-	Error error
 	// Proposal is the full description that show how solve the healthy problem
 	Proposal translate.Message
 }

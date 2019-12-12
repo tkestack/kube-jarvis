@@ -17,13 +17,19 @@
  */
 package diagnose
 
-import "fmt"
+import (
+	"fmt"
+	"tkestack.io/kube-jarvis/pkg/translate"
+)
 
 func CommonDeafer(c chan *Result) {
 	close(c)
 	if err := recover(); err != nil {
 		c <- &Result{
-			Error: fmt.Errorf("%v", err),
+			Level:   HealthyLevelFailed,
+			ObjName: "*",
+			Title:   "Failed",
+			Desc:    translate.Message(fmt.Sprintf("%v", err)),
 		}
 	}
 }

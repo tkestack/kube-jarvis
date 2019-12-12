@@ -195,7 +195,7 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 		}
 
 		catalogue := config.Catalogue
-		if catalogue == "" {
+		if len(catalogue) == 0 {
 			catalogue = factory.Catalogue
 		}
 

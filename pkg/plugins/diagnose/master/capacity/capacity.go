@@ -23,6 +23,7 @@ import (
 	v12 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 const (
@@ -82,7 +83,12 @@ func (d *Diagnostic) diagnoseCapacity(ctx context.Context) {
 
 	scale, err := d.targetCapacity(nodeTotal)
 	if err != nil {
-		d.result <- &diagnose.Result{Error: err}
+		d.result <- &diagnose.Result{
+			Level:   diagnose.HealthyLevelFailed,
+			ObjName: "*",
+			Title:   "Failed",
+			Desc:    translate.Message(err.Error()),
+		}
 		return
 	}
 
@@ -106,18 +112,18 @@ func (d *Diagnostic) sendCapacityWarnResult(name string, resource string, nTotal
 		ObjName: name,
 		Level:   diagnose.HealthyLevelWarn,
 
-		Title: d.Translator.Message("capacity-title", map[string]interface{}{
+		Title: d.Translator.Message("title", map[string]interface{}{
 			"Resource": resource,
 		}),
 
-		Desc: d.Translator.Message("capacity-desc", map[string]interface{}{
+		Desc: d.Translator.Message("desc", map[string]interface{}{
 			"NodeName":  name,
 			"Resource":  resource,
 			"CurValue":  curVal,
 			"NodeTotal": nTotal,
 		}),
 
-		Proposal: d.Translator.Message("capacity-proposal", map[string]interface{}{
+		Proposal: d.Translator.Message("proposal", map[string]interface{}{
 			"NodeName":    name,
 			"Resource":    resource,
 			"TargetValue": targetVal,
@@ -131,11 +137,11 @@ func (d *Diagnostic) sendCapacityGoodResult(name string, resource string, nTotal
 		ObjName: name,
 		Level:   diagnose.HealthyLevelGood,
 
-		Title: d.Translator.Message("capacity-title", map[string]interface{}{
+		Title: d.Translator.Message("title", map[string]interface{}{
 			"Resource": resource,
 		}),
 
-		Desc: d.Translator.Message("capacity-good-desc", map[string]interface{}{
+		Desc: d.Translator.Message("good-desc", map[string]interface{}{
 			"NodeName":  name,
 			"Resource":  resource,
 			"CurValue":  curVal,
