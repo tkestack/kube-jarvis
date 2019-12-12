@@ -24,13 +24,13 @@ import (
 
 // CommonMetaData is the common attributes of a plugins
 type CommonMetaData struct {
-	// Translator is a translator with diagnostic module context
+	// Translator is a translator with plugins module context
 	Translator translate.Translator
-	// Logger is a logger with diagnostic module context
+	// Logger is a logger with plugins module context
 	Logger logger.Logger
-	// Type is the type of Diagnostic
+	// Type is the type of plugins
 	Type string
-	// Title is the custom name of Diagnostic
+	// Title is the custom name of plugins
 	Name string
 }
 
