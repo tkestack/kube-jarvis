@@ -219,6 +219,26 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Namespaces, err = client.Namespaces().List(opts)
 		return
 	})
+	g.Go(func() (err error) {
+		c.resources.Deployments, err = c.cli.ExtensionsV1beta1().Deployments("").List(v1.ListOptions{})
+		return
+	})
+	g.Go(func() (err error) {
+		c.resources.DaemonSets, err = c.cli.ExtensionsV1beta1().DaemonSets("").List(v1.ListOptions{})
+		return
+	})
+	g.Go(func() (err error) {
+		c.resources.StatefulSets, err = c.cli.AppsV1().StatefulSets("").List(v1.ListOptions{})
+		return
+	})
+	g.Go(func() (err error) {
+		c.resources.Jobs, err = c.cli.BatchV1().Jobs("").List(v1.ListOptions{})
+		return
+	})
+	g.Go(func() (err error) {
+		c.resources.CronJobs, err = c.cli.BatchV2alpha1().CronJobs("").List(v1.ListOptions{})
+		return
+	})
 
 	return g.Wait()
 }

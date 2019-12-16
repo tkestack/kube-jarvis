@@ -26,7 +26,6 @@ cluster:
                       # Label: select pods with label selector to explore component
                       # StaticPod: use static pod on node to explore component
 
-        pretype: "Bare"   # the explore way that with highest priority
         name: "kube-apiserver" # the real name of target component
         namespace: "kube-system" # the namespace of the component if use "Lable" or "StaticPod" exploring
         masternodes: true # only explore component on master nodes 
