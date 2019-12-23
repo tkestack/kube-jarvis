@@ -105,10 +105,11 @@ func (d *Default) WithModule(module string) Translator {
 //         ID = "message"  and module = "diagnostics.example"
 //         then real ID will be "diagnostics.example.message"
 func (d *Default) Message(ID string, templateData map[string]interface{}) Message {
-	return Message(d.localize.MustLocalize(&i18n.LocalizeConfig{
+	mes, _ := d.localize.Localize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID: fmt.Sprintf("%s.%s", d.module, ID),
 		},
 		TemplateData: templateData,
-	}))
+	})
+	return Message(mes)
 }
