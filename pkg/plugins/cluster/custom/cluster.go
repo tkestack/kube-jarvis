@@ -157,86 +157,181 @@ func (c *Cluster) initK8sResources() (err error) {
 	var g errgroup.Group
 	g.Go(func() (err error) {
 		c.resources.Nodes, err = client.Nodes().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list Nodes failed")
+		}
+		c.logger.Infof("Fetching (%d) nodes", len(c.resources.Nodes.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.PersistentVolumes, err = client.PersistentVolumes().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list PersistentVolumes failed")
+		}
+		c.logger.Infof("Fetching (%d) PersistentVolumes", len(c.resources.PersistentVolumes.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.ComponentStatuses, err = client.ComponentStatuses().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list ComponentStatuses failed")
+		}
+		c.logger.Infof("Fetching (%d) ComponentStatuses", len(c.resources.ComponentStatuses.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.Pods, err = client.Pods(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list Pods failed")
+		}
+		c.logger.Infof("Fetching (%d) Pods", len(c.resources.Pods.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.PodTemplates, err = client.PodTemplates(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list PodTemplates failed")
+		}
+		c.logger.Infof("Fetching (%d) PodTemplates", len(c.resources.PodTemplates.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.PersistentVolumeClaims, err = client.PersistentVolumeClaims(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list PersistentVolumeClaims failed")
+		}
+		c.logger.Infof("Fetching (%d) PersistentVolumeClaims", len(c.resources.PersistentVolumeClaims.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.ConfigMaps, err = client.ConfigMaps(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list ConfigMaps failed")
+		}
+		c.logger.Infof("Fetching (%d) ConfigMaps", len(c.resources.ConfigMaps.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.Secrets, err = client.Secrets(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list Secrets failed")
+		}
+		c.logger.Infof("Fetching (%d) Secrets", len(c.resources.Secrets.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.Services, err = client.Services(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list Services failed")
+		}
+		c.logger.Infof("Fetching (%d) Services", len(c.resources.Services.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.ServiceAccounts, err = client.ServiceAccounts(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list ServiceAccounts failed")
+		}
+		c.logger.Infof("Fetching (%d) ServiceAccounts", len(c.resources.ServiceAccounts.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.ResourceQuotas, err = client.ResourceQuotas(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list ResourceQuotas failed")
+		}
+		c.logger.Infof("Fetching (%d) ResourceQuotas", len(c.resources.ResourceQuotas.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.LimitRanges, err = client.LimitRanges(v1.NamespaceAll).List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list LimitRanges failed")
+		}
+		c.logger.Infof("Fetching (%d) LimitRanges", len(c.resources.LimitRanges.Items))
 		return
 	})
-	g.Go(func() (err error) {
-		c.resources.SystemNamespace, err = client.Namespaces().Get(v1.NamespaceSystem, v1.GetOptions{})
-		return
-	})
+
 	g.Go(func() (err error) {
 		c.resources.MutatingWebhookConfigurations, err = admissionControllerClient.MutatingWebhookConfigurations().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list MutatingWebhookConfigurations failed")
+		}
+		c.logger.Infof("Fetching (%d) MutatingWebhookConfigurations", len(c.resources.MutatingWebhookConfigurations.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.ValidatingWebhookConfigurations, err = admissionControllerClient.ValidatingWebhookConfigurations().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list ValidatingWebhookConfigurations failed")
+		}
+		c.logger.Infof("Fetching (%d) ValidatingWebhookConfigurations", len(c.resources.ValidatingWebhookConfigurations.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.Namespaces, err = client.Namespaces().List(opts)
+		if err != nil {
+			err = errors.Wrapf(err, "list Namespaces failed")
+		}
+		c.logger.Infof("Fetching (%d) Namespaces", len(c.resources.Namespaces.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
-		c.resources.Deployments, err = c.cli.ExtensionsV1beta1().Deployments("").List(v1.ListOptions{})
+		c.resources.Deployments, err = c.cli.AppsV1().Deployments("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list Deployments failed")
+		}
+		c.logger.Infof("Fetching (%d) Deployments", len(c.resources.Deployments.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
-		c.resources.DaemonSets, err = c.cli.ExtensionsV1beta1().DaemonSets("").List(v1.ListOptions{})
+		c.resources.DaemonSets, err = c.cli.AppsV1().DaemonSets("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list DaemonSets failed")
+		}
+		c.logger.Infof("Fetching (%d) DaemonSets", len(c.resources.DaemonSets.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.StatefulSets, err = c.cli.AppsV1().StatefulSets("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list StatefulSets failed")
+		}
+		c.logger.Infof("Fetching (%d) StatefulSets", len(c.resources.StatefulSets.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
 		c.resources.Jobs, err = c.cli.BatchV1().Jobs("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list Jobs failed")
+		}
+		c.logger.Infof("Fetching (%d) Jobs", len(c.resources.Jobs.Items))
 		return
 	})
+
 	g.Go(func() (err error) {
-		c.resources.CronJobs, err = c.cli.BatchV2alpha1().CronJobs("").List(v1.ListOptions{})
+		c.resources.CronJobs, err = c.cli.BatchV1beta1().CronJobs("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list CronJobs failed")
+		}
+		c.logger.Infof("Fetching (%d) CronJobs", len(c.resources.CronJobs.Items))
 		return
 	})
 
@@ -244,6 +339,7 @@ func (c *Cluster) initK8sResources() (err error) {
 }
 
 func (c *Cluster) initComponents() error {
+	c.logger.Infof("Fetching all k8s components..")
 	for name, cmp := range c.compExps {
 		result, err := cmp.Component()
 		if err != nil {
@@ -260,6 +356,7 @@ func (c *Cluster) initComponents() error {
 }
 
 func (c *Cluster) initMachines() error {
+	c.logger.Infof("Fetching all machines information..")
 	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "get nodes list failed")
@@ -290,7 +387,7 @@ func (c *Cluster) initMachines() error {
 }
 
 func (c *Cluster) getOneNodeInfo(nodeName string) (cluster.Machine, error) {
-	out, _, err := c.nodeExecutor.DoCmd(nodeName, []string{"sysctl", "-a"})
+	out, _, err := c.nodeExecutor.DoCmd(nodeName, []string{"sh", "-c", "sysctl -a | grep -v error"})
 	if err != nil {
 		return cluster.Machine{}, errors.Wrapf(err, "do commond 'sysctl -a' failed")
 	}

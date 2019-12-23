@@ -21,9 +21,8 @@ import (
 	ar "k8s.io/api/admissionregistration/v1beta1"
 	appv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
-	"k8s.io/api/batch/v2alpha1"
+	v1beta12 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 )
 
 // Machine is the contains low level system information of a node
@@ -67,15 +66,14 @@ type Component struct {
 
 // Resources containers all cluster information from k8s , machine or process
 type Resources struct {
-	Deployments                     *v1beta1.DeploymentList
-	DaemonSets                      *v1beta1.DaemonSetList
+	Deployments                     *appv1.DeploymentList
+	DaemonSets                      *appv1.DaemonSetList
 	StatefulSets                    *appv1.StatefulSetList
 	Jobs                            *batchv1.JobList
-	CronJobs                        *v2alpha1.CronJobList
+	CronJobs                        *v1beta12.CronJobList
 	Nodes                           *corev1.NodeList
 	PersistentVolumes               *corev1.PersistentVolumeList
 	ComponentStatuses               *corev1.ComponentStatusList
-	SystemNamespace                 *corev1.Namespace
 	Pods                            *corev1.PodList
 	PodTemplates                    *corev1.PodTemplateList
 	PersistentVolumeClaims          *corev1.PersistentVolumeClaimList
