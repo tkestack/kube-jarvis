@@ -63,6 +63,7 @@ func (a *Auto) Complete() {
 // Init do init
 func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor nodeexec.Executor) error {
 	specialNodes := false
+	a.logger = logger
 	if a.MasterNodes == true || len(a.Nodes) != 0 {
 		specialNodes = true
 	}
