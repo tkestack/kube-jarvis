@@ -115,11 +115,10 @@ func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic
 		pt = func(format string, a ...interface{}) {
 			fmt.Printf(format, a...)
 		}
-
-		pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
-		pt("    Describe : %s\n", result.Desc)
-		pt("    Proposal : %s\n", result.Proposal)
 	}
+	pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
+	pt("    Describe : %s\n", result.Desc)
+	pt("    Proposal : %s\n", result.Proposal)
 	fmt.Printf("- -----------------------------\n")
 	return nil
 }
