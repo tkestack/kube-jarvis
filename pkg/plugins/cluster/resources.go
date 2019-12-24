@@ -29,6 +29,8 @@ import (
 type Machine struct {
 	// SysCtl is the OS system param from command "sysctl -a"
 	SysCtl map[string]string
+	// Error is not nil if any error appear
+	Error error
 }
 
 // ComponentName it the type of a component like

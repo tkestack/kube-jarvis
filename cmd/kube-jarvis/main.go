@@ -20,7 +20,6 @@ package main
 import (
 	"context"
 	"flag"
-	"tkestack.io/kube-jarvis/pkg/logger"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/cluster/all"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/coordinate/all"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/diagnose/all"
@@ -34,7 +33,7 @@ func init() {
 }
 
 func main() {
-	config, err := GetConfig(configFile, logger.NewLogger())
+	config, err := GetConfig(configFile)
 	if err != nil {
 		panic(err)
 	}

@@ -18,9 +18,11 @@
 package cluster
 
 import (
+	"context"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 )
 
 // Cluster is the abstract of target cluster
@@ -28,10 +30,8 @@ import (
 type Cluster interface {
 	// Complete check and complete config items
 	Complete() error
-	// Init Instantiation for cluster, it will fetch Resources
-	Init() error
-	// SyncResources reFetch all resource from cluster
-	SyncResources() error
+	// Init do Initialization for cluster, and fetching Resources
+	Init(ctx context.Context, progress *plugins.Progress) error
 	// CloudType return the cloud type of Cluster
 	CloudType() string
 	// Resources just return fetched resources

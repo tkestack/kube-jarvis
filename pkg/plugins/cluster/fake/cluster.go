@@ -17,7 +17,11 @@
  */
 package fake
 
-import "tkestack.io/kube-jarvis/pkg/plugins/cluster"
+import (
+	"context"
+	"tkestack.io/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+)
 
 type Cluster struct {
 	Res *cluster.Resources
@@ -33,13 +37,7 @@ func (c *Cluster) Complete() error {
 }
 
 // Init Instantiation for cluster, it will fetch Resources
-func (c *Cluster) Init() error {
-	return nil
-}
-
-// SyncResources fetch all resource from cluster
-func (c *Cluster) SyncResources() error {
-	c.Res = cluster.NewResources()
+func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
 	return nil
 }
 

@@ -18,6 +18,7 @@
 package custom
 
 import (
+	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,6 +27,7 @@ import (
 	"strings"
 	"sync"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
@@ -50,6 +52,7 @@ type Cluster struct {
 	resLock      sync.Mutex
 
 	compExps map[string]compexplorer.Explorer
+	progress *plugins.Progress
 }
 
 // NewCluster return an new custom Cluster
@@ -117,7 +120,17 @@ func (c *Cluster) Complete() error {
 }
 
 // Init do initialization for Cluster
-func (c *Cluster) Init() error {
+func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
+	c.progress = progress
+
+	if err := c.initExecutors(); err != nil {
+		return err
+	}
+
+	return c.syncResources()
+}
+
+func (c *Cluster) initExecutors() error {
 	var err error
 	c.nodeExecutor, err = c.Node.Executor(c.logger, c.cli, c.restConfig)
 	if err != nil && err != nodeexec.NoneExecutor {
@@ -135,7 +148,7 @@ func (c *Cluster) Init() error {
 }
 
 // SyncResources fetch all resource from cluster
-func (c *Cluster) SyncResources() error {
+func (c *Cluster) syncResources() error {
 	c.resources = cluster.NewResources()
 	if err := c.initK8sResources(); err != nil {
 		return err
@@ -145,22 +158,32 @@ func (c *Cluster) SyncResources() error {
 		return err
 	}
 
-	return c.initMachines()
+	if err := c.initMachines(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (c *Cluster) initK8sResources() (err error) {
-	c.logger.Infof("Fetching all k8s resources..")
+func (c *Cluster) initK8sResources() error {
 	client := c.cli.CoreV1()
 	admissionControllerClient := c.cli.AdmissionregistrationV1beta1()
 	opts := v1.ListOptions{}
 
+	stepName := "k8s_resources_init"
+	c.progress.CreateStep(stepName, "Fetching k8s resources..", 20)
+	c.progress.SetCurStep(stepName)
+
+	c.logger.Infof("Start fetching all k8s resources...........")
 	var g errgroup.Group
 	g.Go(func() (err error) {
 		c.resources.Nodes, err = client.Nodes().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list Nodes failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Nodes", len(c.resources.Nodes.Items))
 		}
-		c.logger.Infof("Fetching (%d) nodes", len(c.resources.Nodes.Items))
 		return
 	})
 
@@ -168,8 +191,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.PersistentVolumes, err = client.PersistentVolumes().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list PersistentVolumes failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) PersistentVolumes", len(c.resources.PersistentVolumes.Items))
 		}
-		c.logger.Infof("Fetching (%d) PersistentVolumes", len(c.resources.PersistentVolumes.Items))
 		return
 	})
 
@@ -177,8 +202,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.ComponentStatuses, err = client.ComponentStatuses().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list ComponentStatuses failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ComponentStatuses", len(c.resources.ComponentStatuses.Items))
 		}
-		c.logger.Infof("Fetching (%d) ComponentStatuses", len(c.resources.ComponentStatuses.Items))
 		return
 	})
 
@@ -186,8 +213,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Pods, err = client.Pods(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list Pods failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Pods", len(c.resources.Pods.Items))
 		}
-		c.logger.Infof("Fetching (%d) Pods", len(c.resources.Pods.Items))
 		return
 	})
 
@@ -195,8 +224,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.PodTemplates, err = client.PodTemplates(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list PodTemplates failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) PodTemplates", len(c.resources.PodTemplates.Items))
 		}
-		c.logger.Infof("Fetching (%d) PodTemplates", len(c.resources.PodTemplates.Items))
 		return
 	})
 
@@ -204,8 +235,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.PersistentVolumeClaims, err = client.PersistentVolumeClaims(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list PersistentVolumeClaims failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) PersistentVolumeClaims", len(c.resources.PersistentVolumeClaims.Items))
 		}
-		c.logger.Infof("Fetching (%d) PersistentVolumeClaims", len(c.resources.PersistentVolumeClaims.Items))
 		return
 	})
 
@@ -213,8 +246,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.ConfigMaps, err = client.ConfigMaps(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list ConfigMaps failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ConfigMaps", len(c.resources.ConfigMaps.Items))
 		}
-		c.logger.Infof("Fetching (%d) ConfigMaps", len(c.resources.ConfigMaps.Items))
 		return
 	})
 
@@ -222,8 +257,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Secrets, err = client.Secrets(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list Secrets failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Secrets", len(c.resources.Secrets.Items))
 		}
-		c.logger.Infof("Fetching (%d) Secrets", len(c.resources.Secrets.Items))
 		return
 	})
 
@@ -231,8 +268,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Services, err = client.Services(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list Services failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Services", len(c.resources.Services.Items))
 		}
-		c.logger.Infof("Fetching (%d) Services", len(c.resources.Services.Items))
 		return
 	})
 
@@ -240,8 +279,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.ServiceAccounts, err = client.ServiceAccounts(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list ServiceAccounts failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ServiceAccounts", len(c.resources.ServiceAccounts.Items))
 		}
-		c.logger.Infof("Fetching (%d) ServiceAccounts", len(c.resources.ServiceAccounts.Items))
 		return
 	})
 
@@ -249,8 +290,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.ResourceQuotas, err = client.ResourceQuotas(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list ResourceQuotas failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ResourceQuotas", len(c.resources.ResourceQuotas.Items))
 		}
-		c.logger.Infof("Fetching (%d) ResourceQuotas", len(c.resources.ResourceQuotas.Items))
 		return
 	})
 
@@ -258,8 +301,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.LimitRanges, err = client.LimitRanges(v1.NamespaceAll).List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list LimitRanges failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) LimitRanges", len(c.resources.LimitRanges.Items))
 		}
-		c.logger.Infof("Fetching (%d) LimitRanges", len(c.resources.LimitRanges.Items))
 		return
 	})
 
@@ -267,8 +312,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.MutatingWebhookConfigurations, err = admissionControllerClient.MutatingWebhookConfigurations().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list MutatingWebhookConfigurations failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) MutatingWebhookConfigurations", len(c.resources.MutatingWebhookConfigurations.Items))
 		}
-		c.logger.Infof("Fetching (%d) MutatingWebhookConfigurations", len(c.resources.MutatingWebhookConfigurations.Items))
 		return
 	})
 
@@ -276,8 +323,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.ValidatingWebhookConfigurations, err = admissionControllerClient.ValidatingWebhookConfigurations().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list ValidatingWebhookConfigurations failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ValidatingWebhookConfigurations", len(c.resources.ValidatingWebhookConfigurations.Items))
 		}
-		c.logger.Infof("Fetching (%d) ValidatingWebhookConfigurations", len(c.resources.ValidatingWebhookConfigurations.Items))
 		return
 	})
 
@@ -285,8 +334,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Namespaces, err = client.Namespaces().List(opts)
 		if err != nil {
 			err = errors.Wrapf(err, "list Namespaces failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Namespaces", len(c.resources.Namespaces.Items))
 		}
-		c.logger.Infof("Fetching (%d) Namespaces", len(c.resources.Namespaces.Items))
 		return
 	})
 
@@ -294,8 +345,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Deployments, err = c.cli.AppsV1().Deployments("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list Deployments failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Deployments", len(c.resources.Deployments.Items))
 		}
-		c.logger.Infof("Fetching (%d) Deployments", len(c.resources.Deployments.Items))
 		return
 	})
 
@@ -303,8 +356,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.DaemonSets, err = c.cli.AppsV1().DaemonSets("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list DaemonSets failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) DaemonSets", len(c.resources.DaemonSets.Items))
 		}
-		c.logger.Infof("Fetching (%d) DaemonSets", len(c.resources.DaemonSets.Items))
 		return
 	})
 
@@ -312,8 +367,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.StatefulSets, err = c.cli.AppsV1().StatefulSets("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list StatefulSets failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) StatefulSets", len(c.resources.StatefulSets.Items))
 		}
-		c.logger.Infof("Fetching (%d) StatefulSets", len(c.resources.StatefulSets.Items))
 		return
 	})
 
@@ -321,8 +378,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.Jobs, err = c.cli.BatchV1().Jobs("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list Jobs failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) Jobs", len(c.resources.Jobs.Items))
 		}
-		c.logger.Infof("Fetching (%d) Jobs", len(c.resources.Jobs.Items))
 		return
 	})
 
@@ -330,8 +389,10 @@ func (c *Cluster) initK8sResources() (err error) {
 		c.resources.CronJobs, err = c.cli.BatchV1beta1().CronJobs("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list CronJobs failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) CronJobs", len(c.resources.CronJobs.Items))
 		}
-		c.logger.Infof("Fetching (%d) CronJobs", len(c.resources.CronJobs.Items))
 		return
 	})
 
@@ -339,46 +400,25 @@ func (c *Cluster) initK8sResources() (err error) {
 }
 
 func (c *Cluster) initComponents() error {
-	c.logger.Infof("Fetching all k8s components..")
-	for name, cmp := range c.compExps {
-		result, err := cmp.Component()
-		if err != nil {
-			return errors.Wrapf(err, "fetch component %s failed ", name)
-		}
+	stepName := "init_components"
+	c.progress.CreateStep(stepName, "Fetching all components..", len(c.compExps))
+	c.progress.SetCurStep(stepName)
 
-		c.resLock.Lock()
-		c.resources.CoreComponents[name] = result
-		c.resLock.Unlock()
-		c.logger.Infof("Fetching (%d) %s ..", len(result), name)
-	}
-
-	return nil
-}
-
-func (c *Cluster) initMachines() error {
-	c.logger.Infof("Fetching all machines information..")
-	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
-	if err != nil {
-		return errors.Wrapf(err, "get nodes list failed")
-	}
-	c.logger.Infof("Fetching (%d) machines information ..", len(nodes.Items))
-
-	conCtl := make(chan struct{}, 100)
-	var g errgroup.Group
-	for _, n := range nodes.Items {
-		node := n
+	c.logger.Infof("Start fetching all components...........")
+	g := errgroup.Group{}
+	for tempName, tempCmp := range c.compExps {
+		name := tempName
+		cmp := tempCmp
 		g.Go(func() error {
-			conCtl <- struct{}{}
-			defer func() { <-conCtl }()
-
-			m, err := c.getOneNodeInfo(node.Name)
+			result, err := cmp.Component()
 			if err != nil {
-				return errors.Wrapf(err, "get machine info failed")
+				return errors.Wrapf(err, "fetch component %s failed ", name)
 			}
-
+			c.logger.Infof("Fetching (%d) %s", len(result), name)
 			c.resLock.Lock()
-			c.resources.Machines[node.Name] = m
+			c.resources.CoreComponents[name] = result
 			c.resLock.Unlock()
+			c.progress.AddStepPercent(stepName, 1)
 			return nil
 		})
 	}
@@ -386,15 +426,49 @@ func (c *Cluster) initMachines() error {
 	return g.Wait()
 }
 
-func (c *Cluster) getOneNodeInfo(nodeName string) (cluster.Machine, error) {
+func (c *Cluster) initMachines() error {
+	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "get nodes from k8s failed")
+	}
+
+	conCtl := make(chan struct{}, 200)
+	stepName := "init_machines"
+	c.progress.CreateStep(stepName, "Fetching all machines..", len(nodes.Items))
+	c.progress.SetCurStep(stepName)
+
+	c.logger.Infof("Start fetching all machines...........")
+	var g errgroup.Group
+	for _, n := range nodes.Items {
+		node := n
+		g.Go(func() error {
+			conCtl <- struct{}{}
+			defer func() { <-conCtl }()
+
+			m := c.getOneNodeInfo(node.Name)
+			c.resLock.Lock()
+			c.resources.Machines[node.Name] = m
+			c.resLock.Unlock()
+
+			c.progress.AddStepPercent(stepName, 1)
+			return nil
+		})
+	}
+
+	return g.Wait()
+}
+
+func (c *Cluster) getOneNodeInfo(nodeName string) cluster.Machine {
 	out, _, err := c.nodeExecutor.DoCmd(nodeName, []string{"sh", "-c", "sysctl -a | grep -v error"})
 	if err != nil {
-		return cluster.Machine{}, errors.Wrapf(err, "do commond 'sysctl -a' failed")
+		return cluster.Machine{
+			Error: errors.Wrapf(err, "do commond 'sysctl -a' failed"),
+		}
 	}
 
 	return cluster.Machine{
 		SysCtl: GetSysCtlMap(out),
-	}, nil
+	}
 }
 
 func (c *Cluster) Resources() *cluster.Resources {

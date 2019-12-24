@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 
 	"github.com/fatih/color"
@@ -36,6 +35,7 @@ const (
 
 // Exporter just print information to logger with a simple format
 type Exporter struct {
+	Format string
 	export.Collector
 	*export.MetaData
 }
@@ -53,7 +53,7 @@ func (e *Exporter) Complete() error {
 	if e.Format == "" {
 		e.Format = "fmt"
 	}
-
+	e.Collector.Format = e.Format
 	return e.Collector.Complete()
 }
 
