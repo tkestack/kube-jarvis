@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 
 	"gopkg.in/yaml.v2"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -40,6 +41,7 @@ type Collector struct {
 	Format      string
 	Diagnostics []*DiagnosticResultItem
 	Output      []io.Writer
+	Progress    *plugins.Progress
 }
 
 // Complete check and complete config items
@@ -93,6 +95,13 @@ func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnosti
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
+	return nil
+}
+
+// ProgressUpdated will be called as soon as the progress changed
+// Note: progress will be locked while ProgressUpdated called
+func (c *Collector) ProgressUpdated(ctx context.Context, progress *plugins.Progress) error {
+	c.Progress = progress
 	return nil
 }
 

@@ -35,7 +35,8 @@ const (
 type Exporter struct {
 	export.Collector
 	*export.MetaData
-	Path string
+	Path   string
+	Format string
 }
 
 // NewExporter return a file Exporter
@@ -47,6 +48,7 @@ func NewExporter(m *export.MetaData) export.Exporter {
 
 // Complete check and complete config items
 func (e *Exporter) Complete() error {
+	e.Collector.Format = e.Format
 	_ = e.Collector.Complete()
 
 	if e.Path == "" {

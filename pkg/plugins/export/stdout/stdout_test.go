@@ -19,7 +19,6 @@ package stdout
 
 import (
 	"testing"
-
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 

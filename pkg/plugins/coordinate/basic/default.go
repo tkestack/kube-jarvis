@@ -23,6 +23,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"os"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -35,13 +36,15 @@ type Coordinator struct {
 	logger      logger.Logger
 	diagnostics []diagnose.Diagnostic
 	exporters   []export.Exporter
+	progress    *plugins.Progress
 }
 
 // NewCoordinator return a default Coordinator
 func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordinator {
 	return &Coordinator{
-		logger: logger,
-		cls:    cls,
+		logger:   logger,
+		cls:      cls,
+		progress: plugins.NewProgress(),
 	}
 }
 
@@ -62,12 +65,17 @@ func (c *Coordinator) AddExporter(exporter export.Exporter) {
 
 // Run will do all diagnostics, evaluations, then export it by exporters
 func (c *Coordinator) Run(ctx context.Context) {
-	if err := c.cls.SyncResources(); err != nil {
-		c.logger.Errorf("fetch resources failed :%v", err)
-		os.Exit(1)
-	}
 	c.begin(ctx)
+	c.progress.AddProgressUpdatedWatcher(func(p *plugins.Progress) {
+		c.everyExporterDo(func(e export.Exporter) {
+			c.logIfError(e.ProgressUpdated(ctx, p), "%s export progress update failed", e.Meta().Name)
+		})
+	})
+
+	c.progress.CreateStep("diagnostic", "Diagnosing...", len(c.diagnostics))
+	c.logIfError(c.cls.Init(ctx, c.progress), "init cluster failed")
 	c.diagnostic(ctx)
+	c.progress.Done()
 	c.finish(ctx)
 }
 
@@ -103,6 +111,7 @@ func (c *Coordinator) diagnostic(ctx context.Context) {
 			c.notifyDiagnosticResult(ctx, dia, s)
 		}
 		c.diagnosticFinish(ctx, dia)
+		c.progress.AddStepPercent("diagnostic", 1)
 	}
 }
 

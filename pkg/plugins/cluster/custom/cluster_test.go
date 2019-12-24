@@ -18,10 +18,12 @@
 package custom
 
 import (
+	"context"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
 	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/compexplorer"
 )
@@ -105,16 +107,11 @@ func TestCluster_Resources(t *testing.T) {
 	}
 
 	cls.Components = map[string]*compexplorer.Auto{}
-	if err := cls.Init(); err != nil {
-		t.Fatalf(err.Error())
-	}
-
 	cls.compExps = map[string]compexplorer.Explorer{
 		cluster.ComponentApiserver: &fakeComp{},
 	}
 	cls.nodeExecutor = &fakeNodeExecutor{success: true}
-
-	if err := cls.SyncResources(); err != nil {
+	if err := cls.Init(context.Background(), plugins.NewProgress()); err != nil {
 		t.Fatalf(err.Error())
 	}
 
@@ -130,5 +127,6 @@ func TestCluster_Resources(t *testing.T) {
 	if len(res.CoreComponents) != 1 {
 		t.Fatalf("want 1 CoreComponents")
 	}
+	return
 
 }

@@ -65,13 +65,6 @@ type Config struct {
 		Catalogue diagnose.Catalogue
 		Config    interface{}
 	}
-
-	Evaluators []struct {
-		Type   string
-		Name   string
-		Config interface{}
-	}
-
 	Exporters []struct {
 		Type   string
 		Name   string
@@ -80,17 +73,17 @@ type Config struct {
 }
 
 // GetConfig return a Config struct according to content of config file
-func GetConfig(file string, log logger.Logger) (*Config, error) {
+func GetConfig(file string) (*Config, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "read file failed")
 	}
-	return getConfig(data, log)
+	return getConfig(data)
 }
 
-func getConfig(data []byte, log logger.Logger) (*Config, error) {
+func getConfig(data []byte) (*Config, error) {
 	c := &Config{
-		Logger: log,
+		Logger: logger.NewLogger(),
 	}
 	if err := yaml.Unmarshal(data, c); err != nil {
 		return nil, errors.Wrap(err, "unmarshal data failed")
@@ -140,11 +133,6 @@ func (c *Config) GetCluster() (cluster.Cluster, error) {
 	if err := cls.Complete(); err != nil {
 		return nil, err
 	}
-
-	if err := cls.Init(); err != nil {
-		return nil, errors.Wrap(err, "init cluster failed")
-	}
-
 	return cls, nil
 }
 

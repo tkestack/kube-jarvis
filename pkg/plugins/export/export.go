@@ -51,6 +51,9 @@ type Exporter interface {
 	DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error
 	// CoordinateFinish export information about coordinator Run finished
 	CoordinateFinish(ctx context.Context) error
+	// ProgressUpdated will be called as soon as the progress changed
+	// Note: progress will be locked while ProgressUpdated called
+	ProgressUpdated(ctx context.Context, progress *plugins.Progress) error
 }
 
 // Factory create a new Exporter
