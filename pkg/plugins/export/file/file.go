@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"io"
 	"os"
+	"time"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 
@@ -52,7 +53,7 @@ func (e *Exporter) Complete() error {
 	_ = e.Collector.Complete()
 
 	if e.Path == "" {
-		e.Path = fmt.Sprintf("result.%s", e.Format)
+		e.Path = "results"
 	}
 
 	return nil
@@ -60,7 +61,8 @@ func (e *Exporter) Complete() error {
 
 // CoordinateBegin export information about coordinator Run begin
 func (e *Exporter) CoordinateBegin(ctx context.Context) error {
-	f, err := os.Create(e.Path)
+	_ = os.MkdirAll(e.Path, 0666)
+	f, err := os.Create(fmt.Sprintf("%s/%s.%s", e.Path, time.Now().String(), e.Format))
 	if err != nil {
 		return errors.Wrap(err, "create file failed")
 	}
