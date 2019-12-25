@@ -34,7 +34,7 @@ const (
 
 // Exporter just print information to logger with a simple format
 type Exporter struct {
-	export.Collector
+	*export.Collector
 	*export.MetaData
 	Path   string
 	Format string
@@ -43,7 +43,8 @@ type Exporter struct {
 // NewExporter return a file Exporter
 func NewExporter(m *export.MetaData) export.Exporter {
 	return &Exporter{
-		MetaData: m,
+		MetaData:  m,
+		Collector: export.NewCollector(),
 	}
 }
 

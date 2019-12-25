@@ -43,6 +43,28 @@ const (
 	HealthyLevelSerious HealthyLevel = "serious"
 )
 
+var healthyLevelRank = map[HealthyLevel]int{
+	HealthyLevelGood:    4,
+	HealthyLevelWarn:    3,
+	HealthyLevelRisk:    2,
+	HealthyLevelSerious: 1,
+	HealthyLevelFailed:  0,
+}
+
+// Compare compare 2 HealthyLevel
+// return == 0 if h == t
+// return > 0 if h > t
+// return < 0 if h < t
+func (h HealthyLevel) Compare(t HealthyLevel) int {
+	return healthyLevelRank[h] - healthyLevelRank[t]
+}
+
+// Verify return false if h is illegal
+func (h HealthyLevel) Verify() bool {
+	_, exist := healthyLevelRank[h]
+	return exist
+}
+
 // Catalogue is the default catalogue type of a Diagnostic
 type Catalogue []string
 

@@ -68,6 +68,7 @@ type Config struct {
 	Exporters []struct {
 		Type   string
 		Name   string
+		level  string
 		Config interface{}
 	}
 }

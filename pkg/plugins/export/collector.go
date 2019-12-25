@@ -22,7 +22,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sync"
 	"tkestack.io/kube-jarvis/pkg/plugins"
+	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"gopkg.in/yaml.v2"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -33,15 +35,25 @@ type DiagnosticResultItem struct {
 	Catalogue diagnose.Catalogue
 	Type      string
 	Name      string
+	Total     int
+	Desc      translate.Message
 	Results   []diagnose.Result
 }
 
-// Collector just collect diagnostic results and evaluation results
+// Collector just collect diagnostic results and progress
 type Collector struct {
-	Format      string
-	Diagnostics []*DiagnosticResultItem
-	Output      []io.Writer
-	Progress    *plugins.Progress
+	Format       string
+	Level        diagnose.HealthyLevel
+	Diagnostics  []*DiagnosticResultItem
+	Output       []io.Writer
+	Progress     *plugins.Progress
+	ProgressLock sync.Mutex
+}
+
+func NewCollector() *Collector {
+	return &Collector{
+		Progress: plugins.NewProgress(),
+	}
 }
 
 // Complete check and complete config items
@@ -49,14 +61,16 @@ func (c *Collector) Complete() error {
 	if c.Format == "" {
 		c.Format = "json"
 	}
+
+	if c.Level == "" {
+		c.Level = diagnose.HealthyLevelGood
+	}
+
 	return nil
 }
 
 // CoordinateBegin export information about coordinator Run begin
 func (c *Collector) CoordinateBegin(ctx context.Context) error {
-	if c.Format == "" {
-		c.Format = "json"
-	}
 	return nil
 }
 
@@ -89,7 +103,10 @@ func (c *Collector) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic
 // DiagnosticResult export information about one diagnose.Result
 func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
 	dLen := len(c.Diagnostics)
-	c.Diagnostics[dLen-1].Results = append(c.Diagnostics[dLen-1].Results, *result)
+	c.Diagnostics[dLen-1].Total++
+	if result.Level.Compare(c.Level) <= 0 {
+		c.Diagnostics[dLen-1].Results = append(c.Diagnostics[dLen-1].Results, *result)
+	}
 	return nil
 }
 
@@ -101,7 +118,28 @@ func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnosti
 // ProgressUpdated will be called as soon as the progress changed
 // Note: progress will be locked while ProgressUpdated called
 func (c *Collector) ProgressUpdated(ctx context.Context, progress *plugins.Progress) error {
-	c.Progress = progress
+	c.ProgressLock.Lock()
+	defer c.ProgressLock.Unlock()
+
+	c.Progress = &plugins.Progress{
+		IsDone:  progress.IsDone,
+		CurStep: progress.CurStep,
+		Total:   progress.Total,
+		Current: progress.Current,
+		Steps:   map[string]*plugins.ProgressStep{},
+	}
+
+	for name, step := range progress.Steps {
+		s := &plugins.ProgressStep{
+			Title:   step.Title,
+			Percent: step.Percent,
+			Total:   step.Total,
+			Current: step.Current,
+		}
+
+		c.Progress.Steps[name] = s
+	}
+
 	return nil
 }
 

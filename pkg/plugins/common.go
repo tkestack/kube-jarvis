@@ -32,6 +32,9 @@ type CommonMetaData struct {
 	Type string
 	// Title is the custom name of plugins
 	Name string
+	// Desc is the description of this plugin,
+	// Desc should be set by plugin
+	Desc translate.Message
 }
 
 // IsSupportedCloud return true if cloud type is supported

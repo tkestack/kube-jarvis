@@ -20,11 +20,11 @@ package stdout
 import (
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	"io"
 	"os"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 
-	"github.com/fatih/color"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -36,14 +36,16 @@ const (
 // Exporter just print information to logger with a simple format
 type Exporter struct {
 	Format string
-	export.Collector
+	Level  diagnose.HealthyLevel
+	*export.Collector
 	*export.MetaData
 }
 
 // NewExporter return a stdout Exporter
 func NewExporter(m *export.MetaData) export.Exporter {
 	e := &Exporter{
-		MetaData: m,
+		MetaData:  m,
+		Collector: export.NewCollector(),
 	}
 	return e
 }
@@ -54,6 +56,16 @@ func (e *Exporter) Complete() error {
 		e.Format = "fmt"
 	}
 	e.Collector.Format = e.Format
+
+	if e.Level == "" {
+		e.Level = diagnose.HealthyLevelGood
+	}
+
+	if !e.Level.Verify() {
+		return fmt.Errorf("level %s is illegal", e.Level)
+	}
+	e.Collector.Level = e.Level
+
 	return e.Collector.Complete()
 }
 
@@ -61,66 +73,9 @@ func (e *Exporter) Complete() error {
 func (e *Exporter) CoordinateBegin(ctx context.Context) error {
 	if e.Format != "fmt" {
 		e.Collector.Output = []io.Writer{os.Stdout}
-		return e.Collector.CoordinateBegin(ctx)
 	}
 
-	fmt.Println("===================================================================")
-	fmt.Println("                       kube-jarivs                                 ")
-	fmt.Println("===================================================================")
-	return nil
-}
-
-// DiagnosticBegin export information about a Diagnostic begin
-func (e *Exporter) DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error {
-	if e.Format != "fmt" {
-		return e.Collector.DiagnosticBegin(ctx, dia)
-	}
-
-	fmt.Println("Diagnostic report")
-	fmt.Printf("    Type : %s\n", dia.Meta().Type)
-	fmt.Printf("    Name : %s\n", dia.Meta().Name)
-	fmt.Printf("- ----- results ----------------\n")
-	return nil
-}
-
-// DiagnosticFinish export information about a Diagnostic finished
-func (e *Exporter) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
-	if e.Format != "fmt" {
-		return e.Collector.DiagnosticFinish(ctx, dia)
-	}
-
-	fmt.Println("===================================================================")
-	return nil
-}
-
-// DiagnosticResult export information about one diagnose.Result
-func (e *Exporter) DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error {
-	if e.Format != "fmt" {
-		return e.Collector.DiagnosticResult(ctx, dia, result)
-	}
-
-	var pt func(format string, a ...interface{})
-	switch result.Level {
-	case diagnose.HealthyLevelFailed:
-		pt = color.HiRed
-	case diagnose.HealthyLevelGood:
-		pt = color.Green
-	case diagnose.HealthyLevelWarn:
-		pt = color.Yellow
-	case diagnose.HealthyLevelRisk:
-		pt = color.Red
-	case diagnose.HealthyLevelSerious:
-		pt = color.HiRed
-	default:
-		pt = func(format string, a ...interface{}) {
-			fmt.Printf(format, a...)
-		}
-	}
-	pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
-	pt("    Describe : %s\n", result.Desc)
-	pt("    Proposal : %s\n", result.Proposal)
-	fmt.Printf("- -----------------------------\n")
-	return nil
+	return e.Collector.CoordinateBegin(ctx)
 }
 
 // CoordinateFinish export information about coordinator Run finished
@@ -130,6 +85,45 @@ func (e *Exporter) CoordinateFinish(ctx context.Context) error {
 			return err
 		}
 	}
+
+	fmt.Println("===================================================================")
+	fmt.Println("                       kube-jarivs                                 ")
+	fmt.Println("===================================================================")
+
+	for _, dia := range e.Collector.Diagnostics {
+		fmt.Println("Diagnostic report")
+		fmt.Printf("    Type : %s\n", dia.Type)
+		fmt.Printf("    Desc : %s\n", dia.Desc)
+		fmt.Printf("    Name : %s\n", dia.Name)
+		fmt.Printf("    TotalResult  : %d\n", dia.Total)
+		fmt.Printf("    CollectedResult  : %d\n", len(dia.Results))
+		fmt.Printf("- ----- results ----------------\n")
+
+		for _, result := range dia.Results {
+			var pt func(format string, a ...interface{})
+			switch result.Level {
+			case diagnose.HealthyLevelFailed:
+				pt = color.HiRed
+			case diagnose.HealthyLevelGood:
+				pt = color.Green
+			case diagnose.HealthyLevelWarn:
+				pt = color.Yellow
+			case diagnose.HealthyLevelRisk:
+				pt = color.Red
+			case diagnose.HealthyLevelSerious:
+				pt = color.HiRed
+			default:
+				pt = func(format string, a ...interface{}) {
+					fmt.Printf(format, a...)
+				}
+			}
+			pt("[%s] %s -> %s\n", result.Level, result.Title, result.ObjName)
+			pt("    Describe : %s\n", result.Desc)
+			pt("    Proposal : %s\n", result.Proposal)
+			fmt.Printf("- -----------------------------\n")
+		}
+	}
+
 	fmt.Println("===================================================================")
 	return nil
 }
