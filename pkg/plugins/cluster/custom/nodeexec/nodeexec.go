@@ -64,7 +64,7 @@ func (c *Config) Complete() {
 	}
 
 	if c.Image == "" {
-		c.Image = "alpine:latest"
+		c.Image = "raylhuang110/kube-jarvis-agent:latest"
 	}
 }
 
