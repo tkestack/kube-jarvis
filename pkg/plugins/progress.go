@@ -33,7 +33,9 @@ type Progress struct {
 	// Total is the max step value of Progress
 	Total int
 	// Current is finished step value of Progress
-	Current  int
+	Current int
+	// Percent is the percentage of overall progress
+	Percent  float64
 	watchers []func(p *Progress)
 }
 
@@ -44,6 +46,8 @@ type ProgressStep struct {
 	// Total is the total value of this step
 	Total int
 	// Current is current value of this step
+	// Percent is the percentage of overall this step
+	Percent float64
 	Current int
 }
 
@@ -102,8 +106,11 @@ func (p *Progress) SetCurStep(name string) {
 // AddPercent add current progress  percent
 func (p *Progress) AddStepPercent(name string, n int) {
 	p.update(func() {
-		p.Steps[name].Current += n
+		step := p.Steps[name]
+		step.Current += n
+		step.Percent = float64(step.Current) / float64(step.Total) * 100
 		p.Current += n
+		p.Percent = float64(p.Current) / float64(p.Total) * 100
 	})
 }
 
