@@ -21,7 +21,6 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 	"tkestack.io/kube-jarvis/pkg/plugins/export/file"
 	"tkestack.io/kube-jarvis/pkg/plugins/export/stdout"
-	"tkestack.io/kube-jarvis/pkg/plugins/export/webserver"
 )
 
 func init() {
@@ -33,7 +32,4 @@ func init() {
 		Creator: file.NewExporter,
 	})
 
-	export.Add(webserver.ExporterType, export.Factory{
-		Creator: webserver.NewExporter,
-	})
 }

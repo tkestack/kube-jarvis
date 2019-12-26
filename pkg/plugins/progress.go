@@ -56,6 +56,29 @@ func NewProgress() *Progress {
 	}
 }
 
+// Clone return a new Progress with the same value of origin
+func (p *Progress) Clone() *Progress {
+	progress := &Progress{
+		IsDone:  p.IsDone,
+		CurStep: p.CurStep,
+		Total:   p.Total,
+		Current: p.Current,
+		Steps:   map[string]*ProgressStep{},
+	}
+
+	for name, step := range p.Steps {
+		s := &ProgressStep{
+			Title:   step.Title,
+			Percent: step.Percent,
+			Total:   step.Total,
+			Current: step.Current,
+		}
+
+		progress.Steps[name] = s
+	}
+	return progress
+}
+
 // CreateStep create and return an new InitialProgressStep from a InitialProgress
 func (p *Progress) CreateStep(name string, title string, total int) {
 	p.update(func() {

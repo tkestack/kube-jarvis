@@ -130,6 +130,20 @@ func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
 	return c.syncResources()
 }
 
+// Finish will be called once diagnostic done
+func (c *Cluster) Finish() error {
+	if err := c.nodeExecutor.Finish(); err != nil {
+		return errors.Wrapf(err, "finish node executor failed")
+	}
+
+	for t, cmp := range c.compExps {
+		if err := cmp.Finish(); err != nil {
+			return errors.Wrapf(err, "finis component explore %s failed", t)
+		}
+	}
+	return nil
+}
+
 func (c *Cluster) initExecutors() error {
 	var err error
 	c.nodeExecutor, err = c.Node.Executor(c.logger, c.cli, c.restConfig)

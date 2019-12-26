@@ -36,6 +36,8 @@ type Cluster interface {
 	CloudType() string
 	// Resources just return fetched resources
 	Resources() *Resources
+	// Finish will be called once diagnostic done
+	Finish() error
 }
 
 // Factory create a new Cluster

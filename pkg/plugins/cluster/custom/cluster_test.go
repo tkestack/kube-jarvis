@@ -40,6 +40,10 @@ func (f *fakeComp) Component() ([]cluster.Component, error) {
 	}, nil
 }
 
+func (f *fakeComp) Finish() error {
+	return nil
+}
+
 type fakeNodeExecutor struct {
 	success bool
 }
@@ -53,6 +57,10 @@ func (f *fakeNodeExecutor) DoCmd(nodeName string, cmd []string) (string, string,
 		return "", "", nil
 	}
 	return out, "", nil
+}
+
+func (f *fakeNodeExecutor) Finish() error {
+	return nil
 }
 
 func TestGetSysCtlMap(t *testing.T) {

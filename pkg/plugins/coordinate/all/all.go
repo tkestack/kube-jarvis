@@ -20,8 +20,10 @@ package all
 import (
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/basic"
+	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/cron"
 )
 
 func init() {
 	coordinate.Add("default", basic.NewCoordinator)
+	coordinate.Add("cron", cron.NewCoordinator)
 }

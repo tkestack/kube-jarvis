@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"flag"
+	"tkestack.io/kube-jarvis/pkg/httpserver"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/cluster/all"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/coordinate/all"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/diagnose/all"
@@ -71,5 +72,6 @@ func main() {
 		coordinator.AddExporter(e)
 	}
 
+	httpserver.Start(config.Logger, config.Global.HttpAddr)
 	coordinator.Run(context.Background())
 }

@@ -108,3 +108,8 @@ func (b *Bare) Component() ([]cluster.Component, error) {
 
 	return result, nil
 }
+
+// Finish will be called once every thing done
+func (b *Bare) Finish() error {
+	return nil
+}

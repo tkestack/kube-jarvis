@@ -19,6 +19,7 @@ package coordinate
 
 import (
 	"context"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
 	"tkestack.io/kube-jarvis/pkg/logger"
@@ -37,6 +38,9 @@ type Coordinator interface {
 	AddExporter(exporter export.Exporter)
 	// Run will do all diagnostics, evaluations, then export it by exporters
 	Run(ctx context.Context)
+	// Progress return the coordination progress
+	// if coordination has not start, an nil will be returned
+	Progress() *plugins.Progress
 }
 
 // Creator is a factory to create a Coordinator

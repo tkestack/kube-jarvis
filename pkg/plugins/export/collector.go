@@ -22,8 +22,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"sync"
-	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"gopkg.in/yaml.v2"
@@ -42,18 +40,14 @@ type DiagnosticResultItem struct {
 
 // Collector just collect diagnostic results and progress
 type Collector struct {
-	Format       string
-	Level        diagnose.HealthyLevel
-	Diagnostics  []*DiagnosticResultItem
-	Output       []io.Writer
-	Progress     *plugins.Progress
-	ProgressLock sync.Mutex
+	Format      string
+	Level       diagnose.HealthyLevel
+	Diagnostics []*DiagnosticResultItem
+	Output      []io.Writer
 }
 
 func NewCollector() *Collector {
-	return &Collector{
-		Progress: plugins.NewProgress(),
-	}
+	return &Collector{}
 }
 
 // Complete check and complete config items
@@ -112,34 +106,6 @@ func (c *Collector) DiagnosticResult(ctx context.Context, dia diagnose.Diagnosti
 
 // DiagnosticFinish export information about a Diagnostic finished
 func (c *Collector) DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error {
-	return nil
-}
-
-// ProgressUpdated will be called as soon as the progress changed
-// Note: progress will be locked while ProgressUpdated called
-func (c *Collector) ProgressUpdated(ctx context.Context, progress *plugins.Progress) error {
-	c.ProgressLock.Lock()
-	defer c.ProgressLock.Unlock()
-
-	c.Progress = &plugins.Progress{
-		IsDone:  progress.IsDone,
-		CurStep: progress.CurStep,
-		Total:   progress.Total,
-		Current: progress.Current,
-		Steps:   map[string]*plugins.ProgressStep{},
-	}
-
-	for name, step := range progress.Steps {
-		s := &plugins.ProgressStep{
-			Title:   step.Title,
-			Percent: step.Percent,
-			Total:   step.Total,
-			Current: step.Current,
-		}
-
-		c.Progress.Steps[name] = s
-	}
-
 	return nil
 }
 

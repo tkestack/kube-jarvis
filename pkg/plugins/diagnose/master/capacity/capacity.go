@@ -69,6 +69,7 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
+	d.result = make(chan *diagnose.Result, 100)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		d.diagnoseCapacity(ctx)
