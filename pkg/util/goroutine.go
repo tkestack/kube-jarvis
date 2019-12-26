@@ -15,23 +15,46 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package compexplorer
+package util
 
 import (
-	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"fmt"
+	"math"
+	"time"
 )
 
-const (
-	TypeStaticPod = "StaticPod"
-	TypeLabel     = "Label"
-	TypeBare      = "Bare"
-	TypeAuto      = "Auto"
-)
+// RetryAbleErr should be returned if you want RetryUntilTimeout to retry
+var RetryAbleErr = fmt.Errorf("retry")
 
-// Explorer get component information
-type Explorer interface {
-	// Component get cluster components
-	Component() ([]cluster.Component, error)
-	// Finish will be called once every thing done
-	Finish() error
+// RetryUntilTimeout retry target function "do" until  timeout
+func RetryUntilTimeout(interval time.Duration, timeout time.Duration, do func() error) error {
+	err := do()
+	if err == nil {
+		return nil
+	}
+
+	if err != RetryAbleErr {
+		return err
+	}
+
+	if timeout == 0 {
+		timeout = time.Duration(math.MaxInt64)
+	}
+
+	t := time.NewTimer(timeout)
+	for {
+		select {
+		case <-t.C:
+			return fmt.Errorf("timeout")
+		case <-time.After(interval):
+			err := do()
+			if err == nil {
+				return nil
+			}
+
+			if err != RetryAbleErr {
+				return err
+			}
+		}
+	}
 }

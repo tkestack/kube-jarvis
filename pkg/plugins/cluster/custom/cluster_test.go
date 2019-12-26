@@ -119,6 +119,7 @@ func TestCluster_Resources(t *testing.T) {
 		cluster.ComponentApiserver: &fakeComp{},
 	}
 	cls.nodeExecutor = &fakeNodeExecutor{success: true}
+
 	if err := cls.Init(context.Background(), plugins.NewProgress()); err != nil {
 		t.Fatalf(err.Error())
 	}

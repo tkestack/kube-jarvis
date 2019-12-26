@@ -21,7 +21,6 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -123,68 +122,63 @@ func (c *Cluster) Complete() error {
 // Init do initialization for Cluster
 func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
 	c.progress = progress
-
-	if err := c.initExecutors(); err != nil {
-		return err
-	}
-
-	return c.syncResources()
-}
-
-// Finish will be called once diagnostic done
-func (c *Cluster) Finish() error {
-	if err := c.nodeExecutor.Finish(); err != nil {
-		return errors.Wrapf(err, "finish node executor failed")
-	}
-
-	for t, cmp := range c.compExps {
-		if err := cmp.Finish(); err != nil {
-			return errors.Wrapf(err, "finis component explore %s failed", t)
-		}
-	}
-	return nil
-}
-
-func (c *Cluster) initExecutors() error {
-	var err error
-	c.nodeExecutor, err = c.Node.Executor(c.logger, c.cli, c.restConfig)
-	if err != nil && err != nodeexec.NoneExecutor {
-		return errors.Wrap(err, "create node executor failed")
-	}
-
-	for t, cmp := range c.Components {
-		if err := cmp.Init(c.logger, c.cli, c.nodeExecutor); err != nil {
-			return errors.Wrapf(err, "init component executor for %s failed", t)
-		}
-		c.compExps[t] = cmp
-	}
-
-	return nil
-}
-
-// SyncResources fetch all resource from cluster
-func (c *Cluster) syncResources() error {
 	c.resources = cluster.NewResources()
+	c.progress.CreateStep("init_env", "Preparing environment", 2)
 	c.progress.CreateStep("init_k8s_resources", "Fetching k8s resources..", 20)
 	c.progress.CreateStep("init_components", "Fetching all components..", len(c.compExps))
-
 	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "get nodes from k8s failed")
 	}
 	c.progress.CreateStep("init_machines", "Fetching all machines..", len(nodes.Items))
 
+	// now start init steps
+	c.logger.Infof("Start preparing environment...........")
+	c.progress.SetCurStep("init_env")
+	if err := c.initExecutors("init_env"); err != nil {
+		return err
+	}
+
+	c.logger.Infof("Start fetching all k8s resources...........")
+	c.progress.SetCurStep("init_k8s_resources")
 	if err := c.initK8sResources("init_k8s_resources"); err != nil {
 		return err
 	}
 
+	c.logger.Infof("Start fetching all components...........")
+	c.progress.SetCurStep("init_components")
 	if err := c.initComponents("init_components"); err != nil {
 		return err
 	}
 
-	if err := c.initMachines(nodes, "init_machines"); err != nil {
+	c.logger.Infof("Start fetching all machines...........")
+	c.progress.SetCurStep("init_machines")
+	if err := c.initMachines("init_machines"); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (c *Cluster) initExecutors(stepName string) error {
+	var err error
+	if c.nodeExecutor == nil {
+		c.nodeExecutor, err = c.Node.Executor(c.logger, c.cli, c.restConfig)
+		if err != nil && err != nodeexec.NoneExecutor {
+			return errors.Wrap(err, "create node executor failed")
+		}
+	}
+	c.progress.AddStepPercent(stepName, 1)
+
+	for t, cmp := range c.Components {
+		if err := cmp.Init(c.logger, c.cli, c.nodeExecutor); err != nil {
+			return errors.Wrapf(err, "init component executor for %s failed", t)
+		}
+		if c.compExps[t] == nil {
+			c.compExps[t] = cmp
+		}
+	}
+	c.progress.AddStepPercent(stepName, 1)
 
 	return nil
 }
@@ -193,9 +187,6 @@ func (c *Cluster) initK8sResources(stepName string) error {
 	client := c.cli.CoreV1()
 	admissionControllerClient := c.cli.AdmissionregistrationV1beta1()
 	opts := v1.ListOptions{}
-	c.progress.SetCurStep(stepName)
-
-	c.logger.Infof("Start fetching all k8s resources...........")
 	var g errgroup.Group
 	g.Go(func() (err error) {
 		c.resources.Nodes, err = client.Nodes().List(opts)
@@ -421,9 +412,6 @@ func (c *Cluster) initK8sResources(stepName string) error {
 }
 
 func (c *Cluster) initComponents(stepName string) error {
-	c.progress.SetCurStep(stepName)
-
-	c.logger.Infof("Start fetching all components...........")
 	g := errgroup.Group{}
 	for tempName, tempCmp := range c.compExps {
 		name := tempName
@@ -445,11 +433,14 @@ func (c *Cluster) initComponents(stepName string) error {
 	return g.Wait()
 }
 
-func (c *Cluster) initMachines(nodes *v12.NodeList, stepName string) error {
-	conCtl := make(chan struct{}, 200)
-	c.progress.SetCurStep(stepName)
-	c.logger.Infof("Start fetching all machines...........")
+func (c *Cluster) initMachines(stepName string) error {
+	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "get nodes from k8s failed")
+	}
+
 	var g errgroup.Group
+	conCtl := make(chan struct{}, 200)
 	for _, n := range nodes.Items {
 		node := n
 		g.Go(func() error {
@@ -489,6 +480,22 @@ func (c *Cluster) Resources() *cluster.Resources {
 // CloudType return the cloud type of Cluster
 func (c *Cluster) CloudType() string {
 	return Type
+}
+
+// Finish will be called once diagnostic done
+func (c *Cluster) Finish() error {
+	if err := c.nodeExecutor.Finish(); err != nil {
+		return errors.Wrapf(err, "finish node executor failed")
+	}
+	c.nodeExecutor = nil
+
+	for t, cmp := range c.compExps {
+		if err := cmp.Finish(); err != nil {
+			return errors.Wrapf(err, "finis component explore %s failed", t)
+		}
+	}
+	c.compExps = map[string]compexplorer.Explorer{}
+	return nil
 }
 
 // GetSysCtlMap cover a out from "sysctl -a" to a map

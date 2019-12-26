@@ -21,7 +21,9 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
+	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
+	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
@@ -29,7 +31,9 @@ import (
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 	"net/url"
+	"time"
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/util"
 )
 
 type remoteExecutor interface {
@@ -100,29 +104,96 @@ func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *r
 		},
 	}
 
-	return d, nil
+	return d, d.tryCreateProxy()
+}
+
+func (d *DaemonSetProxy) tryCreateProxy() error {
+	// create namespace
+	ns := &v1.Namespace{}
+	ns.Name = d.namespace
+	if _, err := d.cli.CoreV1().Namespaces().Create(ns); err != nil {
+		if !k8serr.IsAlreadyExists(err) {
+			return errors.Wrapf(err, "create namespace %s failed", d.namespace)
+		}
+	}
+
+	// try create DaemonSet
+	dsYaml := fmt.Sprintf(proxyYaml, d.dsName, d.namespace)
+	decode := scheme.Codecs.UniversalDeserializer().Decode
+	obj, _, err := decode([]byte(dsYaml), nil, nil)
+	if err != nil {
+		return errors.Wrapf(err, "decode proxy yaml failed")
+	}
+
+	ds, ok := obj.(*v12.DaemonSet)
+	if !ok {
+		return fmt.Errorf("covert to app/v1 DaemonSet failed")
+	}
+
+	if _, err := d.cli.AppsV1().DaemonSets(d.namespace).Create(ds); err != nil {
+		if !k8serr.IsAlreadyExists(err) {
+			return errors.Wrapf(err, "create namespace %s failed", d.namespace)
+		}
+	}
+
+	// wait DaemonSet scheduled
+	for {
+		ds, err := d.cli.AppsV1().DaemonSets(d.namespace).Get(d.dsName, metav1.GetOptions{})
+		if err != nil {
+			return errors.Wrapf(err, "get DaemonSet %s/%s failed", d.namespace, d.dsName)
+		}
+
+		if ds.Status.DesiredNumberScheduled == ds.Status.CurrentNumberScheduled {
+			return nil
+		}
+
+		d.logger.Infof("wait for agent DesiredNumberScheduled = CurrentNumberScheduled")
+		time.Sleep(time.Second)
+	}
 }
 
 // Machine get machine information
 func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, error) {
-	pod, err := d.cli.CoreV1().Pods(d.namespace).List(metav1.ListOptions{
-		FieldSelector: "spec.nodeName=" + nodeName,
-		LabelSelector: labels.SelectorFromSet(map[string]string{
-			"k8s-app": "kube-jarvis-agent",
-		}).String(),
+	retStdout, retStderr := "", ""
+	err := util.RetryUntilTimeout(time.Second, time.Minute, func() error {
+		pods, err := d.cli.CoreV1().Pods(d.namespace).List(metav1.ListOptions{
+			FieldSelector: "spec.nodeName=" + nodeName,
+			LabelSelector: labels.SelectorFromSet(map[string]string{
+				"k8s-app": "kube-jarvis-agent",
+			}).String(),
+		})
+		if err != nil {
+			return errors.Wrapf(err, "get agent pod failed")
+		}
+
+		if len(pods.Items) != 1 {
+			d.logger.Infof("target agent pod on node %s not found, it may be scheduled later", nodeName)
+			return util.RetryAbleErr
+		}
+		pod := pods.Items[0]
+
+		// check pod status ,it must be ready
+		isReady := false
+		for _, c := range pod.Status.Conditions {
+			if c.Type == v1.PodReady && c.Status == v1.ConditionTrue {
+				isReady = true
+				break
+			}
+		}
+
+		if !isReady {
+			d.logger.Infof("pod %s on node %s is not ready", pod.Name, nodeName)
+			return util.RetryAbleErr
+		}
+
+		retStdout, retStderr, err = d.remoteExecutor.doCmdOnPod(d.cli, d.config, d.namespace, pod.Name, cmd)
+		return err
 	})
-	if err != nil {
-		return "", "", errors.Wrap(err, "found agent pod failed")
-	}
 
-	if len(pod.Items) != 1 {
-		return "", "", fmt.Errorf("agent pod not found")
-	}
-
-	return d.remoteExecutor.doCmdOnPod(d.cli, d.config, d.namespace, pod.Items[0].Name, cmd)
+	return retStdout, retStderr, err
 }
 
 // Finish do clean for ComponentExecutor
 func (d *DaemonSetProxy) Finish() error {
-	return nil //d.cli.ExtensionsV1beta1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{})
+	return d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{})
 }

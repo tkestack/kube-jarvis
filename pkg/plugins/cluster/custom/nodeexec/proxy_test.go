@@ -71,6 +71,12 @@ func TestDoCmd(t *testing.T) {
 	pod.Labels = map[string]string{
 		"k8s-app": "kube-jarvis-agent",
 	}
+	pod.Status.Conditions = []v1.PodCondition{
+		{
+			Type:   v1.PodReady,
+			Status: v1.ConditionTrue,
+		},
+	}
 
 	cases := []struct {
 		err    error
@@ -90,13 +96,6 @@ func TestDoCmd(t *testing.T) {
 		{
 			err: fmt.Errorf("err"),
 			pod: pod,
-		},
-
-		// pod not found
-		{
-			err:    nil,
-			out:    "out",
-			outErr: "outErr",
 		},
 	}
 
