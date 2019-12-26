@@ -72,6 +72,7 @@ func (c *Coordinator) Run(ctx context.Context) {
 	c.begin(ctx)
 	c.progress.CreateStep("diagnostic", "Diagnosing...", len(c.diagnostics))
 	c.logIfError(c.cls.Init(ctx, c.progress), "init cluster failed")
+	c.logger.Infof("Start Diagnosing......")
 	c.progress.SetCurStep("diagnostic")
 	c.diagnostic(ctx)
 	c.logIfError(c.cls.Finish(), "finish cluster failed")
