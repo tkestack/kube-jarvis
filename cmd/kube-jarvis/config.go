@@ -44,8 +44,9 @@ import (
 type Config struct {
 	Logger logger.Logger
 	Global struct {
-		Trans string
-		Lang  string
+		Trans    string
+		Lang     string
+		HttpAddr string
 	}
 
 	Cluster struct {

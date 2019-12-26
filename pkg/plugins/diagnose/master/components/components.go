@@ -98,6 +98,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		return nil, errors.Wrapf(err, "wrong config : restarttime=%s : %v", d.RestartTime, err)
 	}
 
+	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		for _, comp := range d.Components {

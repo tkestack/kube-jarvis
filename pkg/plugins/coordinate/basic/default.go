@@ -42,9 +42,8 @@ type Coordinator struct {
 // NewCoordinator return a default Coordinator
 func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordinator {
 	return &Coordinator{
-		logger:   logger,
-		cls:      cls,
-		progress: plugins.NewProgress(),
+		logger: logger,
+		cls:    cls,
 	}
 }
 
@@ -65,18 +64,25 @@ func (c *Coordinator) AddExporter(exporter export.Exporter) {
 
 // Run will do all diagnostics, evaluations, then export it by exporters
 func (c *Coordinator) Run(ctx context.Context) {
-	c.begin(ctx)
+	c.progress = plugins.NewProgress()
 	c.progress.AddProgressUpdatedWatcher(func(p *plugins.Progress) {
-		c.everyExporterDo(func(e export.Exporter) {
-			c.logIfError(e.ProgressUpdated(ctx, p), "%s export progress update failed", e.Meta().Name)
-		})
+		c.progress = p.Clone()
 	})
 
+	c.begin(ctx)
 	c.progress.CreateStep("diagnostic", "Diagnosing...", len(c.diagnostics))
 	c.logIfError(c.cls.Init(ctx, c.progress), "init cluster failed")
+	c.progress.SetCurStep("diagnostic")
 	c.diagnostic(ctx)
+	c.logIfError(c.cls.Finish(), "finish cluster failed")
 	c.progress.Done()
 	c.finish(ctx)
+}
+
+// Progress return the coordination progress
+// if coordination has not start, an nil will be returned
+func (c *Coordinator) Progress() *plugins.Progress {
+	return c.progress
 }
 
 func (c *Coordinator) begin(ctx context.Context) {

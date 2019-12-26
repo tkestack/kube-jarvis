@@ -159,3 +159,8 @@ func (a *Auto) tryExplore(exp Explorer) (bool, []cluster.Component, error) {
 
 	return false, result, nil
 }
+
+// Finish will be called once every thing done
+func (a *Auto) Finish() error {
+	return nil
+}

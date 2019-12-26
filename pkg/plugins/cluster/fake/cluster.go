@@ -41,6 +41,11 @@ func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
 	return nil
 }
 
+// Finish will be called once diagnostic done
+func (c *Cluster) Finish() error {
+	return nil
+}
+
 // CloudType return the cloud type of Cluster
 func (c *Cluster) CloudType() string {
 	return "fake"

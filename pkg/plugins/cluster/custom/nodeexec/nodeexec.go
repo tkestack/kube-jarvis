@@ -33,6 +33,8 @@ var (
 type Executor interface {
 	// DoCmd do cmd on node and return output
 	DoCmd(nodeName string, cmd []string) (string, string, error)
+	// Finish will be called once this Executor work done
+	Finish() error
 }
 
 // Config is the config of node executor

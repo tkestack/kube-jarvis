@@ -1,7 +1,7 @@
 global:
   trans: "translation"
   lang: "en"
-
+  httpaddr: ":9005"
 cluster:
   # see detail of custom cluster here:
   type: "custom"

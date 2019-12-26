@@ -77,3 +77,8 @@ func (s *StaticPods) Component() ([]cluster.Component, error) {
 
 	return append(result, s.ExplorePods(s.logger, s.podName, pods, s.exec)...), nil
 }
+
+// Finish will be called once every thing done
+func (s *StaticPods) Finish() error {
+	return nil
+}

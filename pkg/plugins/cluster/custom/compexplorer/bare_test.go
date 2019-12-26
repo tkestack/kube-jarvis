@@ -38,6 +38,10 @@ func (f *fakeNodeExecutor) DoCmd(nodeName string, cmd []string) (string, string,
 	return out, "", nil
 }
 
+func (f *fakeNodeExecutor) Finish() error {
+	return nil
+}
+
 func TestBare_Component(t *testing.T) {
 	cases := []struct {
 		success bool

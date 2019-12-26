@@ -30,4 +30,6 @@ const (
 type Explorer interface {
 	// Component get cluster components
 	Component() ([]cluster.Component, error)
+	// Finish will be called once every thing done
+	Finish() error
 }

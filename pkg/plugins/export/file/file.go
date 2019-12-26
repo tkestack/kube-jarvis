@@ -62,7 +62,7 @@ func (e *Exporter) Complete() error {
 
 // CoordinateBegin export information about coordinator Run begin
 func (e *Exporter) CoordinateBegin(ctx context.Context) error {
-	_ = os.MkdirAll(e.Path, 0666)
+	_ = os.MkdirAll(e.Path, 0755)
 	f, err := os.Create(fmt.Sprintf("%s/%s.%s", e.Path, time.Now().String(), e.Format))
 	if err != nil {
 		return errors.Wrap(err, "create file failed")

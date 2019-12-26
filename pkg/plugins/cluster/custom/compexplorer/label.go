@@ -69,3 +69,8 @@ func (l *LabelExp) Component() ([]cluster.Component, error) {
 
 	return l.ExplorePods(l.logger, l.name, pods.Items, l.exec), nil
 }
+
+// Finish will be called once every thing done
+func (l *LabelExp) Finish() error {
+	return nil
+}
