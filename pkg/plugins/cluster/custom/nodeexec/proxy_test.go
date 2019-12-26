@@ -108,7 +108,7 @@ func TestDoCmd(t *testing.T) {
 				}
 			}
 
-			p, err := NewDaemonSetProxy(logger.NewLogger(), cli, nil, "kube-system", "kube-jarvis-agent")
+			p, err := NewDaemonSetProxy(logger.NewLogger(), cli, nil, "kube-system", "kube-jarvis-agent", "xxx", true)
 			if err != nil {
 				t.Fatalf(err.Error())
 			}

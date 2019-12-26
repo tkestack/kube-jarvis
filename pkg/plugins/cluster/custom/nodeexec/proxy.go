@@ -89,22 +89,29 @@ type DaemonSetProxy struct {
 	dsName         string
 	config         *restclient.Config
 	remoteExecutor remoteExecutor
+	image          string
+	autoCreate     bool
 }
 
 // NewDaemonSetProxy create and init a new DaemonSetProxy
-func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config, namespace string, ds string) (*DaemonSetProxy, error) {
+func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config, namespace string, ds string, image string, autoCreate bool) (*DaemonSetProxy, error) {
 	d := &DaemonSetProxy{
-		cli:       cli,
-		namespace: namespace,
-		dsName:    ds,
-		logger:    logger,
-		config:    config,
+		cli:        cli,
+		namespace:  namespace,
+		dsName:     ds,
+		logger:     logger,
+		config:     config,
+		image:      image,
+		autoCreate: autoCreate,
 		remoteExecutor: &defaultExecutor{
 			newSPDYExecutor: remotecommand.NewSPDYExecutor,
 		},
 	}
 
-	return d, d.tryCreateProxy()
+	if d.autoCreate {
+		return d, d.tryCreateProxy()
+	}
+	return d, nil
 }
 
 func (d *DaemonSetProxy) tryCreateProxy() error {
@@ -118,7 +125,7 @@ func (d *DaemonSetProxy) tryCreateProxy() error {
 	}
 
 	// try create DaemonSet
-	dsYaml := fmt.Sprintf(proxyYaml, d.dsName, d.namespace)
+	dsYaml := fmt.Sprintf(proxyYaml, d.dsName, d.namespace, d.image)
 	decode := scheme.Codecs.UniversalDeserializer().Decode
 	obj, _, err := decode([]byte(dsYaml), nil, nil)
 	if err != nil {
@@ -155,7 +162,7 @@ func (d *DaemonSetProxy) tryCreateProxy() error {
 // Machine get machine information
 func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, error) {
 	retStdout, retStderr := "", ""
-	err := util.RetryUntilTimeout(time.Second, time.Minute, func() error {
+	err := util.RetryUntilTimeout(time.Second*10, time.Minute, func() error {
 		pods, err := d.cli.CoreV1().Pods(d.namespace).List(metav1.ListOptions{
 			FieldSelector: "spec.nodeName=" + nodeName,
 			LabelSelector: labels.SelectorFromSet(map[string]string{
@@ -195,5 +202,8 @@ func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, e
 
 // Finish do clean for ComponentExecutor
 func (d *DaemonSetProxy) Finish() error {
-	return d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{})
+	if d.autoCreate {
+		return d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{})
+	}
+	return nil
 }
