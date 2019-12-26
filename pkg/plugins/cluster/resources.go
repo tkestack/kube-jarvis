@@ -20,15 +20,45 @@ package cluster
 import (
 	ar "k8s.io/api/admissionregistration/v1beta1"
 	appv1 "k8s.io/api/apps/v1"
+	asv1 "k8s.io/api/autoscaling/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	v1beta12 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 )
 
+type IPTablesChainPolicy string
+
+var (
+	AcceptPolicy IPTablesChainPolicy = "ACCEPT"
+	DropPolicy   IPTablesChainPolicy = "DROP"
+)
+
+type FilterTable struct {
+	Count         int
+	InputPolicy   IPTablesChainPolicy
+	ForwardPolicy IPTablesChainPolicy
+	OutputPolicy  IPTablesChainPolicy
+}
+
+type NATTable struct {
+	Count             int
+	PreRoutingPolicy  IPTablesChainPolicy
+	InputPolicy       IPTablesChainPolicy
+	OutputPolicy      IPTablesChainPolicy
+	PostRoutingPolicy IPTablesChainPolicy
+}
+
+// IPTablesInfo is the iptables information of a node
+type IPTablesInfo struct {
+	Filter FilterTable
+	NAT    NATTable
+}
+
 // Machine is the contains low level system information of a node
 type Machine struct {
 	// SysCtl is the OS system param from command "sysctl -a"
-	SysCtl map[string]string
+	SysCtl   map[string]string
+	IPTables IPTablesInfo
 	// Error is not nil if any error appear
 	Error error
 }
@@ -88,6 +118,7 @@ type Resources struct {
 	MutatingWebhookConfigurations   *ar.MutatingWebhookConfigurationList
 	ValidatingWebhookConfigurations *ar.ValidatingWebhookConfigurationList
 	Namespaces                      *corev1.NamespaceList
+	HPAs                            *asv1.HorizontalPodAutoscalerList
 
 	CoreComponents map[string][]Component
 	Machines       map[string]Machine

@@ -1,0 +1,2 @@
+hpa-ip-title: "HPA ip 使用报告"
+hpa-ip-desc: "集群 ip 总数 {{.ClusterIPCount}}, pod 已经使用数目 {{.CurrentIPCount}}, 使用 hpa 后最多使用 {{.HPAMaxIPCount}}"

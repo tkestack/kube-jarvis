@@ -1,0 +1,2 @@
+hpa-ip-title: "HPA ip used report"
+hpa-ip-desc: "Cluster ip count {{.ClusterIPCount}}, pod already used {{.CurrentIPCount}}, hpa would be used {{.HPAMaxIPCount}} at most."

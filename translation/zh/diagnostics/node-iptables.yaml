@@ -1,0 +1,8 @@
+iptables-count-title: "IPTables 数量"
+iptables-count-desc: "节点 {{.Node}} iptables 当前数量为 {{.CurCount}}, 超出 {{.SuggestedCount}} 不是推荐设置"
+iptables-count-proposal: "使用无头服务或者使用 ipvs 模式替换 iptables"
+
+iptables-forward-policy-title: "IPTables 转发默认策略"
+iptables-forward-policy-desc: "节点 {{.Node}} iptables 转发默认策略 {{.CurPolicy}} 不是推荐设置"
+iptables-forward-policy-good-desc: "节点 {{.Node}} iptables 转发默认策略 {{.CurPolicy}} 是推荐设置"
+iptables-forward-policy-proposal: "将 iptables 转发默认策略设置 {{.Name}}={{.SuggestedPolicy}}"

@@ -1,0 +1,8 @@
+iptables-count-title: "IPTables Count"
+iptables-count-desc: "Node {{.Node}} iptables current count is {{.CurCount}}, more than {{.SuggestedCount}} is not recommended"
+iptables-count-proposal: "Use headless services or replace proxier iptables with ipvs"
+
+iptables-forward-policy-title: "IPTables Forward Policy"
+iptables-forward-policy-desc: "Node {{.Node}} iptables chain forward policy {{.CurPolicy}} is not recommended"
+iptables-forward-policy-good-desc: "Node {{.Node}} iptables chain forward policy {{.CurPolicy}} is recommended"
+iptables-forward-policy-proposal: "Set {{.Name}}={{.SuggestedPolicy}}"
