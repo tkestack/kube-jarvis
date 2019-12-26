@@ -41,8 +41,6 @@ type Progress struct {
 type ProgressStep struct {
 	// Title is the short describe of this step
 	Title string
-	// Percent is the total progress percent value, Initialization is finished if Percent is 100
-	Percent float64
 	// Total is the total value of this step
 	Total int
 	// Current is current value of this step
@@ -69,7 +67,6 @@ func (p *Progress) Clone() *Progress {
 	for name, step := range p.Steps {
 		s := &ProgressStep{
 			Title:   step.Title,
-			Percent: step.Percent,
 			Total:   step.Total,
 			Current: step.Current,
 		}

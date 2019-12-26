@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
+	v12 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -164,28 +165,34 @@ func (c *Cluster) initExecutors() error {
 // SyncResources fetch all resource from cluster
 func (c *Cluster) syncResources() error {
 	c.resources = cluster.NewResources()
-	if err := c.initK8sResources(); err != nil {
+	c.progress.CreateStep("init_k8s_resources", "Fetching k8s resources..", 20)
+	c.progress.CreateStep("init_components", "Fetching all components..", len(c.compExps))
+
+	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
+	if err != nil {
+		return errors.Wrapf(err, "get nodes from k8s failed")
+	}
+	c.progress.CreateStep("init_machines", "Fetching all machines..", len(nodes.Items))
+
+	if err := c.initK8sResources("init_k8s_resources"); err != nil {
 		return err
 	}
 
-	if err := c.initComponents(); err != nil {
+	if err := c.initComponents("init_components"); err != nil {
 		return err
 	}
 
-	if err := c.initMachines(); err != nil {
+	if err := c.initMachines(nodes, "init_machines"); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (c *Cluster) initK8sResources() error {
+func (c *Cluster) initK8sResources(stepName string) error {
 	client := c.cli.CoreV1()
 	admissionControllerClient := c.cli.AdmissionregistrationV1beta1()
 	opts := v1.ListOptions{}
-
-	stepName := "k8s_resources_init"
-	c.progress.CreateStep(stepName, "Fetching k8s resources..", 20)
 	c.progress.SetCurStep(stepName)
 
 	c.logger.Infof("Start fetching all k8s resources...........")
@@ -413,9 +420,7 @@ func (c *Cluster) initK8sResources() error {
 	return g.Wait()
 }
 
-func (c *Cluster) initComponents() error {
-	stepName := "init_components"
-	c.progress.CreateStep(stepName, "Fetching all components..", len(c.compExps))
+func (c *Cluster) initComponents(stepName string) error {
 	c.progress.SetCurStep(stepName)
 
 	c.logger.Infof("Start fetching all components...........")
@@ -440,17 +445,9 @@ func (c *Cluster) initComponents() error {
 	return g.Wait()
 }
 
-func (c *Cluster) initMachines() error {
-	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
-	if err != nil {
-		return errors.Wrapf(err, "get nodes from k8s failed")
-	}
-
+func (c *Cluster) initMachines(nodes *v12.NodeList, stepName string) error {
 	conCtl := make(chan struct{}, 200)
-	stepName := "init_machines"
-	c.progress.CreateStep(stepName, "Fetching all machines..", len(nodes.Items))
 	c.progress.SetCurStep(stepName)
-
 	c.logger.Infof("Start fetching all machines...........")
 	var g errgroup.Group
 	for _, n := range nodes.Items {
