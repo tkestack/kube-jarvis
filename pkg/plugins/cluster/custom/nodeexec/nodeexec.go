@@ -39,9 +39,11 @@ type Executor interface {
 
 // Config is the config of node executor
 type Config struct {
-	Type      string
-	Namespace string
-	DaemonSet string
+	Type       string
+	Namespace  string
+	DaemonSet  string
+	Image      string
+	AutoCreate bool
 }
 
 func NewConfig() *Config {
@@ -60,12 +62,16 @@ func (c *Config) Complete() {
 	if c.DaemonSet == "" {
 		c.DaemonSet = "kube-jarvis-agent"
 	}
+
+	if c.Image == "" {
+		c.Image = "alpine:latest"
+	}
 }
 
 func (c *Config) Executor(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
 	switch c.Type {
 	case "proxy":
-		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet)
+		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet, c.Image, c.AutoCreate)
 	case "none":
 		return nil, NoneExecutor
 	}
