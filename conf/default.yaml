@@ -6,9 +6,9 @@ cluster:
   # see detail of custom cluster here:
   type: "custom"
   kubeconfig: ""
-   config:
-     node:
-       autocreate: true
+  config:
+    node:
+      autocreate: true
 
 diagnostics:
   - type: "master-capacity"
@@ -17,9 +17,5 @@ diagnostics:
   - type: "requests-limits"
 
 exporters:
-  - type: "file"
-    name: "for json"
-    config:
-    format: "json"
-    path: "result.json"
+  - type: "stdout"
 
