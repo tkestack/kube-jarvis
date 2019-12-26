@@ -1,29 +1,27 @@
 apiVersion: v1
 data:
   default.yaml: |
-    global:
-      trans: "translation"
-      lang: "en"
-
-    cluster:
-      # see detail of custom cluster here:
-      type: "custom"
-      kubeconfig: ""
-
-    diagnostics:
-      - type: "master-capacity"
-      - type: "master-apiserver"
-      - type: "node-sys"
-      - type: "requests-limits"
-
-    exporters:
-      - type: "stdout"
-
-      - type: "file"
-        name: "for json"
+      global:
+        trans: "translation"
+        lang: "en"
+        httpaddr: ":9005"
+      cluster:
+        # see detail of custom cluster here:
+        type: "custom"
+        kubeconfig: ""
         config:
-          format: "json"
-          path: "result.json"
+          node:
+            autocreate: true
+
+      diagnostics:
+        - type: "master-capacity"
+        - type: "master-components"
+        - type: "node-sys"
+        - type: "requests-limits"
+
+      exporters:
+        - type: "stdout"
+
 
 kind: ConfigMap
 metadata:
