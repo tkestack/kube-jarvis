@@ -1,0 +1,15 @@
+job-backofflimit-title: "Job BackOffLimit Check"
+job-backofflimit-desc: "Job {{.Namespace}}:{{.Name}} BackOffLimit is too large"
+job-backofflimit-proposal: "Job BackOffLimit less than {{.RecommendedValue}} is recommended"
+
+cronjob-failedjobhistorylimit-title: "CronJob FailedJobsHistoryLimit Check"
+cronjob-failedjobhistorylimit-desc: "CronJob {{.Namespace}}:{{.Name}} FailedJobsHistoryLimit is too large"
+cronjob-failedjobhistorylimit-proposal: "CronJob FailedJobsHistoryLimit less than {{.RecommendedValue}} is recommended"
+
+cronjob-successfuljobshistorylimit-title: "CronJob SuccessfulJobsHistoryLimit Check"
+cronjob-successfuljobshistorylimit-desc: "CronJob {{.Namespace}}:{{.Name}} SuccessfulJobsHistoryLimit is too large"
+cronjob-successfuljobshistorylimit-proposal: "CronJob SuccessfulJobsHistoryLimit less than {{.RecommendedValue}} is recommended"
+
+cronjob-concurrencypolicy-title: "CronJob ConcurrencyPolicy Check"
+cronjob-concurrencypolicy-desc: "CronJob {{.Namespace}}:{{.Name}} ConcurrencyPolicy is {{.CurrentConcurrencyPolicy}}"
+cronjob-concurrencypolicy-proposal: "CronJob ConcurrencyPolicy {{.RecommendedConcurrencyPolicy}} is recommended"

@@ -17,4 +17,5 @@ require (
 	k8s.io/apimachinery v0.0.0-20191203211716-adc6f4cd9e7d
 	k8s.io/client-go v0.0.0-20191204082520-bc9b51d240b2
 	k8s.io/kubectl v0.0.0-20191205004521-ce1b5846dca4
+	k8s.io/utils v0.0.0-20191114184206-e782cd3c129f
 )

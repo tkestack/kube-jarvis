@@ -1,0 +1,3 @@
+title: "健康检查"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} 包含未设置存活检查或就绪检查的容器"
+proposal: "应该始终为{{.Kind}}的容器设置存活检查和就绪检查"

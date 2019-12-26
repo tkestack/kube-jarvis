@@ -15,51 +15,60 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package requestslimits
+package affinity
 
 import (
 	"context"
 	appv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/policy/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"testing"
-	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+
+	"tkestack.io/kube-jarvis/pkg/plugins"
+
 	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
+func TestAffinityCheckDiagnostic_StartDiagnose(t *testing.T) {
 	res := cluster.NewResources()
 	res.Deployments = &appv1.DeploymentList{}
 	res.ReplicaSets = &appv1.ReplicaSetList{}
 	res.ReplicationControllers = &v1.ReplicationControllerList{}
 	res.StatefulSets = &appv1.StatefulSetList{}
 	res.DaemonSets = &appv1.DaemonSetList{}
+
+	res.PodDisruptionBudgets = &v1beta1.PodDisruptionBudgetList{}
 	res.Pods = &v1.PodList{}
-
-	kubeDNSlimit := make(map[v1.ResourceName]resource.Quantity)
-	kubeDNSRequest := make(map[v1.ResourceName]resource.Quantity)
-
-	kubeDNSlimit[v1.ResourceCPU] = resource.MustParse("100m")
-	kubeDNSlimit[v1.ResourceMemory] = resource.MustParse("170M")
-	kubeDNSRequest[v1.ResourceCPU] = resource.MustParse("100m")
-	kubeDNSRequest[v1.ResourceMemory] = resource.MustParse("30M")
 
 	pod := v1.Pod{}
 	pod.Name = "pod1"
 	pod.Namespace = "default"
 	pod.UID = "pod1-uid"
+	pod.Spec.Affinity = &v1.Affinity{
+		PodAntiAffinity: &v1.PodAntiAffinity{
+			RequiredDuringSchedulingIgnoredDuringExecution: []v1.PodAffinityTerm{{
+				TopologyKey: "kubernetes.io/hostname",
+				LabelSelector: &metav1.LabelSelector{
+					MatchExpressions: []metav1.LabelSelectorRequirement{
+						{
+							Key:      "k8s-app",
+							Operator: metav1.LabelSelectorOpIn,
+							Values:   []string{"kube-dns"},
+						},
+					}},
+			}},
+		},
+	}
+
 	pod.Spec.Containers = []v1.Container{
 		{
 			Name:  "kubedns",
 			Image: "1",
-			Resources: v1.ResourceRequirements{
-				Limits:   kubeDNSlimit,
-				Requests: kubeDNSRequest,
-			},
 		},
 	}
 	res.Pods.Items = append(res.Pods.Items, pod)

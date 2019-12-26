@@ -1,0 +1,3 @@
+title: "Health Check"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} has container lack readiness or liveness probe"
+proposal: "always set container readiness and liveness probe for {{.Kind}}"

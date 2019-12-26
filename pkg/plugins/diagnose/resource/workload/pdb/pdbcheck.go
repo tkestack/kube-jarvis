@@ -15,13 +15,15 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package requestslimits
+package pdb
 
 import (
 	"context"
 	"fmt"
+	"k8s.io/api/policy/v1beta1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
-
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
 	v12 "k8s.io/api/core/v1"
@@ -29,17 +31,17 @@ import (
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType = "requests-limits"
+	DiagnosticType = "pdb"
 )
 
-// Diagnostic report the healthy of pods's resources requests limits configuration
+// Diagnostic report the healthy of pods's resources health check configuration
 type Diagnostic struct {
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
 }
 
-// NewDiagnostic return a requests-limits Diagnostic
+// NewDiagnostic return a health check Diagnostic
 func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	return &Diagnostic{
 		MetaData: meta,
@@ -55,7 +57,6 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
-	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
@@ -76,10 +77,6 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			uid2obj[rc.UID] = &rc
 			rc.Kind = "ReplicationController"
 		}
-		for _, ds := range d.param.Resources.DaemonSets.Items {
-			uid2obj[ds.UID] = &ds
-			ds.Kind = "DaemonSet"
-		}
 
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
@@ -87,34 +84,58 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if _, ok := outputs[rootOwner.GetUID()]; ok {
 				continue
 			}
-			d.diagnosePod(pod, rootOwner)
+			d.diagnosePod(&pod, rootOwner, d.param.Resources.PodDisruptionBudgets)
 			outputs[rootOwner.GetUID()] = true
 		}
 	}()
 	return d.result, nil
 }
 
-func (d *Diagnostic) diagnosePod(pod v12.Pod, rootOwner diagnose.MetaObject) {
-	for _, c := range pod.Spec.Containers {
-		if c.Resources.Limits.Memory().IsZero() ||
-			c.Resources.Limits.Cpu().IsZero() ||
-			c.Resources.Requests.Memory().IsZero() ||
-			c.Resources.Requests.Cpu().IsZero() {
-			d.result <- &diagnose.Result{
-				Level:   diagnose.HealthyLevelWarn,
-				Title:   d.Translator.Message("title", nil),
-				ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-				Desc: d.Translator.Message("desc", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName(),
-				}),
-				Proposal: d.Translator.Message("proposal", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName()}),
-			}
-			return
+func getPodDisruptionBudgets(pod *v12.Pod, pdbList *v1beta1.PodDisruptionBudgetList) ([]v1beta1.PodDisruptionBudget, error) {
+	if pod == nil || len(pod.Labels) == 0 {
+		return nil, nil
+	}
+
+	var pdbs []v1beta1.PodDisruptionBudget
+	for _, pdb := range pdbList.Items {
+		if pdb.Namespace != pod.Namespace {
+			continue
+		}
+		selector, err := v1.LabelSelectorAsSelector(pdb.Spec.Selector)
+		if err != nil {
+			continue
+		}
+		// If a PDB with a nil or empty selector creeps in, it should match nothing, not everything.
+		if selector.Empty() || !selector.Matches(labels.Set(pod.Labels)) {
+			continue
+		}
+
+		pdbs = append(pdbs, pdb)
+	}
+
+	return pdbs, nil
+}
+
+func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject, pdbList *v1beta1.PodDisruptionBudgetList) {
+	pdbs, err := getPodDisruptionBudgets(pod, pdbList)
+	if err != nil {
+		return
+	}
+	if len(pdbs) > 1 {
+		// invalid
+	} else if len(pdbs) == 0 {
+		d.result <- &diagnose.Result{
+			Level:   diagnose.HealthyLevelWarn,
+			ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+			Title:   d.Translator.Message("title", nil),
+			Desc: d.Translator.Message("desc", map[string]interface{}{
+				"Kind":      rootOwner.GroupVersionKind().Kind,
+				"Namespace": rootOwner.GetNamespace(),
+				"Name":      rootOwner.GetName(),
+			}),
+			Proposal: d.Translator.Message("proposal", map[string]interface{}{
+				"Kind": rootOwner.GroupVersionKind().Kind,
+			}),
 		}
 	}
 }
