@@ -9,6 +9,7 @@ spec:
       containers:
         - name: kube-jarvis
           image: docker.io/raylhuang110/kube-jarvis:latest
+          imagePullPolicy: Always
           volumeMounts:
             - name: config
               mountPath: /conf
