@@ -8,7 +8,7 @@ dist: trusty
 sudo: false
 install: true
 script:
-  - env GO111MODULE=on go test ./pkg/... -race -coverprofile=coverage.txt -covermode=atomic
+  - env GO111MODULE=on go test ./pkg/... -coverprofile=coverage.txt -covermode=atomic
   - env GO111MODULE=on go build cmd/kube-jarvis/*.go
 
 after_success:

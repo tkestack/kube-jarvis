@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-jarvis
+  namespace: cls-e16mmp4a
+  labels:
+    k8s-app: kube-jarvis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kube-jarvis
+  template:
+    metadata:
+      annotations:
+        qcloud.CNI_CONFIG_INFO: '{"eni":{"spec":{"peerVpcAppId":1251707795,"peerVpcId":"vpc-rt8vgbiv","name":"cls-e16mmp4a","cvmOwnerAppId":1253687700,"cvmOwnerUin":"100005258832"}},"useBridge":true}'
+        tke.cloud.tencent.com/networks: tke-bridge,tke-eni,tke-route
+      name: kube-jarvis
+      namespace: cls-e16mmp4a
+      labels:
+        k8s-app: kube-jarvis
+        label_qcloud_app: kube-jarvis
+    spec:
+      volumes:
+        - configMap:
+            defaultMode: 0
+            name: kube-jarvis-config
+          name: config
+        - hostPath:
+            path: /etc/localtime
+            type: ""
+          name: host-time
+        - configMap:
+            defaultMode: 420
+            name: security-clientconfig
+          name: security-clientconfig
+
+      containers:
+        - name: kube-jarvis
+          image: ccr.ccs.tencentyun.com/ccs-dev/kube-jarvis:latest
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: "1G"
+              tke.cloud.tencent.com/eni: "1"
+            requests:
+              memory: "100M"
+              tke.cloud.tencent.com/eni: "1"
+          volumeMounts:
+            - mountPath: /kubeconfig
+              name: security-clientconfig
+            - mountPath: /conf
+              name: config
+              readOnly: true
+            - mountPath: /etc/localtime
+              name: host-time
