@@ -26,7 +26,6 @@ import (
 	"time"
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	"tkestack.io/kube-jarvis/pkg/logger"
-	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/basic"
@@ -37,14 +36,12 @@ type Coordinator struct {
 	Cron    string
 	WalPath string
 	coordinate.Coordinator
-	running      bool
-	runLock      sync.Mutex
-	cronCtl      *cron.Cron
-	cronLock     sync.Mutex
-	waitRun      chan struct{}
-	logger       logger.Logger
-	progress     *plugins.Progress
-	progressLock sync.Mutex
+	running  bool
+	runLock  sync.Mutex
+	cronCtl  *cron.Cron
+	cronLock sync.Mutex
+	waitRun  chan struct{}
+	logger   logger.Logger
 }
 
 // NewCoordinator return a default Coordinator
@@ -53,19 +50,15 @@ func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordi
 		Coordinator: basic.NewCoordinator(logger, cls),
 		waitRun:     make(chan struct{}),
 		logger:      logger,
-		WalPath:     "/tmp",
 	}
 	httpserver.HandleFunc("/coordinator/cron/run", c.runOnceHandler)
-	httpserver.HandleFunc("/coordinator/cron/update", c.updateCronHandler)
+	httpserver.HandleFunc("/coordinator/cron/period", c.periodHandler)
 	httpserver.HandleFunc("/coordinator/cron/state", c.stateHandler)
 	return c
 }
 
 // Complete check and complete config items
 func (c *Coordinator) Complete() error {
-	if c.WalPath == "" {
-		c.WalPath = "/tmp"
-	}
 	return c.Coordinator.Complete()
 }
 
@@ -80,6 +73,9 @@ func (c *Coordinator) Run(ctx context.Context) {
 	// check for wal file to auto start once we start
 	// this is to ensure that the program automatically retries when it restarts
 	go func() {
+		if c.WalPath == "" {
+			return
+		}
 		_, err := os.Stat(c.walFile()) //os.Stat获取文件信息
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -96,6 +92,7 @@ func (c *Coordinator) Run(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			c.logger.Infof("context done,coordinator exited")
+			return
 		case <-c.waitRun:
 		}
 		c.runStart()
@@ -109,7 +106,9 @@ func (c *Coordinator) runStart() {
 }
 
 func (c *Coordinator) runDone() {
-	_ = os.Remove(c.walFile())
+	if c.WalPath != "" {
+		_ = os.Remove(c.walFile())
+	}
 	c.runLock.Lock()
 	defer c.runLock.Unlock()
 	c.running = false
@@ -137,6 +136,6 @@ func (c *Coordinator) cronDo() {
 		if c.tryStartRun() {
 			break
 		}
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 1)
 	}
 }

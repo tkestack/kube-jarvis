@@ -5,6 +5,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"net/http"
+	"tkestack.io/kube-jarvis/pkg/plugins"
 )
 
 func (c *Coordinator) runOnceHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,7 +18,7 @@ func (c *Coordinator) runOnceHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (c *Coordinator) updateCronHandler(w http.ResponseWriter, r *http.Request) {
+func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 	// get
 	if r.Method == http.MethodGet {
 		if _, err := w.Write([]byte(c.Cron)); err != nil {
@@ -47,6 +48,7 @@ func (c *Coordinator) updateCronHandler(w http.ResponseWriter, r *http.Request) 
 	c.cronLock.Lock()
 	defer c.cronLock.Unlock()
 
+	c.Cron = string(data)
 	if c.cronCtl != nil {
 		c.cronCtl.Stop()
 	}
@@ -55,16 +57,21 @@ func (c *Coordinator) updateCronHandler(w http.ResponseWriter, r *http.Request) 
 	c.logger.Infof("cron scheduler success update to %s", string(data))
 }
 
+type State struct {
+	State    string
+	Progress *plugins.Progress
+}
+
 func (c *Coordinator) stateHandler(w http.ResponseWriter, r *http.Request) {
 	c.logger.Infof("handle get current state")
-	resp := map[string]interface{}{
-		"Progress": c.Progress(),
+	resp := &State{
+		Progress: c.Progress(),
 	}
 
 	if c.running {
-		resp["State"] = "running"
+		resp.State = "running"
 	} else {
-		resp["State"] = "pending"
+		resp.State = "pending"
 	}
 
 	data, err := json.Marshal(&resp)

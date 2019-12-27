@@ -3,17 +3,19 @@ package httpserver
 import (
 	"context"
 	"net/http"
+	"sync"
 	"tkestack.io/kube-jarvis/pkg/logger"
 )
 
-var needStart = false
+var handlers = map[string]func(http.ResponseWriter, *http.Request){}
+var handlersLock sync.Mutex
 
 type Handler interface {
 	Hand(ctx context.Context) (response interface{})
 }
 
 func Start(logger logger.Logger, addr string) {
-	if !needStart {
+	if len(handlers) == 0 {
 		return
 	}
 
@@ -29,6 +31,11 @@ func Start(logger logger.Logger, addr string) {
 }
 
 func HandleFunc(pattern string, handler func(http.ResponseWriter, *http.Request)) {
-	needStart = true
+	handlersLock.Lock()
+	defer handlersLock.Unlock()
+	if _, exist := handlers[pattern]; exist {
+		return
+	}
+	handlers[pattern] = handler
 	http.HandleFunc(pattern, handler)
 }
