@@ -56,7 +56,7 @@ func ExplorePods(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec
 			}
 
 			// we try to get args via node executor
-			if exec != nil {
+			if exec != nil && pod.Spec.NodeName != "" {
 				bare := NewBare(logger, name, []string{pod.Spec.NodeName}, exec)
 				cmp, err := bare.Component()
 				if err != nil {
