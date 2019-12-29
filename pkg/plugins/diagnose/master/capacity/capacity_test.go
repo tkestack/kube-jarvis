@@ -123,7 +123,7 @@ func TestDiagnostic_diagnoseCapacity(t *testing.T) {
 
 			// start diagnostic
 			d := NewDiagnostic(&diagnose.MetaData{
-				CommonMetaData: plugins.CommonMetaData{
+				MetaData: plugins.MetaData{
 					Translator: translate.NewFake(),
 					Logger:     logger.NewLogger(),
 					Type:       DiagnosticType,

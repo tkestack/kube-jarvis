@@ -8,7 +8,7 @@ import (
 )
 
 type FakeCoordinator struct {
-	RunFunc func(ctx context.Context)
+	RunFunc func(ctx context.Context) error
 }
 
 // Complete check and complete config items
@@ -27,10 +27,11 @@ func (f *FakeCoordinator) AddExporter(exporter export.Exporter) {
 }
 
 // Run will do all diagnostics, evaluations, then export it by exporters
-func (f *FakeCoordinator) Run(ctx context.Context) {
+func (f *FakeCoordinator) Run(ctx context.Context) error {
 	if f.RunFunc != nil {
-		f.RunFunc(ctx)
+		return f.RunFunc(ctx)
 	}
+	return nil
 }
 
 func (f *FakeCoordinator) Progress() *plugins.Progress {

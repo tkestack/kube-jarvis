@@ -35,11 +35,12 @@ func Test_runOnceHandler(t *testing.T) {
 			c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
 			ctx, cl := context.WithCancel(context.Background())
 			defer cl()
-			c.Coordinator = &coordinate.FakeCoordinator{RunFunc: func(ctx context.Context) {
+			c.Coordinator = &coordinate.FakeCoordinator{RunFunc: func(ctx context.Context) error {
 				<-ctx.Done()
+				return nil
 			}}
 			go func() {
-				c.Run(ctx)
+				_ = c.Run(ctx)
 			}()
 
 			if cs.running {
@@ -66,7 +67,7 @@ func (p *progressCoordinator) Progress() *plugins.Progress {
 
 func Test_state(t *testing.T) {
 	c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
-	c.running = true
+	c.state = StateRunning
 	co := &progressCoordinator{
 		progress: plugins.NewProgress(),
 	}
@@ -85,12 +86,8 @@ func Test_state(t *testing.T) {
 		t.Fatalf(err.Error())
 	}
 
-	if c.running && state.State != "running" {
+	if c.state != state.State {
 		t.Fatalf("want running")
-	}
-
-	if !c.running && state.State != "pending" {
-		t.Fatalf("want pending")
 	}
 
 	if state.Progress.Percent != co.progress.Percent {

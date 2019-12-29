@@ -41,7 +41,7 @@ func TestDiagnostic_StartDiagnose(t *testing.T) {
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
 			s := NewDiagnostic(&diagnose.MetaData{
-				CommonMetaData: plugins.CommonMetaData{
+				MetaData: plugins.MetaData{
 					Translator: translate.NewFake(),
 				},
 			}).(*Diagnostic)

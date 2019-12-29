@@ -19,14 +19,12 @@ package export
 
 import (
 	"context"
-
 	"tkestack.io/kube-jarvis/pkg/plugins"
-	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 // MetaData contains core attributes of a Exporter
 type MetaData struct {
-	plugins.CommonMetaData
+	plugins.MetaData
 }
 
 // Meta return core MetaData
@@ -41,16 +39,8 @@ type Exporter interface {
 	Complete() error
 	// Meta return core attributes
 	Meta() MetaData
-	// CoordinateBegin export information about coordinator Run begin
-	CoordinateBegin(ctx context.Context) error
-	// DiagnosticBegin export information about a Diagnostic begin
-	DiagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) error
-	// DiagnosticResult export information about one diagnose.Result
-	DiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) error
-	// DiagnosticFinish export information about a Diagnostic finished
-	DiagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) error
-	// CoordinateFinish export information about coordinator Run finished
-	CoordinateFinish(ctx context.Context) error
+	// Export export result
+	Export(ctx context.Context, result *AllResult) error
 }
 
 // Factory create a new Exporter

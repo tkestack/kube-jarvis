@@ -19,7 +19,6 @@ func (c *Coordinator) runOnceHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
-	// get
 	if r.Method == http.MethodGet {
 		if _, err := w.Write([]byte(c.Cron)); err != nil {
 			c.logger.Errorf("write cron config to response failed: %v", err)
@@ -66,12 +65,7 @@ func (c *Coordinator) stateHandler(w http.ResponseWriter, r *http.Request) {
 	c.logger.Infof("handle get current state")
 	resp := &State{
 		Progress: c.Progress(),
-	}
-
-	if c.running {
-		resp.State = "running"
-	} else {
-		resp.State = "pending"
+		State:    c.state,
 	}
 
 	data, err := json.Marshal(&resp)

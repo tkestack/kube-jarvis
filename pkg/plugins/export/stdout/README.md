@@ -7,7 +7,7 @@ exporters:
   - type: "stdout"
     name: "stdout"
     config:
-      format: "fmt" # fmt or json or yaml
+      format: "fmt"  # use "json" to print a json
 ```
 
 # supported cluster type 

@@ -19,10 +19,8 @@ package diagnose
 
 import (
 	"context"
-	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
-
 	"tkestack.io/kube-jarvis/pkg/plugins"
-
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
@@ -82,7 +80,7 @@ var (
 
 // MetaData contains core attributes of a Diagnostic
 type MetaData struct {
-	plugins.CommonMetaData
+	plugins.MetaData
 	// Catalogue is the catalogue type of the Diagnostic
 	Catalogue Catalogue
 }

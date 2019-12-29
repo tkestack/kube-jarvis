@@ -45,9 +45,9 @@ type ProgressStep struct {
 	Title string
 	// Total is the total value of this step
 	Total int
-	// Current is current value of this step
 	// Percent is the percentage of overall this step
 	Percent float64
+	// Current is current value of this step
 	Current int
 }
 

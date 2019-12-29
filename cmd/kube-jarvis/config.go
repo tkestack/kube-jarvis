@@ -184,7 +184,7 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 		}
 
 		d := factory.Creator(&diagnose.MetaData{
-			CommonMetaData: plugins.CommonMetaData{
+			MetaData: plugins.MetaData{
 				Translator: trans.WithModule("diagnostics." + config.Type),
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,
@@ -224,7 +224,7 @@ func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) (
 		}
 
 		e := factory.Creator(&export.MetaData{
-			CommonMetaData: plugins.CommonMetaData{
+			MetaData: plugins.MetaData{
 				Translator: trans.WithModule("diagnostics." + config.Type),
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,

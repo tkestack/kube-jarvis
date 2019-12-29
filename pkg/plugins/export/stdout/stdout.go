@@ -21,8 +21,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fatih/color"
-	"io"
-	"os"
+	"github.com/pkg/errors"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -37,69 +36,66 @@ const (
 type Exporter struct {
 	Format string
 	Level  diagnose.HealthyLevel
-	*export.Collector
 	*export.MetaData
 }
 
 // NewExporter return a stdout Exporter
 func NewExporter(m *export.MetaData) export.Exporter {
 	e := &Exporter{
-		MetaData:  m,
-		Collector: export.NewCollector(),
+		MetaData: m,
 	}
 	return e
 }
 
 // Complete check and complete config items
 func (e *Exporter) Complete() error {
-	if e.Format == "" {
-		e.Format = "fmt"
-	}
-	e.Collector.Format = e.Format
-
 	if e.Level == "" {
 		e.Level = diagnose.HealthyLevelGood
+	}
+
+	if e.Format == "" {
+		e.Format = "fmt"
 	}
 
 	if !e.Level.Verify() {
 		return fmt.Errorf("level %s is illegal", e.Level)
 	}
-	e.Collector.Level = e.Level
 
-	return e.Collector.Complete()
+	return nil
 }
 
-// CoordinateBegin export information about coordinator Run begin
-func (e *Exporter) CoordinateBegin(ctx context.Context) error {
+// Export export result
+func (e *Exporter) Export(ctx context.Context, result *export.AllResult) error {
 	if e.Format != "fmt" {
-		e.Collector.Output = []io.Writer{os.Stdout}
-	}
-
-	return e.Collector.CoordinateBegin(ctx)
-}
-
-// CoordinateFinish export information about coordinator Run finished
-func (e *Exporter) CoordinateFinish(ctx context.Context) error {
-	if e.Format != "fmt" {
-		if err := e.Collector.CoordinateFinish(ctx); err != nil {
-			return err
+		data, err := result.Marshal()
+		if err != nil {
+			return errors.Wrap(err, "marshal result failed")
 		}
+		fmt.Println(string(data))
+		return nil
 	}
 
 	fmt.Println("===================================================================")
 	fmt.Println("                       kube-jarivs                                 ")
 	fmt.Println("===================================================================")
 
-	for _, dia := range e.Collector.Diagnostics {
+	for _, dia := range result.Diagnostics {
 		fmt.Println("Diagnostic report")
 		fmt.Printf("    Type : %s\n", dia.Type)
 		fmt.Printf("    Desc : %s\n", dia.Desc)
 		fmt.Printf("    Name : %s\n", dia.Name)
-		fmt.Printf("    TotalResult  : %d\n", dia.Total)
-		fmt.Printf("    CollectedResult  : %d\n", len(dia.Results))
+		fmt.Printf("    TotalResult  : %d\n", len(dia.Results))
+		fmt.Printf("    GoodResult  : %d\n", dia.Statistics[diagnose.HealthyLevelGood])
+		fmt.Printf("    WranResult  : %d\n", dia.Statistics[diagnose.HealthyLevelWarn])
+		fmt.Printf("    RiskResult  : %d\n", dia.Statistics[diagnose.HealthyLevelRisk])
+		fmt.Printf("    SeriousResult  : %d\n", dia.Statistics[diagnose.HealthyLevelSerious])
 		fmt.Printf("- ----- results ----------------\n")
 
 		for _, result := range dia.Results {
+			if result.Level.Compare(e.Level) > 0 {
+				continue
+			}
+
 			var pt func(format string, a ...interface{})
 			switch result.Level {
 			case diagnose.HealthyLevelFailed:

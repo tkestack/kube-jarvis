@@ -13,8 +13,9 @@ func TestCoordinator_Run(t *testing.T) {
 	count := 0
 	c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
 	f := &coordinate.FakeCoordinator{
-		RunFunc: func(ctx context.Context) {
+		RunFunc: func(ctx context.Context) error {
 			count++
+			return nil
 		},
 	}
 	c.Coordinator = f
@@ -27,7 +28,7 @@ func TestCoordinator_Run(t *testing.T) {
 	ctx, cl := context.WithTimeout(context.Background(), time.Second*10)
 	defer cl()
 	go func() {
-		c.Run(ctx)
+		_ = c.Run(ctx)
 	}()
 
 	for {

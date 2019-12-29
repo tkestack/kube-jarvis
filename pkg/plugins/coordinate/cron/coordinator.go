@@ -31,12 +31,18 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/basic"
 )
 
+const (
+	StateFailed  = "failed"
+	StateRunning = "running"
+	StatePending = "pending"
+)
+
 // Coordinator Coordinate diagnostics,exporters,evaluators with simple way
 type Coordinator struct {
 	Cron    string
 	WalPath string
 	coordinate.Coordinator
-	running  bool
+	state    string
 	runLock  sync.Mutex
 	cronCtl  *cron.Cron
 	cronLock sync.Mutex
@@ -63,7 +69,7 @@ func (c *Coordinator) Complete() error {
 }
 
 // Run will do all diagnostics, evaluations, then export it by exporters
-func (c *Coordinator) Run(ctx context.Context) {
+func (c *Coordinator) Run(ctx context.Context) error {
 	if c.Cron != "" {
 		c.cronCtl = cron.New()
 		_, _ = c.cronCtl.AddFunc(c.Cron, c.cronDo)
@@ -92,12 +98,16 @@ func (c *Coordinator) Run(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			c.logger.Infof("context done,coordinator exited")
-			return
+			return ctx.Err()
 		case <-c.waitRun:
 		}
 		c.runStart()
-		c.Coordinator.Run(ctx)
-		c.runDone()
+		if err := c.Coordinator.Run(ctx); err != nil {
+			c.logger.Errorf("run failed: %v", err)
+			c.runDone(false)
+		} else {
+			c.runDone(true)
+		}
 	}
 }
 
@@ -105,13 +115,17 @@ func (c *Coordinator) runStart() {
 	_, _ = os.Create(c.walFile())
 }
 
-func (c *Coordinator) runDone() {
+func (c *Coordinator) runDone(success bool) {
 	if c.WalPath != "" {
 		_ = os.Remove(c.walFile())
 	}
 	c.runLock.Lock()
 	defer c.runLock.Unlock()
-	c.running = false
+	if success {
+		c.state = StatePending
+	} else {
+		c.state = StateFailed
+	}
 }
 
 func (c *Coordinator) walFile() string {
@@ -122,11 +136,11 @@ func (c *Coordinator) tryStartRun() bool {
 	c.runLock.Lock()
 	defer c.runLock.Unlock()
 
-	if c.running {
+	if c.state == StateRunning {
 		return false
 	}
 
-	c.running = true
+	c.state = StateRunning
 	c.waitRun <- struct{}{}
 	return true
 }

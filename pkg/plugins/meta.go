@@ -22,8 +22,8 @@ import (
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
-// CommonMetaData is the common attributes of a plugins
-type CommonMetaData struct {
+// MetaData is the common attributes of a plugins
+type MetaData struct {
 	// Translator is a translator with plugins module context
 	Translator translate.Translator
 	// Logger is a logger with plugins module context
