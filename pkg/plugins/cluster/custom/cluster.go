@@ -126,7 +126,7 @@ func (c *Cluster) Init(ctx context.Context, progress *plugins.Progress) error {
 	c.resources = cluster.NewResources()
 	c.progress.CreateStep("init_env", "Preparing environment", 2)
 	c.progress.CreateStep("init_k8s_resources", "Fetching k8s resources..", 20)
-	c.progress.CreateStep("init_components", "Fetching all components..", len(c.compExps))
+	c.progress.CreateStep("init_components", "Fetching all components..", len(c.Components))
 	nodes, err := c.cli.CoreV1().Nodes().List(v1.ListOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "get nodes from k8s failed")
