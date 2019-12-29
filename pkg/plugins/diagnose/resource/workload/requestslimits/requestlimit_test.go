@@ -20,10 +20,8 @@ package requestslimits
 import (
 	"context"
 	"testing"
-	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
-
 	"tkestack.io/kube-jarvis/pkg/plugins"
-
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -71,7 +69,7 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 	res.Pods.Items = append(res.Pods.Items, pod)
 
 	d := NewDiagnostic(&diagnose.MetaData{
-		CommonMetaData: plugins.CommonMetaData{
+		MetaData: plugins.MetaData{
 			Translator: translate.NewFake(),
 		},
 	})

@@ -19,9 +19,9 @@ package basic
 
 import (
 	"context"
-	"fmt"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	"os"
+	"time"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -63,21 +63,28 @@ func (c *Coordinator) AddExporter(exporter export.Exporter) {
 }
 
 // Run will do all diagnostics, evaluations, then export it by exporters
-func (c *Coordinator) Run(ctx context.Context) {
+func (c *Coordinator) Run(ctx context.Context) error {
 	c.progress = plugins.NewProgress()
 	c.progress.AddProgressUpdatedWatcher(func(p *plugins.Progress) {
 		c.progress = p.Clone()
 	})
 
-	c.begin(ctx)
 	c.progress.CreateStep("diagnostic", "Diagnosing...", len(c.diagnostics))
-	c.logIfError(c.cls.Init(ctx, c.progress), "init cluster failed")
+
+	if err := c.cls.Init(ctx, c.progress); err != nil {
+		return errors.Wrap(err, "init cluster failed")
+	}
+
 	c.logger.Infof("Start Diagnosing......")
 	c.progress.SetCurStep("diagnostic")
 	c.diagnostic(ctx)
-	c.logIfError(c.cls.Finish(), "finish cluster failed")
+
+	if err := c.cls.Finish(); err != nil {
+		return errors.Wrapf(err, "finish cluster failed")
+	}
+
 	c.progress.Done()
-	c.finish(ctx)
+	return nil
 }
 
 // Progress return the coordination progress
@@ -86,72 +93,45 @@ func (c *Coordinator) Progress() *plugins.Progress {
 	return c.progress
 }
 
-func (c *Coordinator) begin(ctx context.Context) {
-	c.everyExporterDo(func(e export.Exporter) {
-		c.logIfError(e.CoordinateBegin(ctx), "%s export coordinate begin", e.Meta().Name)
-	})
-}
-
-func (c *Coordinator) finish(ctx context.Context) {
-	c.everyExporterDo(func(e export.Exporter) {
-		c.logIfError(e.CoordinateFinish(ctx), "%s export coordinate finish", e.Meta().Name)
-	})
-}
-
 func (c *Coordinator) diagnostic(ctx context.Context) {
+	result := export.NewAllResult()
 	for _, dia := range c.diagnostics {
-		c.diagnosticBegin(ctx, dia)
-		result, err := dia.StartDiagnose(ctx, diagnose.StartDiagnoseParam{
+		resultChan, err := dia.StartDiagnose(ctx, diagnose.StartDiagnoseParam{
 			CloudType: c.cls.CloudType(),
 			Resources: c.cls.Resources(),
 		})
+
 		if err != nil {
 			c.logger.Errorf("start diagnostic type[%s] name[%s] failed : %v", dia.Meta().Type, dia.Meta().Name, err)
-			os.Exit(1)
+			return
 		}
 
+		resultItem := export.NewDiagnosticResultItem(dia)
 		for {
-			s, ok := <-result
+			s, ok := <-resultChan
 			if !ok {
 				break
 			}
-			c.notifyDiagnosticResult(ctx, dia, s)
+			resultItem.AddResult(s)
 		}
-		c.diagnosticFinish(ctx, dia)
+		resultItem.EndTime = time.Now()
+
+		result.AddDiagnosticResultItem(resultItem)
 		c.progress.AddStepPercent("diagnostic", 1)
 	}
+
+	result.EndTime = time.Now()
+	c.export(ctx, result)
 }
 
-func (c *Coordinator) diagnosticBegin(ctx context.Context, dia diagnose.Diagnostic) {
-	c.everyExporterDo(func(e export.Exporter) {
-		c.logIfError(e.DiagnosticBegin(ctx, dia), "%s export diagnose begin", e.Meta().Name)
-	})
-}
-
-func (c *Coordinator) diagnosticFinish(ctx context.Context, dia diagnose.Diagnostic) {
-	c.everyExporterDo(func(e export.Exporter) {
-		c.logIfError(e.DiagnosticFinish(ctx, dia), "%s export diagnose finish", e.Meta().Name)
-	})
-}
-
-func (c *Coordinator) notifyDiagnosticResult(ctx context.Context, dia diagnose.Diagnostic, result *diagnose.Result) {
-	c.everyExporterDo(func(e export.Exporter) {
-		c.logIfError(e.DiagnosticResult(ctx, dia, result), "%s export diagnose result", e.Meta().Name)
-	})
-}
-
-func (c *Coordinator) logIfError(err error, format string, args ...interface{}) {
-	if err != nil {
-		c.logger.Errorf("%s failed : %v", fmt.Sprintf(format, args...), err.Error())
-	}
-}
-
-func (c *Coordinator) everyExporterDo(f func(e export.Exporter)) {
+func (c *Coordinator) export(ctx context.Context, r *export.AllResult) {
 	g := errgroup.Group{}
 	for _, tmp := range c.exporters {
 		e := tmp
 		g.Go(func() error {
-			f(e)
+			if err := e.Export(ctx, r); err != nil {
+				c.logger.Errorf("%s export failed: %v", e.Meta().Name, err)
+			}
 			return nil
 		})
 	}

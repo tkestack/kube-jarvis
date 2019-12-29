@@ -37,10 +37,10 @@ func TestNewDefault(t *testing.T) {
 	_ = d.Complete()
 
 	d.AddDiagnostic(example.NewDiagnostic(&diagnose.MetaData{
-		CommonMetaData: plugins.CommonMetaData{
+		MetaData: plugins.MetaData{
 			Translator: translate.NewFake(),
 		},
 	}))
 	d.AddExporter(stdout.NewExporter(&export.MetaData{}))
-	d.Run(ctx)
+	_ = d.Run(ctx)
 }
