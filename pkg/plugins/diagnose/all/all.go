@@ -21,8 +21,10 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/components"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/iptables"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
+	hpaip "tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/hpa/ip"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
 )
 
@@ -50,6 +52,10 @@ func addResourceDiagnostics() {
 		Creator:   requestslimits.NewDiagnostic,
 		Catalogue: diagnose.CatalogueResource,
 	})
+	diagnose.Add(hpaip.DiagnosticType, diagnose.Factory{
+		Creator:   hpaip.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
 }
 
 func addOtherDiagnostics() {
@@ -62,6 +68,10 @@ func addOtherDiagnostics() {
 func addNodeDiagnostics() {
 	diagnose.Add(sys.DiagnosticType, diagnose.Factory{
 		Creator:   sys.NewDiagnostic,
+		Catalogue: diagnose.CatalogueNode,
+	})
+	diagnose.Add(iptables.DiagnosticType, diagnose.Factory{
+		Creator:   iptables.NewDiagnostic,
 		Catalogue: diagnose.CatalogueNode,
 	})
 }

@@ -1,3 +1,4 @@
 kernel-para-title: "Kernel Parameters"
 kernel-para-desc: "Node {{.Node}} Parameters[ {{.Name}}={{.CurVal}} ] is not recommended"
 kernel-para-proposal: "Set {{.Name}}={{.TargetVal}}"
+kernel-para-good-desc: "Node {{.Node}} Parameters[ {{.Name}}={{.CurVal}} ] is recommended"

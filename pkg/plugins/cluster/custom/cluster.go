@@ -19,13 +19,14 @@ package custom
 
 import (
 	"context"
+	"strings"
+	"sync"
+
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"strings"
-	"sync"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -408,6 +409,15 @@ func (c *Cluster) initK8sResources(stepName string) error {
 		return
 	})
 
+	g.Go(func() (err error) {
+		c.resources.HPAs, err = c.cli.AutoscalingV1().HorizontalPodAutoscalers("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list HPAs failed")
+		}
+		c.logger.Infof("Fetching (%d) HPAs", len(c.resources.HPAs.Items))
+		return
+	})
+
 	return g.Wait()
 }
 
@@ -461,15 +471,29 @@ func (c *Cluster) initMachines(stepName string) error {
 }
 
 func (c *Cluster) getOneNodeInfo(nodeName string) cluster.Machine {
-	out, _, err := c.nodeExecutor.DoCmd(nodeName, []string{"sh", "-c", "sysctl -a | grep -v error"})
+	out, errStr, err := c.nodeExecutor.DoCmd(nodeName, []string{"sh", "-c", "sysctl -a | grep -v error"})
 	if err != nil {
+		c.logger.Errorf("Failed to get node %s sysctl set: %s, %v", nodeName, errStr, err)
 		return cluster.Machine{
 			Error: errors.Wrapf(err, "do commond 'sysctl -a' failed"),
 		}
 	}
 
+	out1, errStr, err := c.nodeExecutor.DoCmd(nodeName, []string{"sh", "-c", "iptables-save"})
+	if err != nil {
+		c.logger.Errorf("Failed to get node %s iptables info: %s, %v", nodeName, errStr, err)
+		return cluster.Machine{
+			Error: errors.Wrapf(err, "do commond 'iptables-save' failed"),
+		}
+	}
+
+	sysctlSet := GetSysCtlMap(out)
+	//c.logger.Debugf("Get node %s sysctl result: %v", nodeName, sysctlSet)
+	iptablesInfo := GetIPTablesInfo(out1)
+	c.logger.Debugf("Get node %s iptables result: %v", nodeName, iptablesInfo)
 	return cluster.Machine{
-		SysCtl: GetSysCtlMap(out),
+		SysCtl:   sysctlSet,
+		IPTables: iptablesInfo,
 	}
 }
 
@@ -518,4 +542,113 @@ func GetSysCtlMap(out string) map[string]string {
 		result[strings.TrimSpace(k)] = strings.TrimSpace(v)
 	}
 	return result
+}
+
+// GetIPTablesInfo cover a out from "iptables-save"
+func GetIPTablesInfo(out string) (result cluster.IPTablesInfo) {
+	lines := strings.Split(out, "\n")
+
+	var idx int
+	result.NAT, idx = getNATTableInfo(lines)
+	result.Filter = getFilterTableInfo(lines[idx+1:])
+	return
+}
+
+func getNATTableInfo(lines []string) (nat cluster.NATTable, end int) {
+	end = -1
+	var found bool
+	for idx, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if line == "*nat" {
+			found = true
+		}
+		if !found {
+			continue
+		}
+		nat.Count++
+		if line == "COMMIT" {
+			end = idx
+			return
+		}
+		if strings.HasPrefix(line, ":PREROUTING ") {
+			if strings.Contains(line, "ACCEPT") {
+				nat.PreRoutingPolicy = cluster.AcceptPolicy
+			} else {
+				nat.PreRoutingPolicy = cluster.DropPolicy
+			}
+		}
+		if strings.HasPrefix(line, ":INPUT ") {
+			if strings.Contains(line, "ACCEPT") {
+				nat.InputPolicy = cluster.AcceptPolicy
+			} else {
+				nat.InputPolicy = cluster.DropPolicy
+			}
+		}
+		if strings.HasPrefix(line, ":OUTPUT ") {
+			if strings.Contains(line, "ACCEPT") {
+				nat.OutputPolicy = cluster.AcceptPolicy
+			} else {
+				nat.OutputPolicy = cluster.DropPolicy
+			}
+		}
+		if strings.HasPrefix(line, ":POSTROUTING ") {
+			if strings.Contains(line, "ACCEPT") {
+				nat.PostRoutingPolicy = cluster.AcceptPolicy
+			} else {
+				nat.PostRoutingPolicy = cluster.DropPolicy
+			}
+		}
+	}
+	return
+}
+
+func getFilterTableInfo(lines []string) (filter cluster.FilterTable) {
+	var found bool
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		if line == "*filter" {
+			found = true
+		}
+		if !found {
+			continue
+		}
+		filter.Count++
+		if line == "COMMIT" {
+			return
+		}
+		if strings.HasPrefix(line, ":INPUT ") {
+			if strings.Contains(line, "ACCEPT") {
+				filter.InputPolicy = cluster.AcceptPolicy
+			} else {
+				filter.InputPolicy = cluster.DropPolicy
+			}
+		}
+		if strings.HasPrefix(line, ":FORWARD ") {
+			if strings.Contains(line, "ACCEPT") {
+				filter.ForwardPolicy = cluster.AcceptPolicy
+			} else {
+				filter.ForwardPolicy = cluster.DropPolicy
+			}
+		}
+		if strings.HasPrefix(line, ":OUTPUT ") {
+			if strings.Contains(line, "ACCEPT") {
+				filter.OutputPolicy = cluster.AcceptPolicy
+			} else {
+				filter.OutputPolicy = cluster.DropPolicy
+			}
+		}
+	}
+	return
 }

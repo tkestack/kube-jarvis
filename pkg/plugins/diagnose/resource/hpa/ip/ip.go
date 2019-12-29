@@ -15,17 +15,19 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package sys
+package ip
 
 import (
 	"context"
+	"math"
+	"net"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType = "node-sys"
+	DiagnosticType = "hpa-ip"
 )
 
 // Diagnostic is a example diagnostic shows how to write a diagnostic
@@ -51,56 +53,53 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
-	d.result = make(chan *diagnose.Result, 1000)
-
 	go func() {
-		defer diagnose.CommonDeafer(d.result)
-		for node := range d.param.Resources.Machines {
-			// net.ipv4.tcp_tw_reuse
-			d.diagnoseKernelParam("net.ipv4.tcp_tw_reuse", "1", node)
+		defer close(d.result)
+		var totalIPCount int
+		var curIPCount int
+		var hpaMaxIPCount int
+		for _, node := range d.param.Resources.Nodes.Items {
+			podCIDR := node.Spec.PodCIDR
+			if podCIDR == "" {
+				continue
+			}
+			_, netCIDR, _ := net.ParseCIDR(podCIDR)
+			cur, total := netCIDR.Mask.Size()
+			totalIPCount += int(math.Pow(2, float64(total-cur))) - 2
+		}
+		for _, pod := range d.param.Resources.Pods.Items {
+			if pod.Spec.HostNetwork {
+				continue
+			}
+			curIPCount += 1
+		}
+		deploySet := make(map[string]int)
+		for _, deploy := range d.param.Resources.Deployments.Items {
+			deploySet[deploy.Namespace+"/"+deploy.Name] = int(*deploy.Spec.Replicas)
+		}
+		hpaMaxIPCount = curIPCount
+		for _, hpa := range d.param.Resources.HPAs.Items {
+			if hpa.Spec.ScaleTargetRef.Kind != "Deployment" {
+				d.Logger.Errorf("hpa %s/%s related %v, not deployment", hpa.Namespace, hpa.Name, hpa.Spec.ScaleTargetRef)
+				continue
+			}
+			key := hpa.Namespace + "/" + hpa.Spec.ScaleTargetRef.Name
+			replicas, ok := deploySet[key]
+			if ok {
+				hpaMaxIPCount += int(hpa.Spec.MaxReplicas) - replicas
+			}
+		}
 
-			// net.ipv4.ip_forward
-			d.diagnoseKernelParam("net.ipv4.ip_forward", "1", node)
-
-			// net.bridge.bridge-nf-call-iptables
-			d.diagnoseKernelParam("net.bridge.bridge-nf-call-iptables", "1", node)
+		d.result <- &diagnose.Result{
+			Level:   diagnose.HealthyLevelGood,
+			Title:   d.Translator.Message("hpa-ip-title", nil),
+			ObjName: "*",
+			Desc: d.Translator.Message("hpa-ip-desc", map[string]interface{}{
+				"CurrentIPCount": curIPCount,
+				"HPAMaxIPCount":  hpaMaxIPCount,
+				"ClusterIPCount": totalIPCount,
+			}),
 		}
 	}()
 	return d.result, nil
-}
-
-func (d *Diagnostic) diagnoseKernelParam(key string, targetVal string, node string) {
-	m := d.param.Resources.Machines[node]
-	curVal := m.SysCtl[key]
-	level := diagnose.HealthyLevelGood
-	if curVal != targetVal {
-		level = diagnose.HealthyLevelWarn
-		d.result <- &diagnose.Result{
-			Level:   level,
-			Title:   d.Translator.Message("kernel-para-title", nil),
-			ObjName: node,
-			Desc: d.Translator.Message("kernel-para-desc", map[string]interface{}{
-				"Node":   node,
-				"Name":   key,
-				"CurVal": curVal,
-			}),
-
-			Proposal: d.Translator.Message("kernel-para-proposal", map[string]interface{}{
-				"Node":      node,
-				"Name":      key,
-				"TargetVal": targetVal,
-			}),
-		}
-	} else {
-		d.result <- &diagnose.Result{
-			Level:   level,
-			Title:   d.Translator.Message("kernel-para-title", nil),
-			ObjName: node,
-			Desc: d.Translator.Message("kernel-para-good-desc", map[string]interface{}{
-				"Node":   node,
-				"Name":   key,
-				"CurVal": curVal,
-			}),
-		}
-	}
 }
