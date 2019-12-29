@@ -59,25 +59,32 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
 		outputs := make(map[types.UID]bool)
 		for _, deploy := range d.param.Resources.Deployments.Items {
-			uid2obj[deploy.UID] = &deploy
 			deploy.Kind = "Deployment"
+			uid2obj[deploy.UID] = deploy.DeepCopy()
 		}
 		for _, sts := range d.param.Resources.StatefulSets.Items {
-			uid2obj[sts.UID] = &sts
 			sts.Kind = "StatefulSet"
+			uid2obj[sts.UID] = sts.DeepCopy()
 		}
 		for _, rs := range d.param.Resources.ReplicaSets.Items {
-			uid2obj[rs.UID] = &rs
 			rs.Kind = "ReplicaSet"
+			uid2obj[rs.UID] = rs.DeepCopy()
 		}
 		for _, rc := range d.param.Resources.ReplicationControllers.Items {
-			uid2obj[rc.UID] = &rc
 			rc.Kind = "ReplicationController"
+			uid2obj[rc.UID] = rc.DeepCopy()
+		}
+		for _, ds := range d.param.Resources.DaemonSets.Items {
+			ds.Kind = "DaemonSet"
+			uid2obj[ds.UID] = ds.DeepCopy()
 		}
 
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
+			if rootOwner.GroupVersionKind().Kind == "DaemonSet" {
+				continue
+			}
 			if _, ok := outputs[rootOwner.GetUID()]; ok {
 				continue
 			}
@@ -89,6 +96,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 }
 
 func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject) {
+	fmt.Println("podName: ", pod.Namespace, pod.Name)
 	if pod.Spec.Affinity == nil && len(pod.Spec.NodeSelector) == 0 {
 		d.result <- &diagnose.Result{
 			Level:   diagnose.HealthyLevelWarn,
