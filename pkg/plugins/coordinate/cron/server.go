@@ -70,11 +70,13 @@ func (c *Coordinator) stateHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, err := json.Marshal(&resp)
 	if err != nil {
+		c.logger.Errorf("marshal resp failed : %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	if _, err := w.Write(data); err != nil {
+		c.logger.Errorf("write resp failed : %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
