@@ -53,8 +53,9 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
+	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
-		defer close(d.result)
+		defer diagnose.CommonDeafer(d.result)
 		var totalIPCount int
 		var curIPCount int
 		var hpaMaxIPCount int

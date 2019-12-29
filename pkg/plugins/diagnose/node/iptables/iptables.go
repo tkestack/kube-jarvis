@@ -58,7 +58,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 	d.result = make(chan *diagnose.Result, 1000)
 	d.param = &param
 	go func() {
-		defer close(d.result)
+		defer diagnose.CommonDeafer(d.result)
 		for node, m := range d.param.Resources.Machines {
 			var cntLevel diagnose.HealthyLevel
 			totalCount := m.IPTables.Filter.Count + m.IPTables.NAT.Count
