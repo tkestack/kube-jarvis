@@ -68,7 +68,7 @@ func (c *Coordinator) stateHandler(w http.ResponseWriter, r *http.Request) {
 		State:    c.state,
 	}
 
-	data, err := json.Marshal(&resp)
+	data, err := json.Marshal(resp)
 	if err != nil {
 		c.logger.Errorf("marshal resp failed : %v", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
