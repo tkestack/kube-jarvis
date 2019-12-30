@@ -508,10 +508,12 @@ func (c *Cluster) CloudType() string {
 
 // Finish will be called once diagnostic done
 func (c *Cluster) Finish() error {
-	if err := c.nodeExecutor.Finish(); err != nil {
-		return errors.Wrapf(err, "finish node executor failed")
+	if c.nodeExecutor != nil {
+		if err := c.nodeExecutor.Finish(); err != nil {
+			return errors.Wrapf(err, "finish node executor failed")
+		}
+		c.nodeExecutor = nil
 	}
-	c.nodeExecutor = nil
 
 	for t, cmp := range c.compExps {
 		if err := cmp.Finish(); err != nil {

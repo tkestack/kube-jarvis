@@ -41,6 +41,7 @@ const (
 type Coordinator struct {
 	Cron    string
 	WalPath string
+
 	coordinate.Coordinator
 	state    string
 	runLock  sync.Mutex
@@ -56,15 +57,16 @@ func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordi
 		Coordinator: basic.NewCoordinator(logger, cls),
 		waitRun:     make(chan struct{}),
 		logger:      logger,
+		state:       StatePending,
 	}
-	httpserver.HandleFunc("/coordinator/cron/run", c.runOnceHandler)
-	httpserver.HandleFunc("/coordinator/cron/period", c.periodHandler)
-	httpserver.HandleFunc("/coordinator/cron/state", c.stateHandler)
 	return c
 }
 
 // Complete check and complete config items
 func (c *Coordinator) Complete() error {
+	httpserver.HandleFunc("/coordinator/cron/run", c.runOnceHandler)
+	httpserver.HandleFunc("/coordinator/cron/period", c.periodHandler)
+	httpserver.HandleFunc("/coordinator/cron/state", c.stateHandler)
 	return c.Coordinator.Complete()
 }
 

@@ -73,5 +73,5 @@ func main() {
 	}
 
 	httpserver.Start(config.Logger, config.Global.HttpAddr)
-	coordinator.Run(context.Background())
+	_ = coordinator.Run(context.Background())
 }

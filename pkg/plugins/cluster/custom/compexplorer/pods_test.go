@@ -45,6 +45,7 @@ func TestExplorePods(t *testing.T) {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
 			pod := v1.Pod{}
 			pod.Name = "kube-apiserver"
+			pod.Spec.NodeName = "10.0.0.1"
 			pod.Spec.Containers = []v1.Container{
 				{
 					Name: "kube-apiserver",

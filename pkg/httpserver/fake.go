@@ -29,7 +29,8 @@ type FakeResponseWriter struct {
 // NewFakeResponseWriter return an new FakeResponseWriter
 func NewFakeResponseWriter() *FakeResponseWriter {
 	return &FakeResponseWriter{
-		HeaderMap: http.Header{},
+		HeaderMap:  http.Header{},
+		StatusCode: http.StatusOK,
 	}
 }
 

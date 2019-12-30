@@ -136,6 +136,8 @@ func TestCluster_Resources(t *testing.T) {
 	if len(res.CoreComponents) != 1 {
 		t.Fatalf("want 1 CoreComponents")
 	}
-	return
 
+	if err := cls.Finish(); err != nil {
+		t.Fatalf(err.Error())
+	}
 }

@@ -59,6 +59,7 @@ func (d *DiagnosticResultItem) AddResult(r *diagnose.Result) {
 type AllResult struct {
 	StartTime   time.Time
 	EndTime     time.Time
+	Statistics  map[diagnose.HealthyLevel]int
 	Diagnostics []*DiagnosticResultItem
 }
 
@@ -67,12 +68,16 @@ func NewAllResult() *AllResult {
 	return &AllResult{
 		StartTime:   time.Now(),
 		Diagnostics: []*DiagnosticResultItem{},
+		Statistics:  map[diagnose.HealthyLevel]int{},
 	}
 }
 
 // AddDiagnosticResultItem add a diagnostic resultItem to AllResult
 func (r *AllResult) AddDiagnosticResultItem(d *DiagnosticResultItem) {
 	r.Diagnostics = append(r.Diagnostics, d)
+	for level, num := range d.Statistics {
+		r.Statistics[level] += num
+	}
 }
 
 // Marshal make AllResult become json

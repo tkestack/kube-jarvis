@@ -23,8 +23,6 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte(c.Cron)); err != nil {
 			c.logger.Errorf("write cron config to response failed: %v", err)
 			w.WriteHeader(http.StatusInternalServerError)
-		} else {
-			w.WriteHeader(http.StatusOK)
 		}
 		return
 	}
@@ -52,7 +50,6 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 		c.cronCtl.Stop()
 	}
 	c.cronCtl = newCron
-	w.WriteHeader(http.StatusOK)
 	c.logger.Infof("cron scheduler success update to %s", string(data))
 }
 

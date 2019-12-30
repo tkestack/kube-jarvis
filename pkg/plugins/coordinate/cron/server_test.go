@@ -81,16 +81,16 @@ func Test_state(t *testing.T) {
 	resp := httpserver.NewFakeResponseWriter()
 	c.stateHandler(resp, req)
 
-	state := &State{}
-	if err := json.Unmarshal(resp.RespData, state); err != nil {
+	result := &State{}
+	if err := json.Unmarshal(resp.RespData, result); err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	if c.state != state.State {
+	if c.state != result.State {
 		t.Fatalf("want running")
 	}
 
-	if state.Progress.Percent != co.progress.Percent {
+	if result.Progress.Percent != co.progress.Percent {
 		t.Fatalf("want percent 100")
 	}
 }
@@ -105,7 +105,7 @@ func Test_getCron(t *testing.T) {
 	c.periodHandler(resp, req)
 
 	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("should return statusOK")
+		t.Fatalf("should return statusOK but get %d", resp.StatusCode)
 	}
 
 	if string(resp.RespData) != c.Cron {
