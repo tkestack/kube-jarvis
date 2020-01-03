@@ -1,0 +1,3 @@
+title: "PDB检查"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} 缺少PDB配置"
+proposal: "配置合理的PDB可以在驱逐发生的时候更好的保护您的应用"

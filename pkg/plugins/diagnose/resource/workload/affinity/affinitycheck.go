@@ -15,13 +15,12 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package requestslimits
+package affinity
 
 import (
 	"context"
 	"fmt"
 	"k8s.io/apimachinery/pkg/types"
-
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
 	v12 "k8s.io/api/core/v1"
@@ -29,17 +28,17 @@ import (
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType = "requests-limits"
+	DiagnosticType = "affinity"
 )
 
-// Diagnostic report the healthy of pods's resources requests limits configuration
+// Diagnostic report the healthy of pods's resources health check configuration
 type Diagnostic struct {
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
 }
 
-// NewDiagnostic return a requests-limits Diagnostic
+// NewDiagnostic return a health check Diagnostic
 func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 	return &Diagnostic{
 		MetaData: meta,
@@ -55,7 +54,6 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
-	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
@@ -84,37 +82,32 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
+			if rootOwner.GroupVersionKind().Kind == "DaemonSet" {
+				continue
+			}
 			if _, ok := outputs[rootOwner.GetUID()]; ok {
 				continue
 			}
-			d.diagnosePod(pod, rootOwner)
+			d.diagnosePod(&pod, rootOwner)
 			outputs[rootOwner.GetUID()] = true
 		}
 	}()
 	return d.result, nil
 }
 
-func (d *Diagnostic) diagnosePod(pod v12.Pod, rootOwner diagnose.MetaObject) {
-	for _, c := range pod.Spec.Containers {
-		if c.Resources.Limits.Memory().IsZero() ||
-			c.Resources.Limits.Cpu().IsZero() ||
-			c.Resources.Requests.Memory().IsZero() ||
-			c.Resources.Requests.Cpu().IsZero() {
-			d.result <- &diagnose.Result{
-				Level:   diagnose.HealthyLevelWarn,
-				Title:   d.Translator.Message("title", nil),
-				ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-				Desc: d.Translator.Message("desc", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName(),
-				}),
-				Proposal: d.Translator.Message("proposal", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName()}),
-			}
-			return
+func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject) {
+	fmt.Println("podName: ", pod.Namespace, pod.Name)
+	if pod.Spec.Affinity == nil && len(pod.Spec.NodeSelector) == 0 {
+		d.result <- &diagnose.Result{
+			Level:   diagnose.HealthyLevelWarn,
+			ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+			Title:   d.Translator.Message("title", nil),
+			Desc: d.Translator.Message("desc", map[string]interface{}{
+				"Kind":      rootOwner.GroupVersionKind().Kind,
+				"Namespace": rootOwner.GetNamespace(),
+				"Name":      rootOwner.GetName(),
+			}),
+			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}
 }

@@ -1,0 +1,15 @@
+job-backofflimit-title: "Job BackOffLimit 检查"
+job-backofflimit-desc: "Job {{.Namespace}}:{{.Name}} BackOffLimit 太大"
+job-backofflimit-proposal: "Job BackOffLimit 建议小于 {{.RecommendedValue}}"
+
+cronjob-failedjobhistorylimit-title: "CronJob FailedJobsHistoryLimit 检查"
+cronjob-failedjobhistorylimit-desc: "CronJob {{.Namespace}}:{{.Name}} FailedJobsHistoryLimit 太大"
+cronjob-failedjobhistorylimit-proposal: "CronJob FailedJobsHistoryLimit 建议小于 {{.RecommendedValue}}"
+
+cronjob-successfuljobshistorylimit-title: "CronJob SuccessfulJobsHistoryLimit 检查"
+cronjob-successfuljobshistorylimit-desc: "CronJob {{.Namespace}}:{{.Name}} SuccessfulJobsHistoryLimit 太大"
+cronjob-successfuljobshistorylimit-proposal: "CronJob SuccessfulJobsHistoryLimit 建议小于 {{.RecommendedValue}}"
+
+cronjob-concurrencypolicy-title: "CronJob ConcurrencyPolicy 检查"
+cronjob-concurrencypolicy-desc: "CronJob {{.Namespace}}:{{.Name}} 当前的ConcurrencyPolicy为 {{.CurrentConcurrencyPolicy}}"
+cronjob-concurrencypolicy-proposal: "CronJob ConcurrencyPolicy 建议设置为 {{.RecommendedConcurrencyPolicy}}"

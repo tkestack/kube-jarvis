@@ -1,2 +1,3 @@
-desc: "pod 有未设置的requests或者limits"
-proposal: "pod 应该始终设置正确的requests和limits"
+title: "Requests Limits"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} 有未设置的requests或者limits"
+proposal: "{{.Kind}} 应该始终设置正确的requests和limits"

@@ -15,38 +15,33 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package requestslimits
+package healthcheck
 
 import (
 	"context"
 	appv1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"testing"
-	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+
+	"tkestack.io/kube-jarvis/pkg/plugins"
+
 	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
+func TestHealthCheckDiagnostic_StartDiagnose(t *testing.T) {
 	res := cluster.NewResources()
 	res.Deployments = &appv1.DeploymentList{}
 	res.ReplicaSets = &appv1.ReplicaSetList{}
 	res.ReplicationControllers = &v1.ReplicationControllerList{}
 	res.StatefulSets = &appv1.StatefulSetList{}
 	res.DaemonSets = &appv1.DaemonSetList{}
+
 	res.Pods = &v1.PodList{}
-
-	kubeDNSlimit := make(map[v1.ResourceName]resource.Quantity)
-	kubeDNSRequest := make(map[v1.ResourceName]resource.Quantity)
-
-	kubeDNSlimit[v1.ResourceCPU] = resource.MustParse("100m")
-	kubeDNSlimit[v1.ResourceMemory] = resource.MustParse("170M")
-	kubeDNSRequest[v1.ResourceCPU] = resource.MustParse("100m")
-	kubeDNSRequest[v1.ResourceMemory] = resource.MustParse("30M")
 
 	pod := v1.Pod{}
 	pod.Name = "pod1"
@@ -56,9 +51,29 @@ func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
 		{
 			Name:  "kubedns",
 			Image: "1",
-			Resources: v1.ResourceRequirements{
-				Limits:   kubeDNSlimit,
-				Requests: kubeDNSRequest,
+			ReadinessProbe: &v1.Probe{
+				Handler: v1.Handler{
+					HTTPGet: &v1.HTTPGetAction{
+						Path:   "/healthcheck/kubedns",
+						Port:   intstr.FromInt(10054),
+						Scheme: v1.URISchemeHTTP,
+					},
+				},
+				InitialDelaySeconds: int32(60),
+				TimeoutSeconds:      int32(5),
+				SuccessThreshold:    int32(1),
+			},
+			LivenessProbe: &v1.Probe{
+				Handler: v1.Handler{
+					HTTPGet: &v1.HTTPGetAction{
+						Path:   "/healthcheck/kubedns",
+						Port:   intstr.FromInt(10054),
+						Scheme: v1.URISchemeHTTP,
+					},
+				},
+				InitialDelaySeconds: int32(60),
+				TimeoutSeconds:      int32(5),
+				SuccessThreshold:    int32(1),
 			},
 		},
 	}

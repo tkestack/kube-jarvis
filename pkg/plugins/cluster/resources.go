@@ -24,6 +24,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	v1beta12 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
+	policyv1beta1 "k8s.io/api/policy/v1beta1"
 )
 
 type IPTablesChainPolicy string
@@ -101,6 +102,8 @@ type Resources struct {
 	Deployments                     *appv1.DeploymentList
 	DaemonSets                      *appv1.DaemonSetList
 	StatefulSets                    *appv1.StatefulSetList
+	ReplicaSets                     *appv1.ReplicaSetList
+	ReplicationControllers          *corev1.ReplicationControllerList
 	Jobs                            *batchv1.JobList
 	CronJobs                        *v1beta12.CronJobList
 	Nodes                           *corev1.NodeList
@@ -119,6 +122,7 @@ type Resources struct {
 	ValidatingWebhookConfigurations *ar.ValidatingWebhookConfigurationList
 	Namespaces                      *corev1.NamespaceList
 	HPAs                            *asv1.HorizontalPodAutoscalerList
+	PodDisruptionBudgets            *policyv1beta1.PodDisruptionBudgetList
 
 	CoreComponents map[string][]Component
 	Machines       map[string]Machine

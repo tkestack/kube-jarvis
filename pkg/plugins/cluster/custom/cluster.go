@@ -388,6 +388,28 @@ func (c *Cluster) initK8sResources(stepName string) error {
 	})
 
 	g.Go(func() (err error) {
+		c.resources.ReplicaSets, err = c.cli.AppsV1().ReplicaSets("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list ReplicaSets failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ReplicaSets", len(c.resources.ReplicaSets.Items))
+		}
+		return
+	})
+
+	g.Go(func() (err error) {
+		c.resources.ReplicationControllers, err = c.cli.CoreV1().ReplicationControllers("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list ReplicationControllers failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) ReplicationControllers", len(c.resources.ReplicationControllers.Items))
+		}
+		return
+	})
+
+	g.Go(func() (err error) {
 		c.resources.Jobs, err = c.cli.BatchV1().Jobs("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list Jobs failed")
@@ -413,8 +435,21 @@ func (c *Cluster) initK8sResources(stepName string) error {
 		c.resources.HPAs, err = c.cli.AutoscalingV1().HorizontalPodAutoscalers("").List(v1.ListOptions{})
 		if err != nil {
 			err = errors.Wrapf(err, "list HPAs failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) HPAs", len(c.resources.HPAs.Items))
 		}
-		c.logger.Infof("Fetching (%d) HPAs", len(c.resources.HPAs.Items))
+		return
+	})
+
+	g.Go(func() (err error) {
+		c.resources.PodDisruptionBudgets, err = c.cli.PolicyV1beta1().PodDisruptionBudgets("").List(v1.ListOptions{})
+		if err != nil {
+			err = errors.Wrapf(err, "list PodDisruptionBudgets failed")
+		} else {
+			c.progress.AddStepPercent(stepName, 1)
+			c.logger.Infof("Fetching (%d) PodDisruptionBudgets", len(c.resources.PodDisruptionBudgets.Items))
+		}
 		return
 	})
 

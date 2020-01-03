@@ -1,0 +1,3 @@
+title: "PDB Check"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} lack of pdb"
+proposal: "set right pdb can protect your application when evicted occurs"

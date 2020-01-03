@@ -15,6 +15,10 @@ diagnostics:
   - type: "master-components"
   - type: "node-sys"
   - type: "requests-limits"
+  - type: "health-check"
+  - type: "affinity"
+  - type: "pdb"
+  - type: "batch-check"
 
 exporters:
   - type: "stdout"

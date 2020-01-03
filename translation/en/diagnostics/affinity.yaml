@@ -1,0 +1,3 @@
+title: "Affinity Check"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} lack of affinity configure"
+proposal: "set right affinity can get better disaster toleration"

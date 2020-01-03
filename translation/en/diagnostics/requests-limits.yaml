@@ -1,2 +1,3 @@
-desc: "pod resources no requests or no limits"
-proposal: "always set pod resources requests and limits"
+title: "Requests Limits"
+desc: "{{.Kind}} resources no requests or no limits"
+proposal: "always set {{.Kind}} requests and limits"

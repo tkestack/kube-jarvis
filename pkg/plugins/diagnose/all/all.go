@@ -25,6 +25,10 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
 	hpaip "tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/hpa/ip"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/affinity"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/batch"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/healthcheck"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/pdb"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
 )
 
@@ -52,8 +56,29 @@ func addResourceDiagnostics() {
 		Creator:   requestslimits.NewDiagnostic,
 		Catalogue: diagnose.CatalogueResource,
 	})
+
 	diagnose.Add(hpaip.DiagnosticType, diagnose.Factory{
 		Creator:   hpaip.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
+
+	diagnose.Add(healthcheck.DiagnosticType, diagnose.Factory{
+		Creator:   healthcheck.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
+
+	diagnose.Add(affinity.DiagnosticType, diagnose.Factory{
+		Creator:   affinity.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
+
+	diagnose.Add(pdb.DiagnosticType, diagnose.Factory{
+		Creator:   pdb.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
+
+	diagnose.Add(batch.DiagnosticType, diagnose.Factory{
+		Creator:   batch.NewDiagnostic,
 		Catalogue: diagnose.CatalogueResource,
 	})
 }

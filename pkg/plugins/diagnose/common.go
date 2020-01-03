@@ -19,6 +19,9 @@ package diagnose
 
 import (
 	"fmt"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
@@ -32,4 +35,23 @@ func CommonDeafer(c chan *Result) {
 			Desc:    translate.Message(fmt.Sprintf("%v", err)),
 		}
 	}
+}
+
+type MetaObject interface {
+	schema.ObjectKind
+	v1.Object
+}
+
+func GetRootOwner(obj MetaObject, uid2obj map[types.UID]MetaObject) MetaObject {
+	ownerReferences := obj.GetOwnerReferences()
+	if len(ownerReferences) > 0 {
+		for _, owner := range ownerReferences {
+			if owner.Controller != nil && *owner.Controller == true {
+				if parent, ok := uid2obj[owner.UID]; ok {
+					return GetRootOwner(parent, uid2obj)
+				}
+			}
+		}
+	}
+	return obj
 }
