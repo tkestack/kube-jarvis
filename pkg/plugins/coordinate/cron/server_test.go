@@ -119,7 +119,7 @@ func Test_updateCron(t *testing.T) {
 		statusCode int
 	}{
 		{
-			cron:       "1 1 1 1 1",
+			cron:       "1 1 1 1 1 1",
 			statusCode: http.StatusOK,
 		},
 		{

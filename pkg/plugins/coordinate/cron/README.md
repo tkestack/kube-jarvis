@@ -8,12 +8,12 @@ this coordinator will make kube-jarvis as a http server with following handlers
 
 * POST "/coordinator/cron/period" : set cron period
 
-  curl http://127.0.0.1:9005/coordinator/cron/period -d '1 1 1 1 1'
+  curl http://127.0.0.1:9005/coordinator/cron/period -d '1 * * * * *'
 
 * GET "/coordinator/cron/period":  get cron period 
 
   curl http://127.0.0.1:9005/coordinator/cron/period
-  "1 1 1 1 1"  
+  "1 * * * * *"  
 
 * GET "/coordinator/cron/state" : return current coordinator state
 
@@ -26,7 +26,7 @@ this coordinator will make kube-jarvis as a http server with following handlers
 coordinate:
   type: "cron"
   config:
-    cron: "1 * * * *"
+    cron: "1 * * * * *"
     # this is the path that will used to save wal file,
     # the wal file is  used to auto retry if If the process is restarted at diagnostic time
     walpath: "/tmp/" 

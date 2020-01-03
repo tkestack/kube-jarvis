@@ -9,6 +9,8 @@ release:all
 	tar cf kube-jarvis.tar.gz kube-jarvis
 	rm -rf kube-jarvis
 clean:
-	rm kube-jarvis.tar.gz
+	rm -f kube-jarvis.tar.gz
 	rm -fr kube-jarvis
 	rm -fr bin/
+test:
+	go test ./pkg/...
