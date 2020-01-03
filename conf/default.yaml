@@ -14,11 +14,14 @@ diagnostics:
   - type: "master-capacity"
   - type: "master-components"
   - type: "node-sys"
+  - type: "node-iptables"
+  - type: "node-status"
   - type: "requests-limits"
   - type: "health-check"
   - type: "affinity"
   - type: "pdb"
   - type: "batch-check"
+  - type: "hpa-ip"
 
 exporters:
   - type: "stdout"

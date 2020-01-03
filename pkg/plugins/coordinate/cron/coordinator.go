@@ -73,7 +73,7 @@ func (c *Coordinator) Complete() error {
 // Run will do all diagnostics, evaluations, then export it by exporters
 func (c *Coordinator) Run(ctx context.Context) error {
 	if c.Cron != "" {
-		c.cronCtl = cron.New()
+		c.cronCtl = cron.New(cron.WithSeconds())
 		_, _ = c.cronCtl.AddFunc(c.Cron, c.cronDo)
 		c.cronCtl.Start()
 	}

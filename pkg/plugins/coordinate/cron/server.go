@@ -35,7 +35,7 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCron := cron.New()
+	newCron := cron.New(cron.WithSeconds())
 	if _, err := newCron.AddFunc(string(data), c.cronDo); err != nil {
 		c.logger.Errorf("create new cron failed : %v", err)
 		w.WriteHeader(http.StatusBadRequest)
