@@ -1,0 +1,6 @@
+workload-status-title: "Workload状态"
+workload-status-desc: "{{.Workload}}[{{.Namespace}}] {{.Name}} 副本数 {{.Available}} 不符合预期数 {{.Replicas}} "
+workload-status-proposal: "尽量恢复该资源状态，或提交工单"
+
+workload-status-good-desc: "{{.Workload}}[{{.Namespace}}] {{.Name}} 副本数 符合预期数 {{.Replicas}} "
+workload-status-good-proposal: ""
