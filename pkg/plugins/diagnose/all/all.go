@@ -21,6 +21,7 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/components"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/ha"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/iptables"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
@@ -72,6 +73,10 @@ func addNodeDiagnostics() {
 	})
 	diagnose.Add(iptables.DiagnosticType, diagnose.Factory{
 		Creator:   iptables.NewDiagnostic,
+		Catalogue: diagnose.CatalogueNode,
+	})
+	diagnose.Add(ha.DiagnosticType, diagnose.Factory{
+		Creator:   ha.NewDiagnostic,
 		Catalogue: diagnose.CatalogueNode,
 	})
 }
