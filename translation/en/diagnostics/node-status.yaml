@@ -1,0 +1,6 @@
+node-status-title: "Worker node status"
+node-status-desc: "Worker node {{.Node}} {{.Resource}} status exception"
+node-status-proposal: "Recover Worker node's {{.Resource}} status，or you can submit a work order"
+
+node-status-good-desc: "Worker node {{.Node}} status normal"
+node-status-good-proposal: ""

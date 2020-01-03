@@ -1,0 +1,6 @@
+master-status-title: "Master节点状态"
+master-status-desc: "Master节点 {{.Node}} {{.Resource}} 状态异常"
+master-status-proposal: "建议恢复Master节点 {{.Resource}} 状态，或提交工单"
+
+master-status-good-desc: "Master节点 {{.Node}} 状态正常"
+master-status-good-proposal: ""

@@ -1,0 +1,6 @@
+node-status-title: "Worker节点状态"
+node-status-desc: "Worker节点 {{.Node}} {{.Status}} 状态异常"
+node-status-proposal: "建议恢复Worker节点 {{.Resource}} 状态，或提交工单"
+
+node-status-good-desc: "Worker节点 {{.Node}} 状态正常"
+node-status-good-proposal: ""

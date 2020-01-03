@@ -1,0 +1,6 @@
+master-status-title: "Master node status"
+master-status-desc: "Master node {{.Node}} {{.Resource}} status exception"
+master-status-proposal: "Recover Master node's {{.Resource}} status，or you can submit a order"
+
+master-status-good-desc: "Master node {{.Node}} status normal"
+master-status-good-proposal: ""

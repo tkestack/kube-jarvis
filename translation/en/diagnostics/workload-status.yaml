@@ -1,0 +1,6 @@
+workload-status-title: "Workload status"
+workload-status-desc: "{{.Workload}}[{{.Namespace}}] {{.Name}} replicas {{.Available}} is not as expected {{.Replicas}} "
+workload-status-proposal: "Recover {{.Workload}}[{{.Namespace}}] {{.Name}} status, or you can submit a work order"
+
+workload-status-good-desc: "{{.Workload}}[{{.Namespace}}] {{.Name}} replicas {{.Available}} is as expected {{.Replicas}} "
+workload-status-good-proposal: ""

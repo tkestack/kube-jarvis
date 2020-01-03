@@ -21,6 +21,7 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/components"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/status"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/iptables"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/sys"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
@@ -30,6 +31,7 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/healthcheck"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/pdb"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
+	workloadStatus "tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/status"
 )
 
 func init() {
@@ -37,6 +39,8 @@ func init() {
 	addResourceDiagnostics()
 	addOtherDiagnostics()
 	addNodeDiagnostics()
+	addNodeStatusDiagnostics()
+	addWorkloadDiagnostics()
 }
 
 func addMasterDiagnostics() {
@@ -98,5 +102,19 @@ func addNodeDiagnostics() {
 	diagnose.Add(iptables.DiagnosticType, diagnose.Factory{
 		Creator:   iptables.NewDiagnostic,
 		Catalogue: diagnose.CatalogueNode,
+	})
+}
+
+func addNodeStatusDiagnostics() {
+	diagnose.Add(status.DiagnosticType, diagnose.Factory{
+		Creator:   status.NewDiagnostic,
+		Catalogue: diagnose.CatalogueNode,
+	})
+}
+
+func addWorkloadDiagnostics() {
+	diagnose.Add(workloadStatus.DiagnosticType, diagnose.Factory{
+		Creator:   workloadStatus.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
 	})
 }
