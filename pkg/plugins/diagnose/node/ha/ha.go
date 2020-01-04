@@ -122,9 +122,9 @@ func (d *Diagnostic) checkNodeZone(nodes *v1.NodeList) {
 			if num == 0 {
 				num = value
 			} else if value <= num {
-				ratio = float64(value * 1.0 / num)
+				ratio = float64(value)  / float64(num)
 			} else if value > num {
-				ratio = float64(num * 1.0 / value)
+				ratio = float64(num) / float64(value)
 			}
 		}
 		info["CurNodeRatio"] = ratio
