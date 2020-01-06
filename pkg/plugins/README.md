@@ -12,6 +12,7 @@ Diagnostic is responsible for diagnosing an aspect of the cluster, outputting di
 * [master-capacity](./diagnose/master/capacity/README.md)  
 * [master-components](./diagnose/master/components/README.md)  
 * [requests-limits](./diagnose/resource/workload/requestslimits/README.md)
+* [node-ha](./diagnose/node/ha/README.md)
 * [example](./diagnose/other/example/README.md) 
 
 ## Exporter
