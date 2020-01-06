@@ -88,7 +88,7 @@ func (d *Diagnostic) checkNodeZone(nodes *v1.NodeList) {
 	info := map[string]interface{}{
 		"Name":            objName,
 		"CurTotalZoneNum": 0,
-		"ZoneName":        0.0,
+		"ZoneName":        "",
 		"ResourceName":    "",
 	}
 	var totalCpu, totalMemory, maxZoneCpu, maxZoneMemory int64
@@ -111,13 +111,13 @@ func (d *Diagnostic) checkNodeZone(nodes *v1.NodeList) {
 	for zoneName, cpu := range zoneCpu {
 		if cpu > maxZoneCpu {
 			maxZoneCpu = cpu
-			info["zoneName"] = zoneName
+			info["ZoneName"] = zoneName
 		}
 	}
 	for zoneName, mem := range zoneMemory {
 		if mem > maxZoneMemory {
 			maxZoneMemory = mem
-			info["zoneName"] = zoneName
+			info["ZoneName"] = zoneName
 		}
 	}
 	if len(zoneCpu) == 1 {
