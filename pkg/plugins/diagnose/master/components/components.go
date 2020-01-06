@@ -111,21 +111,21 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 
 			for _, inf := range compInfos {
 				if inf.Error != nil {
-					d.sendNormalResult(&inf, diagnose.HealthyLevelFailed, "err", map[string]interface{}{
+					d.sendNormalResult(comp, &inf, diagnose.HealthyLevelFailed, "err", map[string]interface{}{
 						"Err": inf.Error.Error(),
 					})
 					continue
 				}
 
 				if !inf.IsRunning {
-					d.sendNormalResult(&inf, getCompResultLevel(comp), "not-run", nil)
+					d.sendNormalResult(comp, &inf, getCompResultLevel(comp), "not-run", nil)
 					continue
 				}
 
 				if had, exTra := d.hadRestart(inf.Pod); had {
-					d.sendNormalResult(&inf, diagnose.HealthyLevelRisk, "restart", exTra)
+					d.sendNormalResult(comp, &inf, diagnose.HealthyLevelRisk, "restart", exTra)
 				} else {
-					d.sendNormalResult(&inf, diagnose.HealthyLevelGood, "good", nil)
+					d.sendNormalResult(comp, &inf, diagnose.HealthyLevelGood, "good", nil)
 				}
 			}
 		}
@@ -160,10 +160,11 @@ func (d *Diagnostic) sendCompNotExist(comp string) {
 	}
 }
 
-func (d *Diagnostic) sendNormalResult(inf *cluster.Component, level diagnose.HealthyLevel, preFix string, extra map[string]interface{}) {
+func (d *Diagnostic) sendNormalResult(comp string, inf *cluster.Component, level diagnose.HealthyLevel, preFix string, extra map[string]interface{}) {
 	obj := map[string]interface{}{
-		"Name": inf.Name,
-		"Node": inf.Node,
+		"Name":      inf.Name,
+		"Node":      inf.Node,
+		"Component": comp,
 	}
 
 	for k, v := range extra {
