@@ -96,6 +96,7 @@ func (d *Diagnostic) diagnoseKernelParam(key string, targetVal string, node stri
 			Level:   level,
 			Title:   d.Translator.Message("kernel-para-title", nil),
 			ObjName: node,
+			ObjInfo: obj,
 			Desc:    d.Translator.Message("kernel-para-good-desc", obj),
 		}
 	}

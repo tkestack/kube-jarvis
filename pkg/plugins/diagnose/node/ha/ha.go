@@ -20,8 +20,9 @@ package ha
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/core/v1"
 	"math"
+
+	v1 "k8s.io/api/core/v1"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -122,7 +123,7 @@ func (d *Diagnostic) checkNodeZone(nodes *v1.NodeList) {
 			if num == 0 {
 				num = value
 			} else if value <= num {
-				ratio = float64(value)  / float64(num)
+				ratio = float64(value) / float64(num)
 			} else if value > num {
 				ratio = float64(num) / float64(value)
 			}
@@ -144,6 +145,7 @@ func (d *Diagnostic) sendResult(level diagnose.HealthyLevel, objName, descType s
 	d.result <- &diagnose.Result{
 		Level:    level,
 		ObjName:  objName,
+		ObjInfo:  extra,
 		Title:    d.Translator.Message(objName+"-title", nil),
 		Desc:     d.Translator.Message(objName+"-"+descType+"-desc", extra),
 		Proposal: d.Translator.Message(objName+"-proposal", extra),
