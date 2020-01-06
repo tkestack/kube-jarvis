@@ -1,7 +1,5 @@
 all:
 	go build -o  bin/kube-jarvis cmd/kube-jarvis/*.go
-test:
-	go test ./cmd/kube-jarvis
 release:all
 	mkdir kube-jarvis
 	cp -R conf kube-jarvis/
