@@ -59,6 +59,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		var totalIPCount int
 		var curIPCount int
 		var hpaMaxIPCount int
+
 		for _, node := range d.param.Resources.Nodes.Items {
 			podCIDR := node.Spec.PodCIDR
 			if podCIDR == "" {
@@ -68,16 +69,19 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			cur, total := netCIDR.Mask.Size()
 			totalIPCount += int(math.Pow(2, float64(total-cur))) - 2
 		}
+
 		for _, pod := range d.param.Resources.Pods.Items {
 			if pod.Spec.HostNetwork {
 				continue
 			}
 			curIPCount += 1
 		}
+
 		deploySet := make(map[string]int)
 		for _, deploy := range d.param.Resources.Deployments.Items {
 			deploySet[deploy.Namespace+"/"+deploy.Name] = int(*deploy.Spec.Replicas)
 		}
+
 		hpaMaxIPCount = curIPCount
 		for _, hpa := range d.param.Resources.HPAs.Items {
 			if hpa.Spec.ScaleTargetRef.Kind != "Deployment" {
@@ -91,15 +95,18 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			}
 		}
 
+		obj := map[string]interface{}{
+			"CurrentIPCount": curIPCount,
+			"HPAMaxIPCount":  hpaMaxIPCount,
+			"ClusterIPCount": totalIPCount,
+		}
+
 		d.result <- &diagnose.Result{
 			Level:   diagnose.HealthyLevelGood,
 			Title:   d.Translator.Message("hpa-ip-title", nil),
 			ObjName: "*",
-			Desc: d.Translator.Message("hpa-ip-desc", map[string]interface{}{
-				"CurrentIPCount": curIPCount,
-				"HPAMaxIPCount":  hpaMaxIPCount,
-				"ClusterIPCount": totalIPCount,
-			}),
+			ObjInfo: obj,
+			Desc:    d.Translator.Message("hpa-ip-desc", obj),
 		}
 	}()
 	return d.result, nil

@@ -20,6 +20,7 @@ package requestslimits
 import (
 	"context"
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/types"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -100,19 +101,20 @@ func (d *Diagnostic) diagnosePod(pod v12.Pod, rootOwner diagnose.MetaObject) {
 			c.Resources.Limits.Cpu().IsZero() ||
 			c.Resources.Requests.Memory().IsZero() ||
 			c.Resources.Requests.Cpu().IsZero() {
+
+			obj := map[string]interface{}{
+				"Kind":      rootOwner.GroupVersionKind().Kind,
+				"Namespace": rootOwner.GetNamespace(),
+				"Name":      rootOwner.GetName(),
+			}
+
 			d.result <- &diagnose.Result{
-				Level:   diagnose.HealthyLevelWarn,
-				Title:   d.Translator.Message("title", nil),
-				ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-				Desc: d.Translator.Message("desc", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName(),
-				}),
-				Proposal: d.Translator.Message("proposal", map[string]interface{}{
-					"Kind":      rootOwner.GroupVersionKind().Kind,
-					"Namespace": rootOwner.GetNamespace(),
-					"Name":      rootOwner.GetName()}),
+				Level:    diagnose.HealthyLevelWarn,
+				Title:    d.Translator.Message("title", nil),
+				ObjName:  fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+				ObjInfo:  obj,
+				Desc:     d.Translator.Message("desc", obj),
+				Proposal: d.Translator.Message("proposal", obj),
 			}
 			return
 		}

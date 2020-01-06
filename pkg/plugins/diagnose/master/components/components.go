@@ -19,9 +19,10 @@ package components
 
 import (
 	"context"
+	"time"
+
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
-	"time"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
@@ -172,6 +173,7 @@ func (d *Diagnostic) sendNormalResult(inf *cluster.Component, level diagnose.Hea
 	d.result <- &diagnose.Result{
 		Level:    level,
 		ObjName:  inf.Name,
+		ObjInfo:  obj,
 		Title:    d.Translator.Message(preFix+"-title", obj),
 		Desc:     d.Translator.Message(preFix+"-desc", obj),
 		Proposal: d.Translator.Message(preFix+"-proposal", obj),

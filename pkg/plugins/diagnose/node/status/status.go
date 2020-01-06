@@ -2,6 +2,7 @@ package status
 
 import (
 	"context"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/kubectl/pkg/describe"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -83,21 +84,22 @@ func (d *Diagnostic) uploadResult(isMaster bool, name string, typ v1.NodeConditi
 		goodFlag = "good-"
 	}
 
-	title := d.Translator.Message(prefix+"-status-title", nil)
-	desc := d.Translator.Message(prefix+"-status-"+goodFlag+"desc", map[string]interface{}{
-		"Node":   name,
-		"Type":   typ,
-		"Status": status,
-	})
-	proposal := d.Translator.Message(prefix+"-status-"+goodFlag+"proposal", map[string]interface{}{
+	obj := map[string]interface{}{
 		"Node":     name,
+		"Type":     typ,
+		"Status":   status,
 		"Resource": resource,
-	})
+	}
+
+	title := d.Translator.Message(prefix+"-status-title", nil)
+	desc := d.Translator.Message(prefix+"-status-"+goodFlag+"desc", obj)
+	proposal := d.Translator.Message(prefix+"-status-"+goodFlag+"proposal", obj)
 
 	d.result <- &diagnose.Result{
 		Level:    level,
 		Title:    title,
 		ObjName:  name,
+		ObjInfo:  obj,
 		Desc:     desc,
 		Proposal: proposal,
 	}

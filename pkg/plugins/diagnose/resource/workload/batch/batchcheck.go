@@ -20,6 +20,7 @@ package batch
 import (
 	"context"
 	"fmt"
+
 	v1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -53,6 +54,7 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
+	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		for _, job := range d.param.Resources.Jobs.Items {
@@ -66,64 +68,68 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 }
 
 func (d *Diagnostic) diagnoseJob(job v1.Job) {
+	obj := map[string]interface{}{
+		"Namespace":        job.Namespace,
+		"Name":             job.Name,
+		"RecommendedValue": 10,
+	}
+
 	if job.Spec.BackoffLimit != nil && *job.Spec.BackoffLimit > 10 {
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("%s:%s", job.Namespace, job.Name),
-			Title:   d.Translator.Message("job-backofflimit-title", nil),
-			Desc: d.Translator.Message("job-backofflimit-desc", map[string]interface{}{
-				"Namespace": job.Namespace,
-				"Name":      job.Name,
-			}),
-			Proposal: d.Translator.Message("job-backofflimit-proposal", map[string]interface{}{
-				"RecommendedValue": 10,
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("%s:%s", job.Namespace, job.Name),
+			ObjInfo:  obj,
+			Title:    d.Translator.Message("job-backofflimit-title", nil),
+			Desc:     d.Translator.Message("job-backofflimit-desc", obj),
+			Proposal: d.Translator.Message("job-backofflimit-proposal", obj),
 		}
 	}
 }
 
 func (d *Diagnostic) diagnoseCronJob(cronJob v1beta1.CronJob) {
+	obj := map[string]interface{}{
+		"Namespace":        cronJob.Namespace,
+		"Name":             cronJob.Name,
+		"RecommendedValue": 10,
+	}
+
 	if cronJob.Spec.FailedJobsHistoryLimit != nil && *cronJob.Spec.FailedJobsHistoryLimit > 10 {
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("CronJob:%s:%s", cronJob.Namespace, cronJob.Name),
-			Title:   d.Translator.Message("cronjob-failedjobhistorylimit-title", nil),
-			Desc: d.Translator.Message("cronjob-failedjobhistorylimit-desc", map[string]interface{}{
-				"Namespace": cronJob.Namespace,
-				"Name":      cronJob.Name,
-			}),
-			Proposal: d.Translator.Message("cronjob-failedjobhistorylimit-proposal", map[string]interface{}{
-				"RecommendedValue": 10,
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("CronJob:%s:%s", cronJob.Namespace, cronJob.Name),
+			ObjInfo:  obj,
+			Title:    d.Translator.Message("cronjob-failedjobhistorylimit-title", nil),
+			Desc:     d.Translator.Message("cronjob-failedjobhistorylimit-desc", obj),
+			Proposal: d.Translator.Message("cronjob-failedjobhistorylimit-proposal", obj),
 		}
 	}
+
 	if cronJob.Spec.SuccessfulJobsHistoryLimit != nil && *cronJob.Spec.SuccessfulJobsHistoryLimit > 10 {
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("%s:%s", cronJob.Namespace, cronJob.Name),
-			Title:   d.Translator.Message("cronjob-successfuljobshistorylimit-title", nil),
-			Desc: d.Translator.Message("cronjob-failedjobhistorylimit-desc", map[string]interface{}{
-				"Namespace": cronJob.Namespace,
-				"Name":      cronJob.Name,
-			}),
-			Proposal: d.Translator.Message("cronjob-failedjobhistorylimit-proposal", map[string]interface{}{
-				"RecommendedValue": 10,
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("%s:%s", cronJob.Namespace, cronJob.Name),
+			ObjInfo:  obj,
+			Title:    d.Translator.Message("cronjob-successfuljobshistorylimit-title", nil),
+			Desc:     d.Translator.Message("cronjob-failedjobhistorylimit-desc", obj),
+			Proposal: d.Translator.Message("cronjob-failedjobhistorylimit-proposal", obj),
 		}
 	}
+
+	obj2 := map[string]interface{}{
+		"Namespace":                    cronJob.Namespace,
+		"Name":                         cronJob.Name,
+		"CurrentConcurrencyPolicy":     cronJob.Spec.ConcurrencyPolicy,
+		"RecommendedConcurrencyPolicy": v1beta1.ForbidConcurrent,
+	}
+
 	if cronJob.Spec.ConcurrencyPolicy != v1beta1.ForbidConcurrent {
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("%s:%s", cronJob.Namespace, cronJob.Name),
-			Title:   d.Translator.Message("cronjob-concurrencypolicy-title", nil),
-			Desc: d.Translator.Message("cronjob-concurrencypolicy-desc", map[string]interface{}{
-				"Namespace":                cronJob.Namespace,
-				"Name":                     cronJob.Name,
-				"CurrentConcurrencyPolicy": cronJob.Spec.ConcurrencyPolicy,
-			}),
-			Proposal: d.Translator.Message("cronjob-concurrencypolicy-proposal", map[string]interface{}{
-				"RecommendedConcurrencyPolicy": v1beta1.ForbidConcurrent,
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("%s:%s", cronJob.Namespace, cronJob.Name),
+			ObjInfo:  obj2,
+			Title:    d.Translator.Message("cronjob-concurrencypolicy-title", nil),
+			Desc:     d.Translator.Message("cronjob-concurrencypolicy-desc", obj2),
+			Proposal: d.Translator.Message("cronjob-concurrencypolicy-proposal", obj2),
 		}
 	}
 }

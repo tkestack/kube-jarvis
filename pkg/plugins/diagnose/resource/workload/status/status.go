@@ -3,6 +3,7 @@ package status
 import (
 	"context"
 	"fmt"
+
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -135,17 +136,21 @@ func (d *Diagnostic) diagnose(rsMap ResourceMap) {
 					descId = "workload-status-desc"
 					proposalId = "workload-status-proposal"
 				}
+
+				obj := map[string]interface{}{
+					"Name":      rsLists[typ][idx].Name,
+					"Namespace": namespace,
+					"Workload":  WorkloadType[typ],
+					"Replicas":  rs.Replicas,
+					"Available": rs.Available,
+				}
+
 				d.result <- &diagnose.Result{
-					Level:   level,
-					Title:   d.Translator.Message("workload-status-title", nil),
-					ObjName: fmt.Sprintf("%s:%s", namespace, rsLists[typ][idx].Name),
-					Desc: d.Translator.Message(descId, map[string]interface{}{
-						"Name":      rsLists[typ][idx].Name,
-						"Namespace": namespace,
-						"Workload":  WorkloadType[typ],
-						"Replicas":  rs.Replicas,
-						"Available": rs.Available,
-					}),
+					Level:    level,
+					Title:    d.Translator.Message("workload-status-title", nil),
+					ObjName:  fmt.Sprintf("%s:%s", namespace, rsLists[typ][idx].Name),
+					ObjInfo:  obj,
+					Desc:     d.Translator.Message(descId, obj),
 					Proposal: d.Translator.Message(proposalId, nil),
 				}
 			}

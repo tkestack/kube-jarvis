@@ -72,52 +72,48 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 				cntLevel = diagnose.HealthyLevelSerious
 			}
 			if cntLevel != diagnose.HealthyLevelGood {
-				d.result <- &diagnose.Result{
-					Level:   cntLevel,
-					Title:   d.Translator.Message("iptables-count-title", nil),
-					ObjName: node,
-					Desc: d.Translator.Message("iptables-count-desc", map[string]interface{}{
-						"Node":           node,
-						"Name":           "iptables-count",
-						"SuggestedCount": GoodIPTablesCount,
-						"CurCount":       totalCount,
-					}),
-					Proposal: d.Translator.Message("iptables-count-proposal", map[string]interface{}{
-						"Node": node,
-						"Name": "iptabels-count",
-					}),
+				obj := map[string]interface{}{
+					"Node":           node,
+					"Name":           "iptables-count",
+					"SuggestedCount": GoodIPTablesCount,
+					"CurCount":       totalCount,
 				}
+
+				d.result <- &diagnose.Result{
+					Level:    cntLevel,
+					Title:    d.Translator.Message("iptables-count-title", nil),
+					ObjName:  node,
+					ObjInfo:  obj,
+					Desc:     d.Translator.Message("iptables-count-desc", obj),
+					Proposal: d.Translator.Message("iptables-count-proposal", obj),
+				}
+			}
+
+			obj := map[string]interface{}{
+				"Node":            node,
+				"Name":            "iptables-forward-policy",
+				"CurPolicy":       m.IPTables.Filter.ForwardPolicy,
+				"SuggestedPolicy": cluster.AcceptPolicy,
 			}
 
 			forwardPolicyLevel := diagnose.HealthyLevelGood
 			if m.IPTables.Filter.ForwardPolicy != cluster.AcceptPolicy {
 				forwardPolicyLevel = diagnose.HealthyLevelWarn
 				d.result <- &diagnose.Result{
-					Level:   forwardPolicyLevel,
-					Title:   d.Translator.Message("iptables-forward-policy-title", nil),
-					ObjName: node,
-					Desc: d.Translator.Message("iptables-forward-policy-desc", map[string]interface{}{
-						"Node":      node,
-						"Name":      "iptables-forward-policy",
-						"CurPolicy": m.IPTables.Filter.ForwardPolicy,
-					}),
-
-					Proposal: d.Translator.Message("iptables-forward-policy-proposal", map[string]interface{}{
-						"Node":            node,
-						"Name":            "iptables-forward-policy",
-						"SuggestedPolicy": cluster.AcceptPolicy,
-					}),
+					Level:    forwardPolicyLevel,
+					Title:    d.Translator.Message("iptables-forward-policy-title", nil),
+					ObjName:  node,
+					ObjInfo:  obj,
+					Desc:     d.Translator.Message("iptables-forward-policy-desc", obj),
+					Proposal: d.Translator.Message("iptables-forward-policy-proposal", obj),
 				}
 			} else {
 				d.result <- &diagnose.Result{
 					Level:   forwardPolicyLevel,
 					Title:   d.Translator.Message("iptables-forward-policy-title", nil),
 					ObjName: node,
-					Desc: d.Translator.Message("iptables-forward-policy-good-desc", map[string]interface{}{
-						"Node":      node,
-						"Name":      "iptables-forward-policy",
-						"CurPolicy": m.IPTables.Filter.ForwardPolicy,
-					}),
+					ObjInfo: obj,
+					Desc:    d.Translator.Message("iptables-forward-policy-good-desc", obj),
 				}
 			}
 		}

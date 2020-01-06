@@ -19,9 +19,10 @@ package basic
 
 import (
 	"context"
+	"time"
+
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
-	"time"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -84,6 +85,7 @@ func (c *Coordinator) Run(ctx context.Context) error {
 	}
 
 	c.progress.Done()
+	c.logger.Infof("Diagnosing done!")
 	return nil
 }
 

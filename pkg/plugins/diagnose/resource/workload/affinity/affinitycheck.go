@@ -20,6 +20,7 @@ package affinity
 import (
 	"context"
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/types"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 
@@ -54,6 +55,7 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
+	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
@@ -96,17 +98,19 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 }
 
 func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject) {
-	fmt.Println("podName: ", pod.Namespace, pod.Name)
+	obj := map[string]interface{}{
+		"Kind":      rootOwner.GroupVersionKind().Kind,
+		"Namespace": rootOwner.GetNamespace(),
+		"Name":      rootOwner.GetName(),
+	}
+
 	if pod.Spec.Affinity == nil && len(pod.Spec.NodeSelector) == 0 {
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-			Title:   d.Translator.Message("title", nil),
-			Desc: d.Translator.Message("desc", map[string]interface{}{
-				"Kind":      rootOwner.GroupVersionKind().Kind,
-				"Namespace": rootOwner.GetNamespace(),
-				"Name":      rootOwner.GetName(),
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+			ObjInfo:  obj,
+			Title:    d.Translator.Message("title", nil),
+			Desc:     d.Translator.Message("desc", obj),
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}

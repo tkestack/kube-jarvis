@@ -20,6 +20,7 @@ package capacity
 import (
 	"context"
 	"fmt"
+
 	v12 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -117,45 +118,43 @@ func (d *Diagnostic) diagnoseCapacity(ctx context.Context) {
 }
 
 func (d *Diagnostic) sendCapacityWarnResult(name string, resource string, nTotal int, curVal, targetVal string) {
+	objInfo := map[string]interface{}{
+		"NodeName":    name,
+		"Resource":    resource,
+		"TargetValue": targetVal,
+		"CurValue":    curVal,
+		"NodeTotal":   nTotal,
+	}
+
 	d.result <- &diagnose.Result{
 		ObjName: name,
 		Level:   diagnose.HealthyLevelWarn,
-
+		ObjInfo: objInfo,
 		Title: d.Translator.Message("title", map[string]interface{}{
 			"Resource": resource,
 		}),
-
-		Desc: d.Translator.Message("desc", map[string]interface{}{
-			"NodeName":  name,
-			"Resource":  resource,
-			"CurValue":  curVal,
-			"NodeTotal": nTotal,
-		}),
-
-		Proposal: d.Translator.Message("proposal", map[string]interface{}{
-			"NodeName":    name,
-			"Resource":    resource,
-			"TargetValue": targetVal,
-			"NodeTotal":   nTotal,
-		}),
+		Desc:     d.Translator.Message("desc", objInfo),
+		Proposal: d.Translator.Message("proposal", objInfo),
 	}
 }
 
 func (d *Diagnostic) sendCapacityGoodResult(name string, resource string, nTotal int, curVal, targetVal string) {
+	objInfo := map[string]interface{}{
+		"NodeName":    name,
+		"Resource":    resource,
+		"TargetValue": targetVal,
+		"CurValue":    curVal,
+		"NodeTotal":   nTotal,
+	}
+
 	d.result <- &diagnose.Result{
 		ObjName: name,
 		Level:   diagnose.HealthyLevelGood,
-
+		ObjInfo: objInfo,
 		Title: d.Translator.Message("title", map[string]interface{}{
 			"Resource": resource,
 		}),
-
-		Desc: d.Translator.Message("good-desc", map[string]interface{}{
-			"NodeName":  name,
-			"Resource":  resource,
-			"CurValue":  curVal,
-			"NodeTotal": nTotal,
-		}),
+		Desc: d.Translator.Message("good-desc", objInfo),
 	}
 }
 

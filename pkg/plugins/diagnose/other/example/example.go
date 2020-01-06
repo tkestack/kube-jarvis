@@ -19,6 +19,7 @@ package example
 
 import (
 	"context"
+
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -53,24 +54,26 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		// send a risk result
+		obj := map[string]interface{}{
+			"Mes": d.Message,
+		}
+
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelRisk,
-			Title:   "example",
-			ObjName: "example-obj",
-			Desc: d.Translator.Message("message", map[string]interface{}{
-				"Mes": d.Message,
-			}),
+			Level:    diagnose.HealthyLevelRisk,
+			Title:    "example",
+			ObjName:  "example-obj",
+			ObjInfo:  obj,
+			Desc:     d.Translator.Message("message", obj),
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 
 		// if any Error occur , send a failed result
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelFailed,
-			Title:   "example",
-			ObjName: "example-obj",
-			Desc: d.Translator.Message("message", map[string]interface{}{
-				"Mes": d.Message,
-			}),
+			Level:    diagnose.HealthyLevelFailed,
+			Title:    "example",
+			ObjName:  "example-obj",
+			ObjInfo:  obj,
+			Desc:     d.Translator.Message("message", obj),
 			Proposal: d.Translator.Message("proposal", nil),
 		}
 	}()

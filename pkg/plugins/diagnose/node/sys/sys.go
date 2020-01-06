@@ -73,34 +73,30 @@ func (d *Diagnostic) diagnoseKernelParam(key string, targetVal string, node stri
 	m := d.param.Resources.Machines[node]
 	curVal := m.SysCtl[key]
 	level := diagnose.HealthyLevelGood
+
+	obj := map[string]interface{}{
+		"Node":      node,
+		"Name":      key,
+		"CurVal":    curVal,
+		"TargetVal": targetVal,
+	}
+
 	if curVal != targetVal {
 		level = diagnose.HealthyLevelWarn
 		d.result <- &diagnose.Result{
-			Level:   level,
-			Title:   d.Translator.Message("kernel-para-title", nil),
-			ObjName: node,
-			Desc: d.Translator.Message("kernel-para-desc", map[string]interface{}{
-				"Node":   node,
-				"Name":   key,
-				"CurVal": curVal,
-			}),
-
-			Proposal: d.Translator.Message("kernel-para-proposal", map[string]interface{}{
-				"Node":      node,
-				"Name":      key,
-				"TargetVal": targetVal,
-			}),
+			Level:    level,
+			Title:    d.Translator.Message("kernel-para-title", nil),
+			ObjName:  node,
+			ObjInfo:  obj,
+			Desc:     d.Translator.Message("kernel-para-desc", obj),
+			Proposal: d.Translator.Message("kernel-para-proposal", obj),
 		}
 	} else {
 		d.result <- &diagnose.Result{
 			Level:   level,
 			Title:   d.Translator.Message("kernel-para-title", nil),
 			ObjName: node,
-			Desc: d.Translator.Message("kernel-para-good-desc", map[string]interface{}{
-				"Node":   node,
-				"Name":   key,
-				"CurVal": curVal,
-			}),
+			Desc:    d.Translator.Message("kernel-para-good-desc", obj),
 		}
 	}
 }

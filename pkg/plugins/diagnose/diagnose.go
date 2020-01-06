@@ -97,6 +97,8 @@ type Result struct {
 	Level HealthyLevel
 	// ObjName is the name of diagnosed object
 	ObjName string
+	// ObjInfo is the core information of Obj
+	ObjInfo map[string]interface{}
 	// Title is the short description of Result,that is, the title of Result
 	Title translate.Message
 	// Desc is the full description of Result

@@ -20,6 +20,7 @@ package pdb
 import (
 	"context"
 	"fmt"
+
 	"k8s.io/api/policy/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -57,6 +58,7 @@ func (d *Diagnostic) Complete() error {
 // StartDiagnose return a result chan that will output results
 func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
+	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
@@ -131,18 +133,19 @@ func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject, pd
 	if len(pdbs) > 1 {
 		// invalid
 	} else if len(pdbs) == 0 {
+		obj := map[string]interface{}{
+			"Kind":      rootOwner.GroupVersionKind().Kind,
+			"Namespace": rootOwner.GetNamespace(),
+			"Name":      rootOwner.GetName(),
+		}
+
 		d.result <- &diagnose.Result{
-			Level:   diagnose.HealthyLevelWarn,
-			ObjName: fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-			Title:   d.Translator.Message("title", nil),
-			Desc: d.Translator.Message("desc", map[string]interface{}{
-				"Kind":      rootOwner.GroupVersionKind().Kind,
-				"Namespace": rootOwner.GetNamespace(),
-				"Name":      rootOwner.GetName(),
-			}),
-			Proposal: d.Translator.Message("proposal", map[string]interface{}{
-				"Kind": rootOwner.GroupVersionKind().Kind,
-			}),
+			Level:    diagnose.HealthyLevelWarn,
+			ObjName:  fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+			ObjInfo:  obj,
+			Title:    d.Translator.Message("title", nil),
+			Desc:     d.Translator.Message("desc", obj),
+			Proposal: d.Translator.Message("proposal", obj),
 		}
 	}
 }
