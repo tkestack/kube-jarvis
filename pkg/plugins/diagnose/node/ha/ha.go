@@ -21,22 +21,20 @@ import (
 	"context"
 	"fmt"
 	"k8s.io/api/core/v1"
-	"math"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType       = "node-ha"
-	FailureDomainKey     = "failure-domain.beta.kubernetes.io/zone"
-	DefaultZoneNodeRatio = 0.6
+	DiagnosticType   = "node-ha"
+	FailureDomainKey = "failure-domain.beta.kubernetes.io/zone"
 )
 
 // Diagnostic is a ha diagnostic shows how to write a diagnostic
 type Diagnostic struct {
 	*diagnose.MetaData
-	result        chan *diagnose.Result
-	ZoneNodeRatio float64 `yaml: "zoneNodeRatio"`
+	result chan *diagnose.Result
 }
 
 // NewDiagnostic return a ha diagnostic
@@ -49,9 +47,6 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 
 // Complete check and complete config items
 func (d *Diagnostic) Complete() error {
-	if math.Abs(d.ZoneNodeRatio-0) < 1e-3 {
-		d.ZoneNodeRatio = DefaultZoneNodeRatio
-	}
 	return nil
 }
 
@@ -88,53 +83,54 @@ func (d *Diagnostic) checkNodeZone(nodes *v1.NodeList) {
 		return
 	}
 	objName := "node-zone"
-	zone := make(map[string]int)
+	zoneCpu := make(map[string]int64)
+	zoneMemory := make(map[string]int64)
 	info := map[string]interface{}{
 		"Name":            objName,
 		"CurTotalZoneNum": 0,
-		"CurNodeRatio":    0.0,
-		"ErrMsg":          "",
+		"ZoneName":        0.0,
+		"ResourceName":    "",
 	}
-	var id string
-	var ok, fail bool
+	var totalCpu, totalMemory, maxZoneCpu, maxZoneMemory int64
 	for i := 0; i < len(nodes.Items); i++ {
 		if nodes.Items[i].Labels != nil {
-			id, ok = nodes.Items[i].Labels[FailureDomainKey]
+			id, ok := nodes.Items[i].Labels[FailureDomainKey]
 			if !ok {
-				info["ErrMsg"] = fmt.Sprintf("lack of failure domain key:%s", FailureDomainKey)
-				d.sendResult(diagnose.HealthyLevelFailed, objName, "bad", info)
-				fail = true
-				break
+				d.sendFailedResult(objName, fmt.Errorf("lack of failure domain key:%s", FailureDomainKey))
+				return
 			}
-			zone[id]++
+			cpu, _ := nodes.Items[i].Status.Allocatable.Cpu().AsInt64()
+			memory, _ := nodes.Items[i].Status.Allocatable.Memory().AsInt64()
+			zoneCpu[id] += cpu
+			zoneMemory[id] += memory
+			totalCpu += cpu
+			totalMemory += memory
 		}
 	}
-	if fail {
-		return
+	info["CurTotalZoneNum"] = len(zoneCpu)
+	for zoneName, cpu := range zoneCpu {
+		if cpu > maxZoneCpu {
+			maxZoneCpu = cpu
+			info["zoneName"] = zoneName
+		}
 	}
-	info["CurTotalZoneNum"] = len(zone)
-	if len(zone) == 1 {
+	for zoneName, mem := range zoneMemory {
+		if mem > maxZoneMemory {
+			maxZoneMemory = mem
+			info["zoneName"] = zoneName
+		}
+	}
+	if len(zoneCpu) == 1 {
+		info["ResourceName"] = "zone"
 		d.sendResult(diagnose.HealthyLevelWarn, objName, "bad", info)
-	} else if len(zone) == 2 {
-		var num int
-		var ratio float64
-		for _, value := range zone {
-			if num == 0 {
-				num = value
-			} else if value <= num {
-				ratio = float64(value)  / float64(num)
-			} else if value > num {
-				ratio = float64(num) / float64(value)
-			}
-		}
-		info["CurNodeRatio"] = ratio
-		if ratio >= d.ZoneNodeRatio {
-			d.sendResult(diagnose.HealthyLevelGood, objName, "good", info)
-		} else {
-			d.sendResult(diagnose.HealthyLevelWarn, objName, "bad", info)
-		}
-	} else {
+	} else if (totalCpu-maxZoneCpu >= maxZoneCpu) && (totalMemory-maxZoneMemory >= maxZoneMemory) {
 		d.sendResult(diagnose.HealthyLevelGood, objName, "good", info)
+	} else if totalCpu-maxZoneCpu < maxZoneCpu {
+		info["ResourceName"] = "cpu"
+		d.sendResult(diagnose.HealthyLevelWarn, objName, "bad", info)
+	} else if totalMemory-maxZoneMemory < maxZoneMemory {
+		info["ResourceName"] = "memory"
+		d.sendResult(diagnose.HealthyLevelWarn, objName, "bad", info)
 	}
 
 }
@@ -147,5 +143,15 @@ func (d *Diagnostic) sendResult(level diagnose.HealthyLevel, objName, descType s
 		Title:    d.Translator.Message(objName+"-title", nil),
 		Desc:     d.Translator.Message(objName+"-"+descType+"-desc", extra),
 		Proposal: d.Translator.Message(objName+"-proposal", extra),
+	}
+}
+
+func (d *Diagnostic) sendFailedResult(objName string, err error) {
+
+	d.result <- &diagnose.Result{
+		Level:   diagnose.HealthyLevelFailed,
+		ObjName: "*",
+		Title:   "Failed",
+		Desc:    translate.Message(err.Error()),
 	}
 }

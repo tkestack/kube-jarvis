@@ -4,6 +4,6 @@ node-num-bad-desc: "The cluster node has a single point of failure,only one node
 node-num-proposal: "scale cluster nodes, make sure the num of cluster nodes is greater than 1"
 
 node-zone-title: "Node Zone"
-node-zone-good-desc: "Nodes are distributed in multiple zone,total zone num: {{.CurTotalZoneNum}},zone ratio: {{.CurNodeRatio}}"
-node-zone-bad-desc: "Nodes are not evenly distributed in multiple zone,total zone num: {{.CurTotalZoneNum}},zone ratio: {{.CurNodeRatio}},errmsg: {{.ErrMsg}}"
+node-zone-good-desc: "Nodes are distributed in multiple zone,total zone num: {{.CurTotalZoneNum}}"
+node-zone-bad-desc: "Nodes are not evenly distributed in multiple zone,total zone num: {{.CurTotalZoneNum}},other zones may be short of resource: {{.ResourceName}} when zone {{.ZoneName}} failed"
 node-zone-proposal: "It is suggested that all zone nodes are evenly distributed and the total of zone num >= 2"
