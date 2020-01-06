@@ -16,6 +16,7 @@ diagnostics:
   - type: "node-sys"
   - type: "node-iptables"
   - type: "node-status"
+  - type: "workload-status"
   - type: "requests-limits"
   - type: "health-check"
   - type: "affinity"
