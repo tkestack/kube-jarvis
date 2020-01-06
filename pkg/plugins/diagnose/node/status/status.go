@@ -89,6 +89,11 @@ func (d *Diagnostic) uploadResult(isMaster bool, name string, typ v1.NodeConditi
 		"Type":     typ,
 		"Status":   status,
 		"Resource": resource,
+		"Role":     "worker",
+	}
+
+	if isMaster {
+		obj["Role"] = "master"
 	}
 
 	title := d.Translator.Message(prefix+"-status-title", nil)
