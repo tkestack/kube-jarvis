@@ -1,0 +1,9 @@
+kube-api-qps-title: "QPS to use while talking with kubernetes apiserver"
+kube-api-qps-desc: "For the current master node configuration, the arg --{{.Arg}} current value {{.CurVal}} is too small"
+kube-api-qps-proposal: "--{{.Arg}}={{.TargetVal}} is recommended"
+
+kube-api-burst-title: "Burst to use while talking with kubernetes apiserver"
+kube-api-burst-desc: "For the current master node configuration, the arg --{{.Arg}} current value {{.CurVal}} is too small"
+kube-api-burst-proposal: "--{{.Arg}}={{.TargetVal}} is recommended"
+
+good-desc: "For the current master node configuration，the arg --{{.Arg}} current value {{.CurVal}} is good"

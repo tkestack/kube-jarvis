@@ -13,6 +13,10 @@ cluster:
 diagnostics:
   - type: "master-capacity"
   - type: "master-components"
+  - type: "kube-apiserver-args"
+  - type: "kube-controller-manager-args"
+  - type: "kube-scheduler-args"
+  - type: "etcd-args"
   - type: "node-sys"
   - type: "node-iptables"
   - type: "node-status"

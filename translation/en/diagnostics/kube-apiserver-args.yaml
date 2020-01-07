@@ -1,0 +1,9 @@
+max-requests-inflight-title: "The maximum number of non-mutating requests in flight at a given time"
+max-requests-inflight-desc: "For the current master node configuration，the arg --{{.Arg}} current value {{.CurVal}} is too small"
+max-requests-inflight-proposal: "--{{.Arg}}={{.TargetVal}} is recommended"
+
+max-mutating-requests-inflight-title: "The maximum number of mutating requests in flight at a given time"
+max-mutating-requests-inflight-desc: "For the current master node configuration，the arg --{{.Arg}} current value {{.CurVal}} is too small"
+max-mutating-requests-inflight-proposal: "--{{.Arg}}={{.TargetVal}} is recommended"
+
+good-desc: "For the current master node configuration，the arg --{{.Arg}} current value {{.CurVal}} is good"

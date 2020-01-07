@@ -1,0 +1,9 @@
+kube-api-qps-title: "请求kube-apiserver使用的QPS"
+kube-api-qps-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 过小"
+kube-api-qps-proposal: "当前集群master节点的性能下，推荐设置参数为 --{{.Arg}}={{.TargetVal}}"
+
+kube-api-burst-title: "和kube-apiserver通信的时候最大burst 值"
+kube-api-burst-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 过小"
+kube-api-burst-proposal: "当前集群master节点的性能下，推荐设置参数为 --{{.Arg}}={{.TargetVal}}"
+
+good-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 是合理的"
