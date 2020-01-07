@@ -4,6 +4,6 @@ node-num-bad-desc: "集群节点只有1个，存在高风险单点故障"
 node-num-proposal: "扩容集群节点数，确保集群节点数大于1"
 
 node-zone-title: "Node跨可用区容灾"
-node-zone-good-desc: "Node均匀分布在各个可用区,总可用区数: {{.CurTotalZoneNum}},可用区之间节点数比率: {{.CurNodeRatio}}"
-node-zone-bad-desc: "Node未均匀分布在各个可用区,总可用区数: {{.CurTotalZoneNum}},可用区之间节点数比率: {{.CurNodeRatio}},错误信息: {{.ErrMsg}}"
+node-zone-good-desc: "Node均匀分布在各个可用区,总可用区数: {{.CurTotalZoneNum}}"
+node-zone-bad-desc: "Node未均匀分布在各个可用区,总可用区数: {{.CurTotalZoneNum}},当可用区{{.ZoneName}}出现故障时，其他可用区可能缺少{{.ResourceName}}资源"
 node-zone-proposal: "建议Node均匀分布在各个可用区，总可用区数大于1"

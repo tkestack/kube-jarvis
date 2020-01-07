@@ -21,7 +21,12 @@ import (
 	"context"
 	"fmt"
 	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"math/rand"
+	"strconv"
+	"strings"
 	"testing"
+	"time"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -122,66 +127,118 @@ func TestDiagnostic_diagnoseNodeZone(t *testing.T) {
 		Err           bool
 		TotalNode     int
 		TotalZoneNum  int
-		ZoneNodeRatio float64
+		ZoneNodeRatio string
+		MasterCpu     resource.Quantity
+		MasterMemory  resource.Quantity
 	}{
 		{
 			Err:           true,
 			Pass:          false,
 			TotalNode:     1,
 			TotalZoneNum:  1,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "1:1",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 		{
 			Err:           false,
 			Pass:          false,
 			TotalNode:     1,
 			TotalZoneNum:  1,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "1:1",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 		{
 			Err:           false,
 			Pass:          false,
 			TotalNode:     2,
 			TotalZoneNum:  1,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "1:1",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 		{
 			Err:           false,
 			Pass:          false,
 			TotalNode:     100,
 			TotalZoneNum:  1,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "1:1",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 		{
 			Err:           false,
 			Pass:          true,
-			TotalNode:     100,
+			TotalNode:     1000,
 			TotalZoneNum:  2,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "1:1",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 		{
 			Err:           false,
 			Pass:          true,
-			TotalNode:     100,
+			TotalNode:     1000,
 			TotalZoneNum:  4,
-			ZoneNodeRatio: 0.0,
+			ZoneNodeRatio: "3:3:3:7",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
+		},
+		{
+			Err:           false,
+			Pass:          false,
+			TotalNode:     1000,
+			TotalZoneNum:  3,
+			ZoneNodeRatio: "1:2:6",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
+		},
+		{
+			Err:           false,
+			Pass:          true,
+			TotalNode:     1000,
+			TotalZoneNum:  4,
+			ZoneNodeRatio: "1:2:2:5",
+			MasterCpu:     resource.MustParse("1000m"),
+			MasterMemory:  resource.MustParse("1Gi"),
 		},
 	}
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("Pass=%v", cs.Pass), func(t *testing.T) {
+			rand.Seed(time.Now().Unix())
 			res := cluster.NewResources()
 			var nodes []v1.Node
-			for i := 0; i < cs.TotalNode; i++ {
-				node := v1.Node{}
-				node.Name = fmt.Sprintf("node-%d", i)
-				if !cs.Err {
-					id := i % cs.TotalZoneNum
-					node.Labels = map[string]string{
-						FailureDomainKey: fmt.Sprintf("zone-%d", id),
+			zoneNodeCount := make(map[string]int)
+			v := strings.Split(cs.ZoneNodeRatio, ":")
+			total := 0
+			var p []int
+			for j := 0; j < len(v); j++ {
+				value, _ := strconv.Atoi(v[j])
+				total += value
+				p = append(p, value)
+			}
+			for k := 0; k < cs.TotalZoneNum; k++ {
+				for i := 0; i < int(float64(cs.TotalNode)*float64(p[k])/float64(total)); i++ {
+					node := v1.Node{}
+					node.Name = fmt.Sprintf("node-%d", i)
+					if !cs.Err {
+						zoneName := fmt.Sprintf("zone-%d", k)
+						node.Labels = map[string]string{
+							FailureDomainKey: zoneName,
+						}
+						zoneNodeCount[zoneName]++
 					}
+					node.Status.Allocatable = map[v1.ResourceName]resource.Quantity{
+						v1.ResourceCPU:    cs.MasterCpu,
+						v1.ResourceMemory: cs.MasterMemory,
+					}
+					nodes = append(nodes, node)
 				}
-				nodes = append(nodes, node)
+			}
+			for k, v := range zoneNodeCount {
+				t.Logf("zone name:%s,num:%d", k, v)
 			}
 			res.Nodes = &v1.NodeList{Items: nodes}
 			// start diagnostic

@@ -10,7 +10,6 @@ diagnostics:
   name: "node-ha"
   catalogue: ["master"]
   config:
-    zoneNodeRatio: 0.7
 ```
 # supported cluster type 
 * all
