@@ -19,6 +19,10 @@ package all
 
 import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/args/apiserver"
+	controller_manager "tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/args/controller-manager"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/args/etcd"
+	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/args/scheduler"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/capacity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/master/components"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/node/ha"
@@ -42,6 +46,7 @@ func init() {
 	addNodeDiagnostics()
 	addNodeStatusDiagnostics()
 	addWorkloadDiagnostics()
+	addMasterArgDiagnostics()
 }
 
 func addMasterDiagnostics() {
@@ -121,5 +126,24 @@ func addWorkloadDiagnostics() {
 	diagnose.Add(workloadStatus.DiagnosticType, diagnose.Factory{
 		Creator:   workloadStatus.NewDiagnostic,
 		Catalogue: diagnose.CatalogueResource,
+	})
+}
+
+func addMasterArgDiagnostics() {
+	diagnose.Add(apiserver.DiagnosticType, diagnose.Factory{
+		Creator:   apiserver.NewDiagnostic,
+		Catalogue: diagnose.CatalogueMaster,
+	})
+	diagnose.Add(scheduler.DiagnosticType, diagnose.Factory{
+		Creator:   scheduler.NewDiagnostic,
+		Catalogue: diagnose.CatalogueMaster,
+	})
+	diagnose.Add(controller_manager.DiagnosticType, diagnose.Factory{
+		Creator:   controller_manager.NewDiagnostic,
+		Catalogue: diagnose.CatalogueMaster,
+	})
+	diagnose.Add(etcd.DiagnosticType, diagnose.Factory{
+		Creator:   etcd.NewDiagnostic,
+		Catalogue: diagnose.CatalogueMaster,
 	})
 }

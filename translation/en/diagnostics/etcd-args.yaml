@@ -1,0 +1,5 @@
+quota-backend-bytes-title: "Number of bytes the backend Size"
+quota-backend-bytes-desc: "The arg --{{.Arg}} current value {{.CurVal}} is too small"
+quota-backend-bytes-proposal: "--{{.Arg}}={{.TargetVal}} is recommended"
+
+good-desc: "The arg --{{.Arg}} current value {{.CurVal}} is good"

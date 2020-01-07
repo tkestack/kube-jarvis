@@ -1,0 +1,9 @@
+max-requests-inflight-title: "给定时间内进行中不可变请求的最大数量"
+max-requests-inflight-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 过小"
+max-requests-inflight-proposal: "当前集群master节点的性能下，推荐设置参数为 --{{.Arg}}={{.TargetVal}}"
+
+max-mutating-requests-inflight-title: "在给定时间内进行中可变请求的最大数量"
+max-mutating-requests-inflight-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 过小"
+max-mutating-requests-inflight-proposal: "当前集群master节点的性能下，推荐设置参数为 --{{.Arg}}={{.TargetVal}}"
+
+good-desc: "当前集群master节点的性能下，参数 --{{.Arg}} 当前值 {{.CurVal}} 是合理的"
