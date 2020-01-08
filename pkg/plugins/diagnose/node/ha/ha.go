@@ -20,7 +20,8 @@ package ha
 import (
 	"context"
 	"fmt"
-	"k8s.io/api/core/v1"
+
+	v1 "k8s.io/api/core/v1"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
@@ -152,11 +153,11 @@ func (d *Diagnostic) sendFailedResult(objName string, err error) {
 	d.result <- &diagnose.Result{
 		Level:   diagnose.HealthyLevelFailed,
 		ObjName: "*",
-		ObjInfo:  map[string]interface{}{
-			"ResourceName":"none",
-			"CurTotalZoneNum":0,
+		ObjInfo: map[string]interface{}{
+			"ResourceName":    "none",
+			"CurTotalZoneNum": 0,
 		},
-		Title:   "Failed",
-		Desc:    translate.Message(err.Error()),
+		Title: "Failed",
+		Desc:  translate.Message(err.Error()),
 	}
 }

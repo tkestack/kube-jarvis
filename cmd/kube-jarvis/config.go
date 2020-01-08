@@ -20,8 +20,9 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
+
+	"k8s.io/client-go/tools/clientcmd"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/util"
@@ -39,6 +40,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 )
+
+type diagnostic struct {
+	Type      string
+	Name      string
+	Catalogue diagnose.Catalogue
+	Config    interface{}
+}
 
 // Config is the struct for config file
 type Config struct {
@@ -60,13 +68,8 @@ type Config struct {
 		Config interface{}
 	}
 
-	Diagnostics []struct {
-		Type      string
-		Name      string
-		Catalogue diagnose.Catalogue
-		Config    interface{}
-	}
-	Exporters []struct {
+	Diagnostics []diagnostic
+	Exporters   []struct {
 		Type   string
 		Name   string
 		level  string
@@ -166,8 +169,19 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 
 // GetDiagnostics create all target Diagnostics
 func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator) ([]diagnose.Diagnostic, error) {
+	dsCfg := make([]diagnostic, 0)
+	if len(dsCfg) != 0 {
+		dsCfg = c.Diagnostics
+	} else {
+		for tp := range diagnose.Factories {
+			dsCfg = append(dsCfg, diagnostic{
+				Type: tp,
+			})
+		}
+	}
+
 	ds := make([]diagnose.Diagnostic, 0)
-	for _, config := range c.Diagnostics {
+	for _, config := range dsCfg {
 		factory, exist := diagnose.Factories[config.Type]
 		if !exist {
 			return nil, fmt.Errorf("can not found diagnostic type %s", config.Type)
