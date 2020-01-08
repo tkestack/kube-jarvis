@@ -111,9 +111,15 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
 				continue
 			}
+
 			if _, ok := outputs[rootOwner.GetUID()]; ok {
 				continue
 			}
+
+			if podNum[rootOwner.GetUID()] <= 1 {
+				continue
+			}
+
 			d.diagnosePod(&pod, rootOwner, d.param.Resources.PodDisruptionBudgets)
 			outputs[rootOwner.GetUID()] = true
 		}
