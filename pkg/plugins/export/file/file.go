@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
+
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
@@ -70,8 +72,8 @@ func (e *Exporter) Export(ctx context.Context, result *export.AllResult) error {
 	e.meta.Results = append(e.meta.Results, &MetaItem{
 		ID: ID,
 		Overview: export.AllResult{
-			StartTime:  result.StartTime,
-			EndTime:    result.EndTime,
+			StartTime:  result.StartTime.In(time.UTC).Round(time.Second),
+			EndTime:    result.EndTime.In(time.UTC).Round(time.Second),
 			Statistics: result.Statistics,
 		},
 	})
