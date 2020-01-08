@@ -76,7 +76,7 @@ func (d *Diagnostic) checkQuota(resources *cluster.Resources, info cluster.Compo
 
 	obj := map[string]interface{}{
 		"Name":      info.Name,
-		"Node":      info.Name,
+		"Node":      info.Node,
 		"Arg":       arg,
 		"CurVal":    curVal,
 		"TargetVal": targetVal,
