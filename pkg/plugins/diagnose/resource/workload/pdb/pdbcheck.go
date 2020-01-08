@@ -63,21 +63,42 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
 		outputs := make(map[types.UID]bool)
+		podNum := make(map[types.UID]int32)
 		for _, deploy := range d.param.Resources.Deployments.Items {
 			deploy.Kind = "Deployment"
 			uid2obj[deploy.UID] = deploy.DeepCopy()
+			if deploy.Spec.Replicas == nil {
+				podNum[deploy.UID] = 1
+			} else {
+				podNum[deploy.UID] = *deploy.Spec.Replicas
+			}
 		}
 		for _, sts := range d.param.Resources.StatefulSets.Items {
 			sts.Kind = "StatefulSet"
 			uid2obj[sts.UID] = sts.DeepCopy()
+			if sts.Spec.Replicas == nil {
+				podNum[sts.UID] = 1
+			} else {
+				podNum[sts.UID] = *sts.Spec.Replicas
+			}
 		}
 		for _, rs := range d.param.Resources.ReplicaSets.Items {
 			rs.Kind = "ReplicaSet"
 			uid2obj[rs.UID] = rs.DeepCopy()
+			if rs.Spec.Replicas == nil {
+				podNum[rs.UID] = 1
+			} else {
+				podNum[rs.UID] = *rs.Spec.Replicas
+			}
 		}
 		for _, rc := range d.param.Resources.ReplicationControllers.Items {
 			rc.Kind = "ReplicationController"
 			uid2obj[rc.UID] = rc.DeepCopy()
+			if rc.Spec.Replicas == nil {
+				podNum[rc.UID] = 1
+			} else {
+				podNum[rc.UID] = *rc.Spec.Replicas
+			}
 		}
 		for _, ds := range d.param.Resources.DaemonSets.Items {
 			ds.Kind = "DaemonSet"
@@ -87,7 +108,7 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
-			if rootOwner.GroupVersionKind().Kind == "DaemonSet" {
+			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
 				continue
 			}
 			if _, ok := outputs[rootOwner.GetUID()]; ok {

@@ -19,10 +19,11 @@ package affinity
 
 import (
 	"context"
+	"testing"
+
 	appv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/policy/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 
 	"tkestack.io/kube-jarvis/pkg/plugins"
@@ -36,7 +37,23 @@ import (
 
 func TestAffinityCheckDiagnostic_StartDiagnose(t *testing.T) {
 	res := cluster.NewResources()
-	res.Deployments = &appv1.DeploymentList{}
+	dep := appv1.Deployment{}
+	dep.Name = "kube-dns"
+	rs := int32(2)
+	dep.Spec.Replicas = &rs
+	dep.UID = "1"
+
+	dep2 := appv1.Deployment{}
+	dep2.Name = "kube-dns2"
+	dep2.Spec.Replicas = &rs
+	dep2.UID = "2"
+
+	res.Deployments = &appv1.DeploymentList{
+		Items: []appv1.Deployment{
+			dep,
+			dep2,
+		},
+	}
 	res.ReplicaSets = &appv1.ReplicaSetList{}
 	res.ReplicationControllers = &v1.ReplicationControllerList{}
 	res.StatefulSets = &appv1.StatefulSetList{}
@@ -71,6 +88,14 @@ func TestAffinityCheckDiagnostic_StartDiagnose(t *testing.T) {
 			Image: "1",
 		},
 	}
+	owner := metav1.OwnerReference{}
+	owner.Name = dep.Name
+	owner.Kind = "Deployment"
+	ctl := true
+	owner.Controller = &ctl
+	owner.UID = "1"
+
+	pod.OwnerReferences = []metav1.OwnerReference{owner}
 	res.Pods.Items = append(res.Pods.Items, pod)
 
 	pod = v1.Pod{}
@@ -83,6 +108,13 @@ func TestAffinityCheckDiagnostic_StartDiagnose(t *testing.T) {
 			Image: "1",
 		},
 	}
+
+	owner2 := metav1.OwnerReference{}
+	owner2.Name = dep2.Name
+	owner2.Kind = "Deployment"
+	owner2.Controller = &ctl
+	owner2.UID = "2"
+	pod.OwnerReferences = []metav1.OwnerReference{owner2}
 	res.Pods.Items = append(res.Pods.Items, pod)
 
 	d := NewDiagnostic(&diagnose.MetaData{
