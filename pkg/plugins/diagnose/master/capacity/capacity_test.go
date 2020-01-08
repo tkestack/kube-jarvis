@@ -20,9 +20,10 @@ package capacity
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"

@@ -23,28 +23,33 @@ var (
 	DefCapacities = []Capacity{
 		{
 			MaxNodeTotal: 5,
-			Memory:       resource.MustParse("8000000Ki"),
-			Cpu:          resource.MustParse("4000m"),
+			Memory:       resource.MustParse("3.75Gi"),
+			Cpu:          resource.MustParse("1000m"),
 		},
 		{
-			MaxNodeTotal: 20,
-			Memory:       resource.MustParse("16000000Ki"),
-			Cpu:          resource.MustParse("4000m"),
+			MaxNodeTotal: 10,
+			Memory:       resource.MustParse("7.5Gi"),
+			Cpu:          resource.MustParse("2000m"),
 		},
 		{
 			MaxNodeTotal: 100,
-			Memory:       resource.MustParse("32000000Ki"),
+			Memory:       resource.MustParse("15Gi"),
+			Cpu:          resource.MustParse("4000m"),
+		},
+		{
+			MaxNodeTotal: 250,
+			Memory:       resource.MustParse("30Gi"),
 			Cpu:          resource.MustParse("8000m"),
 		},
 		{
-			MaxNodeTotal: 200,
-			Memory:       resource.MustParse("64000000Ki"),
+			MaxNodeTotal: 500,
+			Memory:       resource.MustParse("60Gi"),
 			Cpu:          resource.MustParse("16000m"),
 		},
 		{
 			MaxNodeTotal: 100000,
-			Memory:       resource.MustParse("128000000Ki"),
-			Cpu:          resource.MustParse("16000m"),
+			Memory:       resource.MustParse("120Gi"),
+			Cpu:          resource.MustParse("32000m"),
 		},
 	}
 )

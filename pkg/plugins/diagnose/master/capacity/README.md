@@ -12,20 +12,23 @@ diagnostics:
   config:
     Capacities: 
     - maxnodetotal: 5
-      memory: "8000000Ki"
-      cpu: "4000m"
-    - maxnodetotal: 20
-      memory: "16000000Ki"
-      cpu: "4000m"
+      memory: "3.75Gi"
+      cpu: "1000m"
+    - maxnodetotal: 10
+      memory: "7.5Gi"
+      cpu: "2000m"
     - maxnodetotal: 100
-      memory: "32000000Ki"
+      memory: "15Gi"
+      cpu: "4000m"
+    - maxnodetotal: 250
+      memory: "30Gi"
       cpu: "8000m"
-    - maxnodetotal: 200
-      memory: "64000000Ki"
+    - maxnodetotal: 500
+      memory: "60Gi"
       cpu: "16000m"
     - maxnodetotal: 100000
-      memory: "128000000Ki"
-      cpu: "16000m"    
+      memory: "120Gi"
+      cpu: "32000m"    
 ```
 # supported cluster type 
 * all

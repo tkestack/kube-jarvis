@@ -21,6 +21,8 @@ import (
 	"context"
 	"fmt"
 
+	"tkestack.io/kube-jarvis/pkg/util"
+
 	v12 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -103,16 +105,18 @@ func (d *Diagnostic) diagnoseCapacity(ctx context.Context) {
 	}
 
 	for _, m := range masters {
-		if m.Status.Capacity.Cpu().Cmp(scale.Cpu) < 0 {
-			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.Cpu.String())
+		cpu := m.Status.Capacity.Cpu()
+		mem := m.Status.Capacity.Memory()
+		if cpu.Cmp(scale.Cpu) < 0 {
+			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal, util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
 		} else {
-			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal, m.Status.Capacity.Cpu().String(), scale.Cpu.String())
+			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal, util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
 		}
 
-		if m.Status.Capacity.Memory().Cmp(scale.Memory) < 0 {
-			d.sendCapacityWarnResult(m.Name, "Memory", nodeTotal, m.Status.Capacity.Memory().String(), scale.Memory.String())
+		if mem.Cmp(scale.Memory) < 0 {
+			d.sendCapacityWarnResult(m.Name, "Memory", nodeTotal, util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
 		} else {
-			d.sendCapacityGoodResult(m.Name, "Memory", nodeTotal, m.Status.Capacity.Memory().String(), scale.Memory.String())
+			d.sendCapacityGoodResult(m.Name, "Memory", nodeTotal, util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
 		}
 	}
 }
