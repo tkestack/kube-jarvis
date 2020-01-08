@@ -21,6 +21,8 @@ import (
 	"context"
 	"fmt"
 
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+
 	"k8s.io/api/policy/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -37,6 +39,7 @@ const (
 
 // Diagnostic report the healthy of pods's resources health check configuration
 type Diagnostic struct {
+	Filter cluster.ResourcesFilter
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
@@ -52,7 +55,7 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 
 // Complete check and complete config items
 func (d *Diagnostic) Complete() error {
-	return nil
+	return d.Filter.Compile()
 }
 
 // StartDiagnose return a result chan that will output results
@@ -109,6 +112,10 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
 			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
+				continue
+			}
+
+			if d.Filter.Filtered(rootOwner.GetNamespace(), rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
 				continue
 			}
 

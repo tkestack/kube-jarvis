@@ -21,6 +21,8 @@ import (
 	"context"
 	"fmt"
 
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+
 	v1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -33,6 +35,7 @@ const (
 
 // Diagnostic report the healthy of pods's resources health check configuration
 type Diagnostic struct {
+	Filter cluster.ResourcesFilter
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
@@ -48,7 +51,7 @@ func NewDiagnostic(meta *diagnose.MetaData) diagnose.Diagnostic {
 
 // Complete check and complete config items
 func (d *Diagnostic) Complete() error {
-	return nil
+	return d.Filter.Compile()
 }
 
 // StartDiagnose return a result chan that will output results
@@ -58,9 +61,15 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		for _, job := range d.param.Resources.Jobs.Items {
+			if d.Filter.Filtered(job.Namespace, "Job", job.Name) {
+				continue
+			}
 			d.diagnoseJob(job)
 		}
 		for _, cronJob := range d.param.Resources.CronJobs.Items {
+			if d.Filter.Filtered(cronJob.Namespace, "CronJob", cronJob.Name) {
+				continue
+			}
 			d.diagnoseCronJob(cronJob)
 		}
 	}()

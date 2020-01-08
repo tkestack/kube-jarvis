@@ -18,6 +18,8 @@
 package cluster
 
 import (
+	"regexp"
+
 	ar "k8s.io/api/admissionregistration/v1beta1"
 	appv1 "k8s.io/api/apps/v1"
 	asv1 "k8s.io/api/autoscaling/v1"
@@ -136,4 +138,66 @@ func NewResources() *Resources {
 		CoreComponents: map[string][]Component{},
 		Machines:       map[string]Machine{},
 	}
+}
+
+type ResourcesFilterItem struct {
+	Namespace string
+	Kind      string
+	Name      string
+	nsExp     *regexp.Regexp
+	kindExp   *regexp.Regexp
+	nameExp   *regexp.Regexp
+}
+type ResourcesFilter []*ResourcesFilterItem
+
+func (r ResourcesFilter) Compile() error {
+	var err error
+	for _, item := range r {
+		if item.Namespace != "" {
+			item.nsExp, err = regexp.Compile(item.Namespace)
+			if err != nil {
+				return err
+			}
+		}
+
+		if item.Kind != "" {
+			item.kindExp, err = regexp.Compile(item.Kind)
+			if err != nil {
+				return err
+			}
+		}
+
+		if item.Name != "" {
+			item.nameExp, err = regexp.Compile(item.Name)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (r ResourcesFilter) Filtered(ns, kind, name string) bool {
+	for _, item := range r {
+		ok := true
+		if item.nsExp != nil && !item.nsExp.MatchString(ns) {
+			ok = false
+		}
+
+		if item.kindExp != nil && !item.kindExp.MatchString(kind) {
+			ok = false
+		}
+
+		if item.nameExp != nil && !item.nameExp.MatchString(name) {
+			ok = false
+		}
+
+		if ok {
+			return ok
+		}
+	}
+
+	return false
 }

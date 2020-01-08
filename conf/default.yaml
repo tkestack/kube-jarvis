@@ -10,8 +10,24 @@ cluster:
     node:
       autocreate: true
 
-#diagnostics:
-#  - type: "master-capacity"
+diagnostics:
+  - type: "master-capacity"
+  - type: "master-components"
+  - type: "kube-apiserver-args"
+  - type: "kube-controller-manager-args"
+  - type: "kube-scheduler-args"
+  - type: "etcd-args"
+  - type: "node-sys"
+  - type: "node-iptables"
+  - type: "node-status"
+  - type: "workload-status"
+  - type: "affinity"
+  - type: "health-check"
+  - type: "requests-limits"
+  - type: "pdb"
+  - type: "batch-check"
+  - type: "hpa-ip"
+  - type: "node-ha"
 
 exporters:
   - type: "stdout"

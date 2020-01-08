@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
 
@@ -16,6 +18,7 @@ var WorkloadType = [...]string{"Deployment", "DaemonSet", "StatefulSet"}
 
 // Diagnostic report the healthy of pods's resources requests limits configuration
 type Diagnostic struct {
+	Filter cluster.ResourcesFilter
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
@@ -36,7 +39,7 @@ func (d *Diagnostic) Init() error {
 
 // Complete check and complete config items
 func (d *Diagnostic) Complete() error {
-	return nil
+	return d.Filter.Compile()
 }
 
 // ResourceItem is a inner struct
@@ -79,6 +82,10 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		rsMap := make(ResourceMap)
 		if d.param.Resources.Deployments != nil {
 			for _, deploy := range d.param.Resources.Deployments.Items {
+				if d.Filter.Filtered(deploy.Namespace, "Deployment", deploy.Name) {
+					continue
+				}
+
 				replicas := int32(1)
 				if deploy.Spec.Replicas != nil {
 					replicas = *deploy.Spec.Replicas
@@ -93,6 +100,10 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 
 		if d.param.Resources.DaemonSets != nil {
 			for _, ds := range d.param.Resources.DaemonSets.Items {
+				if d.Filter.Filtered(ds.Namespace, "DaemonSet", ds.Name) {
+					continue
+				}
+
 				appendWhatever(rsMap, ds.Namespace, 1, ResourceItem{
 					Name:      ds.Name,
 					Replicas:  ds.Status.DesiredNumberScheduled,
@@ -103,6 +114,10 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 
 		if d.param.Resources.StatefulSets != nil {
 			for _, sts := range d.param.Resources.StatefulSets.Items {
+				if d.Filter.Filtered(sts.Namespace, "StatefulSet", sts.Name) {
+					continue
+				}
+
 				replicas := int32(1)
 				if sts.Spec.Replicas != nil {
 					replicas = *sts.Spec.Replicas
