@@ -121,7 +121,9 @@ func (d *Diagnostic) checkArgs(resources *cluster.Resources, info cluster.Compon
 
 	curVal := defVal
 	curValStr := info.Args[arg]
-	curVal, _ = strconv.ParseFloat(curValStr, 64)
+	if curValStr != "" {
+		curVal, _ = strconv.ParseFloat(curValStr, 64)
+	}
 
 	obj["CurVal"] = curVal
 	obj["TargetVal"] = targetVal

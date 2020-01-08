@@ -121,7 +121,9 @@ func (d *Diagnostic) checkArgs(resources *cluster.Resources, info cluster.Compon
 
 	curVal := defVal
 	curValStr := info.Args[arg]
-	curVal, _ = strconv.Atoi(curValStr)
+	if curValStr != "" {
+		curVal, _ = strconv.Atoi(curValStr)
+	}
 
 	obj["CurVal"] = curVal
 	obj["TargetVal"] = targetVal
