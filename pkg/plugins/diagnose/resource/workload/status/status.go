@@ -166,7 +166,7 @@ func (d *Diagnostic) diagnose(rsMap ResourceMap) {
 					ObjName:  fmt.Sprintf("%s:%s", namespace, rsLists[typ][idx].Name),
 					ObjInfo:  obj,
 					Desc:     d.Translator.Message(descId, obj),
-					Proposal: d.Translator.Message(proposalId, nil),
+					Proposal: d.Translator.Message(proposalId, obj),
 				}
 			}
 		}
