@@ -170,7 +170,7 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 // GetDiagnostics create all target Diagnostics
 func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator) ([]diagnose.Diagnostic, error) {
 	dsCfg := make([]diagnostic, 0)
-	if len(dsCfg) != 0 {
+	if len(c.Diagnostics) != 0 {
 		dsCfg = c.Diagnostics
 	} else {
 		for tp := range diagnose.Factories {
