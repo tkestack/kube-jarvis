@@ -19,6 +19,7 @@ package nodeexec
 
 import (
 	"fmt"
+
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
 	"tkestack.io/kube-jarvis/pkg/logger"
@@ -44,6 +45,7 @@ type Config struct {
 	DaemonSet  string
 	Image      string
 	AutoCreate bool
+	DeleteNs   bool
 }
 
 func NewConfig() *Config {
@@ -71,7 +73,7 @@ func (c *Config) Complete() {
 func (c *Config) Executor(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
 	switch c.Type {
 	case "proxy":
-		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet, c.Image, c.AutoCreate)
+		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet, c.Image, c.AutoCreate, c.DeleteNs)
 	case "none":
 		return nil, NoneExecutor
 	}

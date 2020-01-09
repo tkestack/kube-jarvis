@@ -20,6 +20,9 @@ package nodeexec
 import (
 	"bytes"
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/pkg/errors"
 	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -30,8 +33,6 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
-	"net/url"
-	"time"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/util"
 )
@@ -91,10 +92,11 @@ type DaemonSetProxy struct {
 	remoteExecutor remoteExecutor
 	image          string
 	autoCreate     bool
+	deleteNs       bool
 }
 
 // NewDaemonSetProxy create and init a new DaemonSetProxy
-func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config, namespace string, ds string, image string, autoCreate bool) (*DaemonSetProxy, error) {
+func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config, namespace string, ds string, image string, autoCreate, deleteNs bool) (*DaemonSetProxy, error) {
 	d := &DaemonSetProxy{
 		cli:        cli,
 		namespace:  namespace,
@@ -103,6 +105,7 @@ func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *r
 		config:     config,
 		image:      image,
 		autoCreate: autoCreate,
+		deleteNs:   deleteNs,
 		remoteExecutor: &defaultExecutor{
 			newSPDYExecutor: remotecommand.NewSPDYExecutor,
 		},
@@ -203,7 +206,16 @@ func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, e
 // Finish do clean for ComponentExecutor
 func (d *DaemonSetProxy) Finish() error {
 	if d.autoCreate {
-		return d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{})
+		if err := d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{}); err != nil {
+			return err
+		}
 	}
+
+	if d.deleteNs {
+		if err := d.cli.CoreV1().Namespaces().Delete(d.namespace, &metav1.DeleteOptions{}); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
