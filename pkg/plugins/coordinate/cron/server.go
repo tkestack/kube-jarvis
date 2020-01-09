@@ -2,9 +2,10 @@ package cron
 
 import (
 	"encoding/json"
-	"github.com/robfig/cron/v3"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/robfig/cron/v3"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 )
 
@@ -50,6 +51,7 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 		c.cronCtl.Stop()
 	}
 	c.cronCtl = newCron
+	c.cronCtl.Start()
 	c.logger.Infof("cron scheduler success update to %s", string(data))
 }
 
