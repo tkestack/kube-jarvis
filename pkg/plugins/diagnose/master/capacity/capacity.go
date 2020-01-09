@@ -83,11 +83,12 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 func (d *Diagnostic) diagnoseCapacity(ctx context.Context) {
 	nodeTotal := 0
 	masters := make([]v12.Node, 0)
+l1:
 	for _, n := range d.param.Resources.Nodes.Items {
 		for k := range n.Labels {
 			if k == "node-role.kubernetes.io/master" {
 				masters = append(masters, n)
-				continue
+				continue l1
 			}
 		}
 		nodeTotal++
