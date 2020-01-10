@@ -1,0 +1,3 @@
+title: "Workload HA Check"
+desc: "{{.Kind}} {{.Namespace}}:{{.Name}} all pods running on the same node"
+proposal: "recreate pod to schedule it to other node and set right affinity can get better disaster toleration"

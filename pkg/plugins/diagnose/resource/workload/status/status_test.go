@@ -2,9 +2,10 @@ package status
 
 import (
 	"context"
+	"testing"
+
 	v12 "k8s.io/api/apps/v1"
 	"k8s.io/utils/pointer"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -46,8 +47,6 @@ func TestStatusDiagnostic_StartDiagnose(t *testing.T) {
 	ds.Status.DesiredNumberScheduled = 1
 	ds.Status.NumberReady = 0
 	res.DaemonSets.Items[0] = ds
-
-
 
 	if err := d.Complete(); err != nil {
 		t.Fatalf(err.Error())

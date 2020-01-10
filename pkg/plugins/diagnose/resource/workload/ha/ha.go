@@ -15,7 +15,7 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package affinity
+package ha
 
 import (
 	"context"
@@ -25,19 +25,16 @@ import (
 
 	"k8s.io/apimachinery/pkg/types"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
-
-	v12 "k8s.io/api/core/v1"
 )
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType = "affinity"
+	DiagnosticType = "workload-ha"
 )
 
 // Diagnostic report the healthy of pods's resources health check configuration
 type Diagnostic struct {
 	Filter cluster.ResourcesFilter
-
 	*diagnose.MetaData
 	result chan *diagnose.Result
 	param  *diagnose.StartDiagnoseParam
@@ -63,89 +60,102 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
-		outputs := make(map[types.UID]bool)
-		podNum := make(map[types.UID]int32)
 		for _, deploy := range d.param.Resources.Deployments.Items {
 			deploy.Kind = "Deployment"
+			if deploy.Spec.Replicas == nil || *deploy.Spec.Replicas == 1 {
+				continue
+			}
+
+			if d.Filter.Filtered(deploy.Name, "Deployment", deploy.Name) {
+				continue
+			}
 			uid2obj[deploy.UID] = deploy.DeepCopy()
-			if deploy.Spec.Replicas == nil {
-				podNum[deploy.UID] = 1
-			} else {
-				podNum[deploy.UID] = *deploy.Spec.Replicas
-			}
-		}
-		for _, sts := range d.param.Resources.StatefulSets.Items {
-			sts.Kind = "StatefulSet"
-			uid2obj[sts.UID] = sts.DeepCopy()
-			if sts.Spec.Replicas == nil {
-				podNum[sts.UID] = 1
-			} else {
-				podNum[sts.UID] = *sts.Spec.Replicas
-			}
-		}
-		for _, rs := range d.param.Resources.ReplicaSets.Items {
-			rs.Kind = "ReplicaSet"
-			uid2obj[rs.UID] = rs.DeepCopy()
-			if rs.Spec.Replicas == nil {
-				podNum[rs.UID] = 1
-			} else {
-				podNum[rs.UID] = *rs.Spec.Replicas
-			}
-		}
-		for _, rc := range d.param.Resources.ReplicationControllers.Items {
-			rc.Kind = "ReplicationController"
-			uid2obj[rc.UID] = rc.DeepCopy()
-			if rc.Spec.Replicas == nil {
-				podNum[rc.UID] = 1
-			} else {
-				podNum[rc.UID] = *rc.Spec.Replicas
-			}
-		}
-		for _, ds := range d.param.Resources.DaemonSets.Items {
-			ds.Kind = "DaemonSet"
-			uid2obj[ds.UID] = ds.DeepCopy()
 		}
 
+		for _, sts := range d.param.Resources.StatefulSets.Items {
+			sts.Kind = "StatefulSet"
+			if sts.Spec.Replicas == nil || *sts.Spec.Replicas == 1 {
+				continue
+			}
+
+			if d.Filter.Filtered(sts.Namespace, "StatefulSet", sts.Name) {
+				continue
+			}
+
+			uid2obj[sts.UID] = sts.DeepCopy()
+		}
+
+		for _, rs := range d.param.Resources.ReplicaSets.Items {
+			rs.Kind = "ReplicaSet"
+			if rs.Spec.Replicas == nil || *rs.Spec.Replicas == 1 {
+				continue
+			}
+
+			if d.Filter.Filtered(rs.Namespace, "ReplicaSet", rs.Name) {
+				continue
+			}
+
+			uid2obj[rs.UID] = rs.DeepCopy()
+		}
+
+		for _, rc := range d.param.Resources.ReplicationControllers.Items {
+			rc.Kind = "ReplicationController"
+			if rc.Spec.Replicas == nil || *rc.Spec.Replicas == 1 {
+				continue
+			}
+
+			if d.Filter.Filtered(rc.Namespace, "ReplicationController", rc.Name) {
+				continue
+			}
+
+			uid2obj[rc.UID] = rc.DeepCopy()
+		}
+
+		lastNode := map[types.UID]string{}
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
-			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
+			if rootOwner.GroupVersionKind().Kind == "Pod" {
 				continue
 			}
 
-			if d.Filter.Filtered(rootOwner.GetNamespace(), rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
+			last := lastNode[rootOwner.GetUID()]
+			if last == "pass" {
 				continue
 			}
 
-			if _, ok := outputs[rootOwner.GetUID()]; ok {
-				continue
+			if last == "" {
+				lastNode[rootOwner.GetUID()] = pod.Spec.NodeName
+			} else if last != pod.Spec.NodeName {
+				lastNode[rootOwner.GetUID()] = "pass"
 			}
-			if podNum[rootOwner.GetUID()] <= 1 {
-				continue
-			}
-
-			d.diagnosePod(&pod, rootOwner)
-			outputs[rootOwner.GetUID()] = true
 		}
+
+		for uid, node := range lastNode {
+			if node == "pass" {
+				continue
+			}
+			d.diagnoseBad(uid2obj[uid], node)
+		}
+
 	}()
 	return d.result, nil
 }
 
-func (d *Diagnostic) diagnosePod(pod *v12.Pod, rootOwner diagnose.MetaObject) {
+func (d *Diagnostic) diagnoseBad(rootOwner diagnose.MetaObject, node string) {
 	obj := map[string]interface{}{
 		"Kind":      rootOwner.GroupVersionKind().Kind,
 		"Namespace": rootOwner.GetNamespace(),
 		"Name":      rootOwner.GetName(),
+		"Node":      node,
 	}
 
-	if pod.Spec.Affinity == nil && len(pod.Spec.NodeSelector) == 0 {
-		d.result <- &diagnose.Result{
-			Level:    diagnose.HealthyLevelWarn,
-			ObjName:  fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
-			ObjInfo:  obj,
-			Title:    d.Translator.Message("title", nil),
-			Desc:     d.Translator.Message("desc", obj),
-			Proposal: d.Translator.Message("proposal", obj),
-		}
+	d.result <- &diagnose.Result{
+		Level:    diagnose.HealthyLevelWarn,
+		ObjName:  fmt.Sprintf("%s:%s", rootOwner.GetNamespace(), rootOwner.GetName()),
+		ObjInfo:  obj,
+		Title:    d.Translator.Message("title", nil),
+		Desc:     d.Translator.Message("desc", obj),
+		Proposal: d.Translator.Message("proposal", obj),
 	}
 }
