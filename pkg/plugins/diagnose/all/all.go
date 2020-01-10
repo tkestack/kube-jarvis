@@ -33,6 +33,7 @@ import (
 	hpaip "tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/hpa/ip"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/affinity"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/batch"
+	workloadha "tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/ha"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/healthcheck"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/pdb"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/resource/workload/requestslimits"
@@ -45,7 +46,6 @@ func init() {
 	addOtherDiagnostics()
 	addNodeDiagnostics()
 	addNodeStatusDiagnostics()
-	addWorkloadDiagnostics()
 	addMasterArgDiagnostics()
 }
 
@@ -91,6 +91,16 @@ func addResourceDiagnostics() {
 		Creator:   batch.NewDiagnostic,
 		Catalogue: diagnose.CatalogueResource,
 	})
+
+	diagnose.Add(workloadha.DiagnosticType, diagnose.Factory{
+		Creator:   workloadha.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
+
+	diagnose.Add(workloadStatus.DiagnosticType, diagnose.Factory{
+		Creator:   workloadStatus.NewDiagnostic,
+		Catalogue: diagnose.CatalogueResource,
+	})
 }
 
 func addOtherDiagnostics() {
@@ -119,13 +129,6 @@ func addNodeStatusDiagnostics() {
 	diagnose.Add(status.DiagnosticType, diagnose.Factory{
 		Creator:   status.NewDiagnostic,
 		Catalogue: diagnose.CatalogueNode,
-	})
-}
-
-func addWorkloadDiagnostics() {
-	diagnose.Add(workloadStatus.DiagnosticType, diagnose.Factory{
-		Creator:   workloadStatus.NewDiagnostic,
-		Catalogue: diagnose.CatalogueResource,
 	})
 }
 

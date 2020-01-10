@@ -29,7 +29,7 @@ import (
 
 const (
 	// DiagnosticType is type name of this Diagnostic
-	DiagnosticType = "ha"
+	DiagnosticType = "workload-ha"
 )
 
 // Diagnostic report the healthy of pods's resources health check configuration
@@ -62,7 +62,6 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		uid2obj := make(map[types.UID]diagnose.MetaObject)
 		for _, deploy := range d.param.Resources.Deployments.Items {
 			deploy.Kind = "Deployment"
-			uid2obj[deploy.UID] = deploy.DeepCopy()
 			if deploy.Spec.Replicas == nil || *deploy.Spec.Replicas == 1 {
 				continue
 			}
@@ -70,11 +69,11 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if d.Filter.Filtered(deploy.Name, "Deployment", deploy.Name) {
 				continue
 			}
+			uid2obj[deploy.UID] = deploy.DeepCopy()
 		}
 
 		for _, sts := range d.param.Resources.StatefulSets.Items {
 			sts.Kind = "StatefulSet"
-			uid2obj[sts.UID] = sts.DeepCopy()
 			if sts.Spec.Replicas == nil || *sts.Spec.Replicas == 1 {
 				continue
 			}
@@ -82,11 +81,12 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if d.Filter.Filtered(sts.Namespace, "StatefulSet", sts.Name) {
 				continue
 			}
+
+			uid2obj[sts.UID] = sts.DeepCopy()
 		}
 
 		for _, rs := range d.param.Resources.ReplicaSets.Items {
 			rs.Kind = "ReplicaSet"
-			uid2obj[rs.UID] = rs.DeepCopy()
 			if rs.Spec.Replicas == nil || *rs.Spec.Replicas == 1 {
 				continue
 			}
@@ -94,11 +94,12 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if d.Filter.Filtered(rs.Namespace, "ReplicaSet", rs.Name) {
 				continue
 			}
+
+			uid2obj[rs.UID] = rs.DeepCopy()
 		}
 
 		for _, rc := range d.param.Resources.ReplicationControllers.Items {
 			rc.Kind = "ReplicationController"
-			uid2obj[rc.UID] = rc.DeepCopy()
 			if rc.Spec.Replicas == nil || *rc.Spec.Replicas == 1 {
 				continue
 			}
@@ -106,6 +107,8 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			if d.Filter.Filtered(rc.Namespace, "ReplicationController", rc.Name) {
 				continue
 			}
+
+			uid2obj[rc.UID] = rc.DeepCopy()
 		}
 
 		lastNode := map[types.UID]string{}
