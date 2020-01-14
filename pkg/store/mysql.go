@@ -38,6 +38,7 @@ func (m *Mysql) Complete() error {
 	if err != nil {
 		return err
 	}
+	defer func() { _ = db.Close() }()
 
 	if db.AutoMigrate(&Data{}).Error != nil {
 		return err
