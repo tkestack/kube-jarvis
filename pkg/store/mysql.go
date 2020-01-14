@@ -9,7 +9,6 @@ import (
 
 type Mysql struct {
 	Url string
-	db  *gorm.DB
 }
 
 type Data struct {
@@ -44,7 +43,6 @@ func (m *Mysql) Complete() error {
 		return err
 	}
 
-	m.db = db
 	return nil
 }
 
@@ -55,9 +53,15 @@ func (m *Mysql) CreateSpace(name string) (created bool, err error) {
 
 // Set update a value of key
 func (m *Mysql) Set(space string, key, value string) error {
+	db, err := gorm.Open("mysql", m.Url)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = db.Close() }()
+
 	d := &Data{}
 	notFound := false
-	if err := m.db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return err
 		} else {
@@ -70,16 +74,22 @@ func (m *Mysql) Set(space string, key, value string) error {
 	d.Value = value
 
 	if notFound {
-		return m.db.Create(d).Error
+		return db.Create(d).Error
 	}
 
-	return m.db.Save(d).Error
+	return db.Save(d).Error
 }
 
 // Get return target value of key
 func (m *Mysql) Get(space string, key string) (value string, exist bool, err error) {
+	db, err := gorm.Open("mysql", m.Url)
+	if err != nil {
+		return "", false, err
+	}
+	defer func() { _ = db.Close() }()
+
 	d := &Data{}
-	if err := m.db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return "", false, err
 		} else {
@@ -92,10 +102,21 @@ func (m *Mysql) Get(space string, key string) (value string, exist bool, err err
 
 // Delete delete target key
 func (m *Mysql) Delete(space string, key string) error {
-	return m.db.Delete(Data{}, "space = ? and key_name = ?", space, key).Error
+	db, err := gorm.Open("mysql", m.Url)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = db.Close() }()
+
+	return db.Delete(Data{}, "space = ? and key_name = ?", space, key).Error
 }
 
 // DeleteSpace Delete whole namespace
 func (m *Mysql) DeleteSpace(name string) error {
-	return m.db.Delete(Data{}, "space = ?", name).Error
+	db, err := gorm.Open("mysql", m.Url)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = db.Close() }()
+	return db.Delete(Data{}, "space = ?", name).Error
 }
