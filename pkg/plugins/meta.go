@@ -19,11 +19,14 @@ package plugins
 
 import (
 	"tkestack.io/kube-jarvis/pkg/logger"
+	"tkestack.io/kube-jarvis/pkg/store"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 // MetaData is the common attributes of a plugins
 type MetaData struct {
+	// Store is the global storage
+	Store store.Store
 	// Translator is a translator with plugins module context
 	Translator translate.Translator
 	// Logger is a logger with plugins module context

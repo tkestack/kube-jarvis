@@ -8,11 +8,13 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/fake"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
+	"tkestack.io/kube-jarvis/pkg/store"
 )
 
 func Test_runOnceHandler(t *testing.T) {
@@ -32,7 +34,7 @@ func Test_runOnceHandler(t *testing.T) {
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
-			c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
+			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
 			ctx, cl := context.WithCancel(context.Background())
 			defer cl()
 			c.Coordinator = &coordinate.FakeCoordinator{RunFunc: func(ctx context.Context) error {
@@ -66,7 +68,7 @@ func (p *progressCoordinator) Progress() *plugins.Progress {
 }
 
 func Test_state(t *testing.T) {
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
 	c.state = StateRunning
 	co := &progressCoordinator{
 		progress: plugins.NewProgress(),
@@ -96,7 +98,7 @@ func Test_state(t *testing.T) {
 }
 
 func Test_getCron(t *testing.T) {
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
 	c.Cron = "1 1 1 1 1"
 	req := &http.Request{
 		Method: http.MethodGet,
@@ -130,7 +132,7 @@ func Test_updateCron(t *testing.T) {
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
-			c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
+			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
 			resp := httpserver.NewFakeResponseWriter()
 			req := &http.Request{
 				Method: http.MethodPut,

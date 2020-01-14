@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"flag"
+
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/cluster/all"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/coordinate/all"
@@ -31,6 +32,7 @@ var configFile string
 
 func init() {
 	flag.StringVar(&configFile, "config", "conf/default.yaml", "config file")
+	flag.Parse()
 }
 
 func main() {
@@ -44,7 +46,12 @@ func main() {
 		panic(err)
 	}
 
-	coordinator, err := config.GetCoordinator(cls)
+	store, err := config.GetStore()
+	if err != nil {
+		panic(err)
+	}
+
+	coordinator, err := config.GetCoordinator(cls, store)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +61,7 @@ func main() {
 		panic(err)
 	}
 
-	diagnostics, err := config.GetDiagnostics(cls, trans)
+	diagnostics, err := config.GetDiagnostics(cls, trans, store)
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +70,7 @@ func main() {
 		coordinator.AddDiagnostic(d)
 	}
 
-	exporters, err := config.GetExporters(cls, trans)
+	exporters, err := config.GetExporters(cls, trans, store)
 	if err != nil {
 		panic(err)
 	}

@@ -2,6 +2,11 @@ global:
   trans: "translation"
   lang: "en"
   httpaddr: ":9005"
+  store:
+    type: file
+    config:
+      dir: "/data/kube-jarvis"
+
 cluster:
   # see detail of custom cluster here:
   type: "custom"

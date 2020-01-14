@@ -1,4 +1,4 @@
-package file
+package store
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
@@ -22,7 +23,6 @@ type QueryRequest struct {
 func (e *Exporter) queryHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var requestData []byte
-	var fileContent []byte
 	var respData []byte
 
 	defer func() {
@@ -52,14 +52,21 @@ func (e *Exporter) queryHandler(w http.ResponseWriter, r *http.Request) {
 		param.Limit = math.MaxInt32
 	}
 
-	fileContent, err = ioutil.ReadFile(fmt.Sprintf("%s/%s.json", e.Path, param.ID))
+	content, exist, err := e.Store.Get(resultsStoreName, param.ID)
 	if err != nil {
+		err = fmt.Errorf("get result failed: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !exist {
+		err = fmt.Errorf("result not exist")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	allResults := export.NewAllResult()
-	if err = allResults.UnMarshal(fileContent); err != nil {
+	if err = allResults.UnMarshal([]byte(content)); err != nil {
 		return
 	}
 

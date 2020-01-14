@@ -19,16 +19,18 @@ package cron
 
 import (
 	"context"
-	"fmt"
-	"github.com/robfig/cron/v3"
-	"os"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/robfig/cron/v3"
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate/basic"
+	"tkestack.io/kube-jarvis/pkg/store"
 )
 
 const (
@@ -39,8 +41,7 @@ const (
 
 // Coordinator Coordinate diagnostics,exporters,evaluators with simple way
 type Coordinator struct {
-	Cron    string
-	WalPath string
+	Cron string
 
 	coordinate.Coordinator
 	state    string
@@ -49,15 +50,17 @@ type Coordinator struct {
 	cronLock sync.Mutex
 	waitRun  chan struct{}
 	logger   logger.Logger
+	store    store.Store
 }
 
 // NewCoordinator return a default Coordinator
-func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordinator {
+func NewCoordinator(logger logger.Logger, cls cluster.Cluster, st store.Store) coordinate.Coordinator {
 	c := &Coordinator{
-		Coordinator: basic.NewCoordinator(logger, cls),
+		Coordinator: basic.NewCoordinator(logger, cls, st),
 		waitRun:     make(chan struct{}),
 		logger:      logger,
 		state:       StatePending,
+		store:       st,
 	}
 	return c
 }
@@ -67,6 +70,9 @@ func (c *Coordinator) Complete() error {
 	httpserver.HandleFunc("/coordinator/cron/run", c.runOnceHandler)
 	httpserver.HandleFunc("/coordinator/cron/period", c.periodHandler)
 	httpserver.HandleFunc("/coordinator/cron/state", c.stateHandler)
+	if _, err := c.store.CreateSpace("cron"); err != nil {
+		return errors.Wrap(err, "create store space failed")
+	}
 	return c.Coordinator.Complete()
 }
 
@@ -78,22 +84,9 @@ func (c *Coordinator) Run(ctx context.Context) error {
 		c.cronCtl.Start()
 	}
 
-	// check for wal file to auto start once we start
+	// check for auto start once we start
 	// this is to ensure that the program automatically retries when it restarts
-	go func() {
-		if c.WalPath == "" {
-			return
-		}
-		_, err := os.Stat(c.walFile()) //os.Stat获取文件信息
-		if err != nil {
-			if os.IsNotExist(err) {
-				return
-			}
-			c.logger.Errorf("state wal file failed: %v", err)
-		}
-		c.logger.Infof("wal file exist, auto retry")
-		c.tryStartRun()
-	}()
+	go c.tryAutoStart()
 
 	// start waiting for run
 	for {
@@ -113,14 +106,25 @@ func (c *Coordinator) Run(ctx context.Context) error {
 	}
 }
 
+func (c *Coordinator) tryAutoStart() {
+	v, exist, err := c.store.Get("cron", "state")
+	if err != nil {
+		c.logger.Errorf("try auto start failed: %v", err.Error())
+		return
+	}
+
+	if !exist || v != StateRunning {
+		return
+	}
+	c.tryStartRun()
+}
+
 func (c *Coordinator) runStart() {
-	_, _ = os.Create(c.walFile())
+	_ = c.store.Set("cron", "state", StateRunning)
 }
 
 func (c *Coordinator) runDone(success bool) {
-	if c.WalPath != "" {
-		_ = os.Remove(c.walFile())
-	}
+	_ = c.store.Set("cron", "state", StatePending)
 	c.runLock.Lock()
 	defer c.runLock.Unlock()
 	if success {
@@ -128,10 +132,6 @@ func (c *Coordinator) runDone(success bool) {
 	} else {
 		c.state = StateFailed
 	}
-}
-
-func (c *Coordinator) walFile() string {
-	return fmt.Sprintf("%s/kube-jarvis.wal", c.WalPath)
 }
 
 func (c *Coordinator) tryStartRun() bool {

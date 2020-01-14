@@ -19,9 +19,11 @@ package coordinate
 
 import (
 	"context"
+
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
+	"tkestack.io/kube-jarvis/pkg/store"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
@@ -43,7 +45,7 @@ type Coordinator interface {
 }
 
 // Creator is a factory to create a Coordinator
-type Creator func(logger logger.Logger, cls cluster.Cluster) Coordinator
+type Creator func(logger logger.Logger, cls cluster.Cluster, st store.Store) Coordinator
 
 // Creators store all registered Coordinator Creator
 var Creators = map[string]Creator{}

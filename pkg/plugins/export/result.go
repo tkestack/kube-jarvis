@@ -20,6 +20,7 @@ package export
 import (
 	"encoding/json"
 	"time"
+
 	"tkestack.io/kube-jarvis/pkg/translate"
 
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
@@ -88,4 +89,23 @@ func (r *AllResult) Marshal() ([]byte, error) {
 // UnMarshal init AllResult from a json
 func (r *AllResult) UnMarshal(data []byte) error {
 	return json.Unmarshal(data, r)
+}
+
+type HistoryItem struct {
+	ID       string
+	Overview AllResult
+}
+
+type History struct {
+	Records []*HistoryItem
+}
+
+// Marshal make History become json
+func (h *History) Marshal() ([]byte, error) {
+	return json.Marshal(h)
+}
+
+// UnMarshal init History from a json
+func (h *History) UnMarshal(data []byte) error {
+	return json.Unmarshal(data, h)
 }

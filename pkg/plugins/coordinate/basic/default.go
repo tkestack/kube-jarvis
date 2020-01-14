@@ -21,6 +21,8 @@ import (
 	"context"
 	"time"
 
+	"tkestack.io/kube-jarvis/pkg/store"
+
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"tkestack.io/kube-jarvis/pkg/logger"
@@ -38,13 +40,15 @@ type Coordinator struct {
 	diagnostics []diagnose.Diagnostic
 	exporters   []export.Exporter
 	progress    *plugins.Progress
+	store       store.Store
 }
 
 // NewCoordinator return a default Coordinator
-func NewCoordinator(logger logger.Logger, cls cluster.Cluster) coordinate.Coordinator {
+func NewCoordinator(logger logger.Logger, cls cluster.Cluster, st store.Store) coordinate.Coordinator {
 	return &Coordinator{
 		logger: logger,
 		cls:    cls,
+		store:  st,
 	}
 }
 

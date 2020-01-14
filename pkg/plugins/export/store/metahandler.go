@@ -1,20 +1,22 @@
-package file
+package store
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"math"
 	"net/http"
+
+	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
 
-type MetaRequest struct {
+type HistoryRequest struct {
 	Offset int
 	Limit  int
 }
 
 func (e *Exporter) metaHandler(w http.ResponseWriter, r *http.Request) {
-	e.metaLock.Lock()
-	defer e.metaLock.Unlock()
+	e.hisLock.Lock()
+	defer e.hisLock.Unlock()
 
 	var err error
 	var requestData []byte
@@ -31,7 +33,7 @@ func (e *Exporter) metaHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param := &MetaRequest{}
+	param := &HistoryRequest{}
 	if len(requestData) != 0 {
 		if err = json.Unmarshal(requestData, param); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -43,14 +45,14 @@ func (e *Exporter) metaHandler(w http.ResponseWriter, r *http.Request) {
 		param.Limit = math.MaxInt32
 	}
 
-	meta := &Meta{
-		Results: []*MetaItem{},
+	history := &export.History{
+		Records: []*export.HistoryItem{},
 	}
 
 	offset := param.Offset
 	limit := param.Limit
 
-	for i := len(e.meta.Results) - 1; i >= 0; i-- {
+	for i := len(e.history.Records) - 1; i >= 0; i-- {
 		if offset != 0 {
 			offset--
 			continue
@@ -60,10 +62,10 @@ func (e *Exporter) metaHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		limit--
-		meta.Results = append(meta.Results, e.meta.Results[i])
+		history.Records = append(history.Records, e.history.Records[i])
 	}
 
-	respData, err = json.Marshal(meta)
+	respData, err = json.Marshal(history)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

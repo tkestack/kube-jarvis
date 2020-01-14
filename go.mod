@@ -4,8 +4,8 @@ go 1.12
 
 require (
 	github.com/fatih/color v1.7.0
-	github.com/gorilla/mux v1.7.3 // indirect
-	github.com/kubernetes-incubator/external-storage v5.5.0+incompatible // indirect
+	github.com/go-sql-driver/mysql v1.5.0
+	github.com/jinzhu/gorm v1.9.12
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/nicksnyder/go-i18n/v2 v2.0.3

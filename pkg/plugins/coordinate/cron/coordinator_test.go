@@ -4,14 +4,16 @@ import (
 	"context"
 	"testing"
 	"time"
+
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/fake"
 	"tkestack.io/kube-jarvis/pkg/plugins/coordinate"
+	"tkestack.io/kube-jarvis/pkg/store"
 )
 
 func TestCoordinator_Run(t *testing.T) {
 	count := 0
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster()).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
 	f := &coordinate.FakeCoordinator{
 		RunFunc: func(ctx context.Context) error {
 			count++

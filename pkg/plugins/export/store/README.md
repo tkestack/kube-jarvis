@@ -1,7 +1,45 @@
-# file exporter
-file exporter save result into files and provides a simple query interface if config "server" is true 
+# store exporter
+store exporter save result into global store and provides a simple query interface if config "server" is true 
 
-* POST "/exporter/file/query : query results
+# config
+
+```yaml
+exporters:
+  - type: "store"
+```
+
+# supported cluster type 
+* all
+
+* POST "/exporter/store/history : "query history"
+param:
+```json
+{
+  "Offset":0,
+  "Limit":0
+}
+```
+
+response:
+```json
+{
+  "Records": [
+    {
+      "ID": "1578920254692112293",
+      "Overview": {
+        "StartTime": "2020-01-13T20:57:34.692112293+08:00",
+        "EndTime": "2020-01-13T20:57:34.69260182+08:00",
+        "Statistics": {
+          "warn": 1
+        },
+        "Diagnostics": null
+      }
+    }
+  ]
+}
+```
+
+* POST "/exporter/store/query : query results
 param:
 ```json
 {
@@ -51,16 +89,3 @@ response:
 }
 ```
 
-# config
-
-```yaml
-exporters:
-  - type: "file"
-    config:
-      server: "true"  # set true to open a query interface
-      maxremain: 7  # how many result file be saved
-      path: "results/" # the path of data files
-```
-
-# supported cluster type 
-* all

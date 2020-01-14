@@ -22,6 +22,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"tkestack.io/kube-jarvis/pkg/store"
+
 	"k8s.io/client-go/tools/clientcmd"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
@@ -55,6 +57,10 @@ type Config struct {
 		Trans    string
 		Lang     string
 		HttpAddr string
+		Store    struct {
+			Type   string
+			Config interface{}
+		}
 	}
 
 	Cluster struct {
@@ -95,6 +101,20 @@ func getConfig(data []byte) (*Config, error) {
 	}
 
 	return c, nil
+}
+
+// GetStore create store from config
+func (c *Config) GetStore() (store.Store, error) {
+	st := store.GetStore(c.Global.Store.Type)
+	if err := util.InitObjViaYaml(st, c.Global.Store.Config); err != nil {
+		return nil, errors.Wrap(err, "init store config failed")
+	}
+
+	if err := st.Complete(); err != nil {
+		return nil, errors.Wrapf(err, "complete store failed")
+	}
+
+	return st, nil
 }
 
 // GetTranslator return a translate.Translator
@@ -142,7 +162,7 @@ func (c *Config) GetCluster() (cluster.Cluster, error) {
 }
 
 // GetCoordinator return create a coordinate.Coordinator
-func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, error) {
+func (c *Config) GetCoordinator(cls cluster.Cluster, st store.Store) (coordinate.Coordinator, error) {
 	if c.Coordinator.Type == "" {
 		c.Coordinator.Type = "default"
 	}
@@ -154,7 +174,7 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 
 	cr := creator(c.Logger.With(map[string]string{
 		"coordinator": c.Coordinator.Type,
-	}), cls)
+	}), cls, st)
 
 	if err := util.InitObjViaYaml(cr, c.Coordinator.Config); err != nil {
 		return nil, err
@@ -168,7 +188,7 @@ func (c *Config) GetCoordinator(cls cluster.Cluster) (coordinate.Coordinator, er
 }
 
 // GetDiagnostics create all target Diagnostics
-func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator) ([]diagnose.Diagnostic, error) {
+func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator, st store.Store) ([]diagnose.Diagnostic, error) {
 	dsCfg := make([]diagnostic, 0)
 	if len(c.Diagnostics) != 0 {
 		dsCfg = c.Diagnostics
@@ -199,6 +219,7 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 
 		d := factory.Creator(&diagnose.MetaData{
 			MetaData: plugins.MetaData{
+				Store:      st,
 				Translator: trans.WithModule("diagnostics." + config.Type),
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,
@@ -224,7 +245,7 @@ func (c *Config) GetDiagnostics(cls cluster.Cluster, trans translate.Translator)
 }
 
 // GetExporters create all target Exporters
-func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) ([]export.Exporter, error) {
+func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator, st store.Store) ([]export.Exporter, error) {
 	es := make([]export.Exporter, 0)
 	for _, config := range c.Exporters {
 		factory, exist := export.Factories[config.Type]
@@ -239,6 +260,7 @@ func (c *Config) GetExporters(cls cluster.Cluster, trans translate.Translator) (
 
 		e := factory.Creator(&export.MetaData{
 			MetaData: plugins.MetaData{
+				Store:      st,
 				Translator: trans.WithModule("diagnostics." + config.Type),
 				Logger: c.Logger.With(map[string]string{
 					"diagnostic": config.Name,
