@@ -21,7 +21,7 @@ type Data struct {
 }
 
 func (d *Data) TableName() string {
-	return "kube_jarvis_store"
+	return "global_store"
 }
 
 func init() {
