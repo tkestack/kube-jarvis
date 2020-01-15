@@ -77,6 +77,7 @@ func (m *Mysql) Set(space string, key, value string) error {
 	d.Space = space
 	d.Key = key
 	d.Value = value
+	d.Cluster = m.clusterName
 
 	if notFound {
 		return db.Create(d).Error
