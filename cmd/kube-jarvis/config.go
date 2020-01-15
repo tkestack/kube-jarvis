@@ -65,6 +65,7 @@ type Config struct {
 
 	Cluster struct {
 		Type       string
+		Name       string
 		Kubeconfig string
 		Config     interface{}
 	}
@@ -105,7 +106,7 @@ func getConfig(data []byte) (*Config, error) {
 
 // GetStore create store from config
 func (c *Config) GetStore() (store.Store, error) {
-	st := store.GetStore(c.Global.Store.Type)
+	st := store.GetStore(c.Global.Store.Type, c.Cluster.Name)
 	if err := util.InitObjViaYaml(st, c.Global.Store.Config); err != nil {
 		return nil, errors.Wrap(err, "init store config failed")
 	}

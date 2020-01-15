@@ -37,16 +37,16 @@ type Store interface {
 	DeleteSpace(name string) error
 }
 
-var factories = map[string]func() Store{}
+var factories = map[string]func(string) Store{}
 
-func registerStore(typ string, creator func() Store) {
+func registerStore(typ string, creator func(string) Store) {
 	factories[typ] = creator
 }
 
-func GetStore(typ string) Store {
+func GetStore(typ string, clsName string) Store {
 	f, exsit := factories[typ]
 	if !exsit {
 		panic(fmt.Sprintf("cant not found store type %s", typ))
 	}
-	return f()
+	return f(clsName)
 }

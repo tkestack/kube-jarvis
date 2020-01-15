@@ -5,7 +5,7 @@ type Mem struct {
 }
 
 func init() {
-	registerStore("mem", func() Store {
+	registerStore("mem", func(string) Store {
 		return &Mem{
 			data: map[string]map[string]string{},
 		}

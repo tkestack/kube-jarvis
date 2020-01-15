@@ -11,7 +11,7 @@ type File struct {
 }
 
 func init() {
-	registerStore("file", func() Store {
+	registerStore("file", func(string) Store {
 		return &File{}
 	})
 }

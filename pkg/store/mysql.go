@@ -8,14 +8,16 @@ import (
 )
 
 type Mysql struct {
-	Url string
+	Url         string
+	clusterName string
 }
 
 type Data struct {
-	ID    uint64 `gorm:"primary_key;AUTO_INCREMENT;column:id"`
-	Space string `gorm:"column:space;index;type:varchar(30)"`
-	Key   string `gorm:"column:key_name;index;type:varchar(30)"`
-	Value string `gorm:"column:value;type:longtext"`
+	ID      uint64 `gorm:"primary_key;AUTO_INCREMENT;column:id"`
+	Cluster string `gorm:"column:cluster;index;type:varchar(30)"`
+	Space   string `gorm:"column:space;index;type:varchar(30)"`
+	Key     string `gorm:"column:key_name;index;type:varchar(30)"`
+	Value   string `gorm:"column:value;type:longtext"`
 }
 
 func (d *Data) TableName() string {
@@ -23,8 +25,10 @@ func (d *Data) TableName() string {
 }
 
 func init() {
-	registerStore("mysql", func() Store {
-		return &Mysql{}
+	registerStore("mysql", func(clusterName string) Store {
+		return &Mysql{
+			clusterName: clusterName,
+		}
 	})
 }
 
@@ -62,7 +66,7 @@ func (m *Mysql) Set(space string, key, value string) error {
 
 	d := &Data{}
 	notFound := false
-	if err := db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ? AND cluster = ?", space, key, m.clusterName).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return err
 		} else {
@@ -90,7 +94,7 @@ func (m *Mysql) Get(space string, key string) (value string, exist bool, err err
 	defer func() { _ = db.Close() }()
 
 	d := &Data{}
-	if err := db.Where("space = ? AND key_name = ?", space, key).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ? AND cluster = ?", space, key, m.clusterName).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return "", false, err
 		} else {
@@ -109,7 +113,7 @@ func (m *Mysql) Delete(space string, key string) error {
 	}
 	defer func() { _ = db.Close() }()
 
-	return db.Delete(Data{}, "space = ? and key_name = ?", space, key).Error
+	return db.Delete(Data{}, "space = ? and key_name = ? and cluster = ?", space, key, m.clusterName).Error
 }
 
 // DeleteSpace Delete whole namespace
@@ -119,5 +123,5 @@ func (m *Mysql) DeleteSpace(name string) error {
 		return err
 	}
 	defer func() { _ = db.Close() }()
-	return db.Delete(Data{}, "space = ?", name).Error
+	return db.Delete(Data{}, "space = ? and cluster = ? ", name, m.clusterName).Error
 }

@@ -10,6 +10,7 @@ global:
 cluster:
   # see detail of custom cluster here:
   type: "custom"
+  name: "my-cluster"
   kubeconfig: ""
   config:
     node:
