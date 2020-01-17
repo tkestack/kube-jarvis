@@ -18,17 +18,21 @@
 package compexplorer
 
 import (
-	"golang.org/x/sync/errgroup"
-	v1 "k8s.io/api/core/v1"
 	"strings"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
+	v1 "k8s.io/api/core/v1"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
 // ExplorePod explore a component from k8s pods
-func ExplorePods(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
+// if exec is not nil, a bare explore will be used for fetching component command line arguments
+// if bare explore failed, command line argument find in pod will be used
+func ExplorePods(logger logger.Logger, name string,
+	pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
 	result := make([]cluster.Component, 0)
 	lk := sync.Mutex{}
 	g := errgroup.Group{}
@@ -63,9 +67,11 @@ func ExplorePods(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec
 					logger.Errorf("try get component detail via node executor failed : %v", err)
 				} else {
 					if len(cmp) == 0 {
-						logger.Errorf("can not found target component %s on node %s via node executor", name, pod.Spec.NodeName)
+						logger.Errorf("can not found target component %s on node %s via node executor",
+							name, pod.Spec.NodeName)
 					} else if len(cmp[0].Args) == 0 {
-						logger.Errorf("found target component %s on node %s ,but get empty args", name, pod.Spec.NodeName)
+						logger.Errorf("found target component %s on node %s ,but get empty args",
+							name, pod.Spec.NodeName)
 					} else {
 						r.Args = cmp[0].Args
 					}

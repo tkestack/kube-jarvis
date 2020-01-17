@@ -59,7 +59,8 @@ func (d *Diagnostic) Complete() error {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
+func (d *Diagnostic) StartDiagnose(ctx context.Context,
+	param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
 	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
@@ -111,11 +112,13 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
-			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
+			if rootOwner.GroupVersionKind().Kind == "DaemonSet" ||
+				rootOwner.GroupVersionKind().Kind == "Pod" {
 				continue
 			}
 
-			if d.Filter.Filtered(rootOwner.GetNamespace(), rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
+			if d.Filter.Filtered(rootOwner.GetNamespace(),
+				rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
 				continue
 			}
 
@@ -134,7 +137,8 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 	return d.result, nil
 }
 
-func getPodDisruptionBudgets(pod *v12.Pod, pdbList *v1beta1.PodDisruptionBudgetList) ([]v1beta1.PodDisruptionBudget, error) {
+func getPodDisruptionBudgets(pod *v12.Pod,
+	pdbList *v1beta1.PodDisruptionBudgetList) ([]v1beta1.PodDisruptionBudget, error) {
 	if pod == nil || len(pod.Labels) == 0 {
 		return nil, nil
 	}

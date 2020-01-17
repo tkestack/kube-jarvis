@@ -19,15 +19,16 @@ package compexplorer
 
 import (
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"strings"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
-// Bare get component information from cmd
+// Bare get component information by executing cmd on node
 type Bare struct {
 	logger       logger.Logger
 	cmdName      string
@@ -36,7 +37,9 @@ type Bare struct {
 }
 
 // NewBare create and int a StaticPods ComponentExecutor
-func NewBare(logger logger.Logger, cmdName string, nodes []string, executor nodeexec.Executor) *Bare {
+func NewBare(logger logger.Logger,
+	cmdName string, nodes []string,
+	executor nodeexec.Executor) *Bare {
 	return &Bare{
 		logger:       logger,
 		cmdName:      cmdName,
@@ -47,7 +50,8 @@ func NewBare(logger logger.Logger, cmdName string, nodes []string, executor node
 
 // Component get cluster components
 func (b *Bare) Component() ([]cluster.Component, error) {
-	cmd := fmt.Sprintf("pgrep %s &&  cat /proc/`pgrep %s`/cmdline | xargs -0 | tr ' ' '\\n'", b.cmdName, b.cmdName)
+	cmd := fmt.Sprintf("pgrep %s &&  cat /proc/`pgrep %s`/cmdline | xargs -0 | tr ' ' '\\n'",
+		b.cmdName, b.cmdName)
 	result := make([]cluster.Component, 0)
 	lk := sync.Mutex{}
 	conCtl := make(chan struct{}, 200)

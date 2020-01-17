@@ -58,7 +58,8 @@ func (d *Diagnostic) Complete() error {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
+func (d *Diagnostic) StartDiagnose(ctx context.Context,
+	param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
@@ -110,7 +111,8 @@ func (d *Diagnostic) checkOne(resources *cluster.Resources, info cluster.Compone
 	d.checkArgs(resources, info, "kube-api-burst", float64(100), burstTarget)
 }
 
-func (d *Diagnostic) checkArgs(resources *cluster.Resources, info cluster.Component, arg string, defVal, targetVal float64) {
+func (d *Diagnostic) checkArgs(resources *cluster.Resources, info cluster.Component,
+	arg string, defVal, targetVal float64) {
 	nodeTotal := len(resources.Nodes.Items)
 	obj := map[string]interface{}{
 		"Name":      info.Name,

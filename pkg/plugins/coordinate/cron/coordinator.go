@@ -54,7 +54,8 @@ type Coordinator struct {
 }
 
 // NewCoordinator return a default Coordinator
-func NewCoordinator(logger logger.Logger, cls cluster.Cluster, st store.Store) coordinate.Coordinator {
+func NewCoordinator(logger logger.Logger,
+	cls cluster.Cluster, st store.Store) coordinate.Coordinator {
 	c := &Coordinator{
 		Coordinator: basic.NewCoordinator(logger, cls, st),
 		waitRun:     make(chan struct{}),
@@ -67,9 +68,9 @@ func NewCoordinator(logger logger.Logger, cls cluster.Cluster, st store.Store) c
 
 // Complete check and complete config items
 func (c *Coordinator) Complete() error {
-	httpserver.HandleFunc("/coordinator/cron/run", c.runOnceHandler)
-	httpserver.HandleFunc("/coordinator/cron/period", c.periodHandler)
-	httpserver.HandleFunc("/coordinator/cron/state", c.stateHandler)
+	httpserver.Default.HandleFunc(httpserver.StandardRunPath, c.runOnceHandler)
+	httpserver.Default.HandleFunc(httpserver.StandardPeriodPath, c.periodHandler)
+	httpserver.Default.HandleFunc(httpserver.StandardStatePath, c.stateHandler)
 	if _, err := c.store.CreateSpace("cron"); err != nil {
 		return errors.Wrap(err, "create store space failed")
 	}

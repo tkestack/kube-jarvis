@@ -1,3 +1,20 @@
+/*
+* Tencent is pleased to support the open source community by making TKEStack
+* available.
+*
+* Copyright (C) 2012-2019 Tencent. All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the “License”); you may not use
+* this file except in compliance with the License. You may obtain a copy of the
+* License at
+*
+* https://opensource.org/licenses/Apache-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an “AS IS” BASIS, WITHOUT
+* WARRANTIES OF ANY KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations under the License.
+ */
 package store
 
 import (
@@ -7,18 +24,11 @@ import (
 	"math"
 	"net/http"
 
+	"tkestack.io/kube-jarvis/pkg/httpserver"
+
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 )
-
-type QueryRequest struct {
-	ID     string
-	Type   string
-	Name   string
-	Level  diagnose.HealthyLevel
-	Offset int
-	Limit  int
-}
 
 func (e *Exporter) queryHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
@@ -36,7 +46,7 @@ func (e *Exporter) queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	param := &QueryRequest{}
+	param := &httpserver.QueryRequest{}
 	if err = json.Unmarshal(requestData, param); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -70,7 +80,7 @@ func (e *Exporter) queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respResult := export.NewAllResult()
+	respResult := httpserver.NewQueryResponse()
 	respResult.StartTime = allResults.StartTime
 	respResult.EndTime = allResults.EndTime
 	respResult.Statistics = allResults.Statistics

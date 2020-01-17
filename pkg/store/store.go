@@ -19,6 +19,7 @@ package store
 
 import "fmt"
 
+// SpaceNotFound will be returned if target space not found
 var SpaceNotFound = fmt.Errorf("space not found")
 
 // Store provider a default k/v storage for all plugins
@@ -43,9 +44,10 @@ func registerStore(typ string, creator func(string) Store) {
 	factories[typ] = creator
 }
 
+// GetStore return a store according to typ
 func GetStore(typ string, clsName string) Store {
-	f, exsit := factories[typ]
-	if !exsit {
+	f, exist := factories[typ]
+	if !exist {
 		panic(fmt.Sprintf("cant not found store type %s", typ))
 	}
 	return f(clsName)

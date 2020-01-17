@@ -15,45 +15,43 @@
 * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
 * specific language governing permissions and limitations under the License.
  */
-package util
+package httpserver
 
 import (
+	"net/http"
 	"testing"
-	"time"
 )
 
-func TestRetryUntilTimeout(t *testing.T) {
-	// direct return
-	done := false
-	go func() {
-		<-time.After(time.Second * 3)
-		if !done {
-			t.Fatalf("not done")
-		}
-	}()
-	if err := RetryUntilTimeout(time.Hour, time.Hour, func() error {
-		done = true
-		return nil
-	}); err != nil {
+func TestFakeResponseWriter_Header(t *testing.T) {
+	f := NewFakeResponseWriter()
+	f.HeaderMap.Set("a", "b")
+	h := f.Header()
+	if h.Get("a") != "b" {
+		t.Fatalf("want a but get %s", h.Get("a"))
+	}
+}
+
+func TestFakeResponseWriter_Write(t *testing.T) {
+	f := NewFakeResponseWriter()
+	str := "test"
+	n, err := f.Write([]byte(str))
+	if err != nil {
 		t.Fatalf(err.Error())
 	}
 
-	// check retry
-	count := 0
-	if err := RetryUntilTimeout(0, 0, func() error {
-		count++
-		if count == 3 {
-			return nil
-		}
-		return RetryAbleErr
-	}); err != nil {
-		t.Fatalf(err.Error())
+	if n != len(str) {
+		t.Fatalf("want %d, but get %d", len(str), n)
 	}
 
-	// check timeout
-	if err := RetryUntilTimeout(time.Second, time.Second*2, func() error {
-		return RetryAbleErr
-	}); err == nil {
-		t.Fatalf("should return an error")
+	if string(f.RespData) != str {
+		t.Fatalf("want %s, but get %s", str, string(f.RespData))
+	}
+}
+
+func TestFakeResponseWriter_WriteHeader(t *testing.T) {
+	f := NewFakeResponseWriter()
+	f.WriteHeader(http.StatusOK)
+	if f.StatusCode != http.StatusOK {
+		t.Fatalf("want 200 but get %d", f.StatusCode)
 	}
 }

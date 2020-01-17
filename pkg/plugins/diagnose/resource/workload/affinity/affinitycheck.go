@@ -109,11 +109,14 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
-			if rootOwner.GroupVersionKind().Kind == "DaemonSet" || rootOwner.GroupVersionKind().Kind == "Pod" {
+			if rootOwner.GroupVersionKind().Kind == "DaemonSet" ||
+				rootOwner.GroupVersionKind().Kind == "Pod" {
 				continue
 			}
 
-			if d.Filter.Filtered(rootOwner.GetNamespace(), rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
+			if d.Filter.Filtered(rootOwner.GetNamespace(),
+				rootOwner.GroupVersionKind().Kind,
+				rootOwner.GetName()) {
 				continue
 			}
 

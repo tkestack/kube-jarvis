@@ -6,6 +6,7 @@ A custom cluster is a user-built cluster that can be highly customized through a
 ```yaml
 cluster:
   type: "custom"
+  name: "" # the name of this cluster
   kubeconfig: "" # the path of kubeconfig file, use "" to use $HOMEDIR/.kube/.config or use in-cluster way
   # default config value
   config:

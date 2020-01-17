@@ -1,3 +1,20 @@
+/*
+* Tencent is pleased to support the open source community by making TKEStack
+* available.
+*
+* Copyright (C) 2012-2019 Tencent. All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the “License”); you may not use
+* this file except in compliance with the License. You may obtain a copy of the
+* License at
+*
+* https://opensource.org/licenses/Apache-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an “AS IS” BASIS, WITHOUT
+* WARRANTIES OF ANY KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations under the License.
+ */
 package store
 
 import (
@@ -7,11 +24,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Mysql save data in mysql
 type Mysql struct {
+	// Url is the Connection URL of target mysql
 	Url         string
 	clusterName string
 }
 
+// Data is the table for storing data
 type Data struct {
 	ID      uint64 `gorm:"primary_key;AUTO_INCREMENT;column:id"`
 	Cluster string `gorm:"column:cluster;index;type:varchar(30)"`
@@ -20,6 +40,7 @@ type Data struct {
 	Value   string `gorm:"column:value;type:longtext"`
 }
 
+// TableName is the table name in mysql
 func (d *Data) TableName() string {
 	return "global_store"
 }
@@ -66,7 +87,8 @@ func (m *Mysql) Set(space string, key, value string) error {
 
 	d := &Data{}
 	notFound := false
-	if err := db.Where("space = ? AND key_name = ? AND cluster = ?", space, key, m.clusterName).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ? AND cluster = ?",
+		space, key, m.clusterName).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return err
 		} else {
@@ -95,7 +117,8 @@ func (m *Mysql) Get(space string, key string) (value string, exist bool, err err
 	defer func() { _ = db.Close() }()
 
 	d := &Data{}
-	if err := db.Where("space = ? AND key_name = ? AND cluster = ?", space, key, m.clusterName).Find(d).Error; err != nil {
+	if err := db.Where("space = ? AND key_name = ? AND cluster = ?",
+		space, key, m.clusterName).Find(d).Error; err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			return "", false, err
 		} else {
@@ -114,7 +137,8 @@ func (m *Mysql) Delete(space string, key string) error {
 	}
 	defer func() { _ = db.Close() }()
 
-	return db.Delete(Data{}, "space = ? and key_name = ? and cluster = ?", space, key, m.clusterName).Error
+	return db.Delete(Data{}, "space = ? and key_name = ? and cluster = ?",
+		space, key, m.clusterName).Error
 }
 
 // DeleteSpace Delete whole namespace
@@ -124,5 +148,6 @@ func (m *Mysql) DeleteSpace(name string) error {
 		return err
 	}
 	defer func() { _ = db.Close() }()
-	return db.Delete(Data{}, "space = ? and cluster = ? ", name, m.clusterName).Error
+	return db.Delete(Data{}, "space = ? and cluster = ? ",
+		name, m.clusterName).Error
 }

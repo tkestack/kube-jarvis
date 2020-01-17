@@ -13,7 +13,7 @@ import (
 
 func TestCoordinator_Run(t *testing.T) {
 	count := 0
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem", "")).(*Coordinator)
 	f := &coordinate.FakeCoordinator{
 		RunFunc: func(ctx context.Context) error {
 			count++

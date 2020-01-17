@@ -19,6 +19,10 @@ package nodeexec
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+	"testing"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/kubernetes"
@@ -28,9 +32,6 @@ import (
 	restfake "k8s.io/client-go/rest/fake"
 	"k8s.io/client-go/tools/remotecommand"
 	cmdtesting "k8s.io/kubectl/pkg/cmd/testing"
-	"net/http"
-	"net/url"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
 )
 

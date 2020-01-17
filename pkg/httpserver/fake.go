@@ -19,7 +19,7 @@ package httpserver
 
 import "net/http"
 
-// FakeResponseWriter is a fake http.ResponseWriter
+// FakeResponseWriter is a fake http.ResponseWriter for handler testing
 type FakeResponseWriter struct {
 	StatusCode int
 	RespData   []byte
@@ -39,7 +39,7 @@ func (f *FakeResponseWriter) Header() http.Header {
 	return f.HeaderMap
 }
 
-// Write save response data to FakeResponseWriter
+// Write will append response data to FakeResponseWriter.RespData
 func (f *FakeResponseWriter) Write(data []byte) (int, error) {
 	f.RespData = append(f.RespData, data...)
 	return len(data), nil

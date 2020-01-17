@@ -79,6 +79,6 @@ func main() {
 		coordinator.AddExporter(e)
 	}
 
-	httpserver.Start(config.Logger, config.Global.HttpAddr)
+	go httpserver.Default.Start(config.Logger, config.Global.HttpAddr)
 	_ = coordinator.Run(context.Background())
 }

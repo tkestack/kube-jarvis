@@ -60,33 +60,35 @@ func NewDefault(dir string, defLang string, targetLang string) (Translator, erro
 }
 
 func (d *Default) addMessage(dir string, tag language.Tag) error {
-	return filepath.Walk(fmt.Sprintf("%s/%s", dir, tag.String()), func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".yaml") {
-			buf, err := ioutil.ReadFile(path)
+	return filepath.Walk(fmt.Sprintf("%s/%s", dir, tag.String()),
+		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			mes, err := i18n.ParseMessageFileBytes(buf, path, map[string]i18n.UnmarshalFunc{
-				"yaml": yaml.Unmarshal,
-			})
-			if err != nil {
-				return fmt.Errorf("load message file %s failed : %s", path, err.Error())
-			}
 
-			for _, m := range mes.Messages {
-				m.ID = fmt.Sprintf("%s.%s.%s", filepath.Base(filepath.Dir(path)), strings.TrimSuffix(info.Name(), ".yaml"), m.ID)
-			}
+			if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".yaml") {
+				buf, err := ioutil.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				mes, err := i18n.ParseMessageFileBytes(buf, path, map[string]i18n.UnmarshalFunc{
+					"yaml": yaml.Unmarshal,
+				})
+				if err != nil {
+					return fmt.Errorf("load message file %s failed : %s", path, err.Error())
+				}
 
-			if err := d.bundle.AddMessages(tag, mes.Messages...); err != nil {
-				return fmt.Errorf("add message failed : %s", err.Error())
+				for _, m := range mes.Messages {
+					m.ID = fmt.Sprintf("%s.%s.%s", filepath.Base(filepath.Dir(path)),
+						strings.TrimSuffix(info.Name(), ".yaml"), m.ID)
+				}
+
+				if err := d.bundle.AddMessages(tag, mes.Messages...); err != nil {
+					return fmt.Errorf("add message failed : %s", err.Error())
+				}
 			}
-		}
-		return nil
-	})
+			return nil
+		})
 }
 
 // WithModule attach a module label to a Translator

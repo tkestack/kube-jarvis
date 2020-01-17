@@ -36,11 +36,14 @@ type LabelExp struct {
 	name        string
 	labels      map[string]string
 	exec        nodeexec.Executor
-	ExplorePods func(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component
+	explorePods func(logger logger.Logger, name string,
+		pods []v1.Pod, exec nodeexec.Executor) []cluster.Component
 }
 
 // NewLabelExp create and init a LabelExp Component
-func NewLabelExp(logger logger.Logger, cli kubernetes.Interface, namespace string, cmpName string, labels map[string]string, exec nodeexec.Executor) *LabelExp {
+func NewLabelExp(logger logger.Logger, cli kubernetes.Interface,
+	namespace string, cmpName string,
+	labels map[string]string, exec nodeexec.Executor) *LabelExp {
 	if len(labels) == 0 {
 		labels = map[string]string{
 			"k8s-app": cmpName,
@@ -54,7 +57,7 @@ func NewLabelExp(logger logger.Logger, cli kubernetes.Interface, namespace strin
 		labels:      labels,
 		namespace:   namespace,
 		exec:        exec,
-		ExplorePods: ExplorePods,
+		explorePods: ExplorePods,
 	}
 }
 
@@ -67,7 +70,7 @@ func (l *LabelExp) Component() ([]cluster.Component, error) {
 		return nil, errors.Wrapf(err, "get pods failed")
 	}
 
-	return l.ExplorePods(l.logger, l.name, pods.Items, l.exec), nil
+	return l.explorePods(l.logger, l.name, pods.Items, l.exec), nil
 }
 
 // Finish will be called once every thing done

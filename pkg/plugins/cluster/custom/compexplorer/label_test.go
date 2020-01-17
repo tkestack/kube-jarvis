@@ -18,9 +18,10 @@
 package compexplorer
 
 import (
+	"testing"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
@@ -51,7 +52,7 @@ func TestDaemonSet_Component(t *testing.T) {
 	}
 
 	l := NewLabelExp(logger.NewLogger(), fk, "kube-system", "p1", nil, nil)
-	l.ExplorePods = func(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
+	l.explorePods = func(logger logger.Logger, name string, pods []v1.Pod, exec nodeexec.Executor) []cluster.Component {
 		if name != "p1" {
 			t.Fatalf("name want p1 but get %s", name)
 		}

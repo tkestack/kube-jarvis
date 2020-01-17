@@ -20,6 +20,7 @@ package basic
 import (
 	"context"
 	"testing"
+
 	logger2 "tkestack.io/kube-jarvis/pkg/logger"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/fake"
@@ -27,13 +28,14 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose/other/example"
 	"tkestack.io/kube-jarvis/pkg/plugins/export"
 	"tkestack.io/kube-jarvis/pkg/plugins/export/stdout"
+	"tkestack.io/kube-jarvis/pkg/store"
 	"tkestack.io/kube-jarvis/pkg/translate"
 )
 
 func TestNewDefault(t *testing.T) {
 	logger := logger2.NewLogger()
 	ctx := context.Background()
-	d := NewCoordinator(logger, fake.NewCluster())
+	d := NewCoordinator(logger, fake.NewCluster(), store.GetStore("mem", ""))
 	_ = d.Complete()
 
 	d.AddDiagnostic(example.NewDiagnostic(&diagnose.MetaData{

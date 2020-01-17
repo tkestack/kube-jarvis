@@ -19,9 +19,10 @@ package compexplorer
 
 import (
 	"fmt"
+	"testing"
+
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/fake"
-	"testing"
 	"tkestack.io/kube-jarvis/pkg/logger"
 )
 

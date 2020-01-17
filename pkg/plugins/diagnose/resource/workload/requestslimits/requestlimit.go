@@ -57,7 +57,8 @@ func (d *Diagnostic) Complete() error {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
+func (d *Diagnostic) StartDiagnose(ctx context.Context,
+	param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
 	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
@@ -88,7 +89,8 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 		for _, pod := range d.param.Resources.Pods.Items {
 			pod.Kind = "Pod"
 			rootOwner := diagnose.GetRootOwner(&pod, uid2obj)
-			if d.Filter.Filtered(rootOwner.GetNamespace(), rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
+			if d.Filter.Filtered(rootOwner.GetNamespace(),
+				rootOwner.GroupVersionKind().Kind, rootOwner.GetName()) {
 				continue
 			}
 

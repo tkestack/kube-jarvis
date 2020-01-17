@@ -19,6 +19,7 @@ package cluster
 
 import (
 	"context"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"tkestack.io/kube-jarvis/pkg/logger"
@@ -26,7 +27,7 @@ import (
 )
 
 // Cluster is the abstract of target cluster
-// other plugins should get Resources from Cluster
+// plugins can get Resources from Cluster
 type Cluster interface {
 	// Complete check and complete config items
 	Complete() error

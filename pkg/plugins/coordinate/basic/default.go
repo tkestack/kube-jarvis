@@ -44,7 +44,8 @@ type Coordinator struct {
 }
 
 // NewCoordinator return a default Coordinator
-func NewCoordinator(logger logger.Logger, cls cluster.Cluster, st store.Store) coordinate.Coordinator {
+func NewCoordinator(logger logger.Logger,
+	cls cluster.Cluster, st store.Store) coordinate.Coordinator {
 	return &Coordinator{
 		logger: logger,
 		cls:    cls,
@@ -108,7 +109,8 @@ func (c *Coordinator) diagnostic(ctx context.Context) {
 		})
 
 		if err != nil {
-			c.logger.Errorf("start diagnostic type[%s] name[%s] failed : %v", dia.Meta().Type, dia.Meta().Name, err)
+			c.logger.Errorf("start diagnostic type[%s] name[%s] failed : %v",
+				dia.Meta().Type, dia.Meta().Name, err)
 			return
 		}
 

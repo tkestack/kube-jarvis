@@ -22,10 +22,14 @@ import (
 )
 
 const (
+	// TypeStaticPod is the type of StaticPod explore
 	TypeStaticPod = "StaticPod"
-	TypeLabel     = "Label"
-	TypeBare      = "Bare"
-	TypeAuto      = "Auto"
+	// TypeLabel is the type of Label explore
+	TypeLabel = "Label"
+	// TypeBare is the type of Bare explore
+	TypeBare = "Bare"
+	// TypeAuto is the type of Auto explore
+	TypeAuto = "Auto"
 )
 
 // Explorer get component information

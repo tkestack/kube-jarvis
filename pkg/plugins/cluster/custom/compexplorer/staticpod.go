@@ -19,6 +19,7 @@ package compexplorer
 
 import (
 	"fmt"
+
 	"github.com/pkg/errors"
 	v12 "k8s.io/api/core/v1"
 	k8serr "k8s.io/apimachinery/pkg/api/errors"
@@ -37,11 +38,13 @@ type StaticPods struct {
 	namespace   string
 	nodes       []string
 	exec        nodeexec.Executor
-	ExplorePods func(logger logger.Logger, name string, pods []v12.Pod, exec nodeexec.Executor) []cluster.Component
+	ExplorePods func(logger logger.Logger, name string,
+		pods []v12.Pod, exec nodeexec.Executor) []cluster.Component
 }
 
 // NewStaticPods create and int a StaticPods ComponentExecutor
-func NewStaticPods(logger logger.Logger, cli kubernetes.Interface, namespace string, podPrefix string, nodes []string, exe nodeexec.Executor) *StaticPods {
+func NewStaticPods(logger logger.Logger, cli kubernetes.Interface, namespace string,
+	podPrefix string, nodes []string, exe nodeexec.Executor) *StaticPods {
 	return &StaticPods{
 		logger:      logger,
 		cli:         cli,
@@ -63,7 +66,8 @@ func (s *StaticPods) Component() ([]cluster.Component, error) {
 			Node: n,
 		}
 
-		pod, err := s.cli.CoreV1().Pods(s.namespace).Get(fmt.Sprintf("%s-%s", s.podName, n), v1.GetOptions{})
+		podName := fmt.Sprintf("%s-%s", s.podName, n)
+		pod, err := s.cli.CoreV1().Pods(s.namespace).Get(podName, v1.GetOptions{})
 		if err != nil {
 			if !k8serr.IsNotFound(err) {
 				cmp.Error = errors.Wrapf(err, "get target pod %s failed", cmp.Name)

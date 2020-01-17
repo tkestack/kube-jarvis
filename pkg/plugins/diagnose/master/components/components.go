@@ -93,7 +93,8 @@ func getCompResultLevel(comp string) diagnose.HealthyLevel {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
+func (d *Diagnostic) StartDiagnose(ctx context.Context,
+	param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	_, err := time.ParseDuration(d.RestartTime)
 	if err != nil {
 		return nil, errors.Wrapf(err, "wrong config : restarttime=%s : %v", d.RestartTime, err)
@@ -140,7 +141,9 @@ func (d *Diagnostic) hadRestart(p *v1.Pod) (bool, map[string]interface{}) {
 
 	dt, _ := time.ParseDuration(d.RestartTime)
 	for _, s := range p.Status.ContainerStatuses {
-		if s.RestartCount > 0 && s.State.Running != nil && s.State.Running.StartedAt.Add(dt).After(time.Now()) {
+		if s.RestartCount > 0 &&
+			s.State.Running != nil &&
+			s.State.Running.StartedAt.Add(dt).After(time.Now()) {
 			return true, map[string]interface{}{
 				"Count":    s.RestartCount,
 				"LastTime": s.State.Running.StartedAt.String(),
@@ -160,7 +163,8 @@ func (d *Diagnostic) sendCompNotExist(comp string) {
 	}
 }
 
-func (d *Diagnostic) sendNormalResult(comp string, inf *cluster.Component, level diagnose.HealthyLevel, preFix string, extra map[string]interface{}) {
+func (d *Diagnostic) sendNormalResult(comp string, inf *cluster.Component,
+	level diagnose.HealthyLevel, preFix string, extra map[string]interface{}) {
 	obj := map[string]interface{}{
 		"Name":      inf.Name,
 		"Node":      inf.Node,

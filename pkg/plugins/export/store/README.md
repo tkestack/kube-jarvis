@@ -6,13 +6,17 @@ store exporter save result into global store and provides a simple query interfa
 ```yaml
 exporters:
   - type: "store"
+    config:
+      server: true
 ```
 
 # supported cluster type 
 * all
 
+# http api
 * POST "/exporter/store/history : "query history"
-param:
+
+request:
 ```json
 {
   "Offset":0,
@@ -40,7 +44,8 @@ response:
 ```
 
 * POST "/exporter/store/query : query results
-param:
+
+request:
 ```json
 {
   "ID":123, 

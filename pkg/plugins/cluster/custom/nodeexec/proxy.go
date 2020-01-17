@@ -38,15 +38,18 @@ import (
 )
 
 type remoteExecutor interface {
-	doCmdOnPod(cli kubernetes.Interface, config *restclient.Config, namespace string, podName string, cmd []string) (string, string, error)
+	doCmdOnPod(cli kubernetes.Interface, config *restclient.Config,
+		namespace string, podName string, cmd []string) (string, string, error)
 }
 
 type defaultExecutor struct {
-	newSPDYExecutor func(config *restclient.Config, method string, url *url.URL) (remotecommand.Executor, error)
+	newSPDYExecutor func(config *restclient.Config,
+		method string, url *url.URL) (remotecommand.Executor, error)
 }
 
 // doCmdOnPod do remote cmd exec on target pod
-func (d *defaultExecutor) doCmdOnPod(cli kubernetes.Interface, config *restclient.Config, namespace string, podName string, cmd []string) (string, string, error) {
+func (d *defaultExecutor) doCmdOnPod(cli kubernetes.Interface, config *restclient.Config,
+	namespace string, podName string, cmd []string) (string, string, error) {
 	req := cli.CoreV1().RESTClient().Post().Resource("pods").Name(podName).
 		Namespace(namespace).SubResource("exec")
 	option := &v1.PodExecOptions{
@@ -92,11 +95,12 @@ type DaemonSetProxy struct {
 	remoteExecutor remoteExecutor
 	image          string
 	autoCreate     bool
-	deleteNs       bool
 }
 
 // NewDaemonSetProxy create and init a new DaemonSetProxy
-func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config, namespace string, ds string, image string, autoCreate, deleteNs bool) (*DaemonSetProxy, error) {
+func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface,
+	config *restclient.Config, namespace string,
+	ds string, image string, autoCreate bool) (*DaemonSetProxy, error) {
 	d := &DaemonSetProxy{
 		cli:        cli,
 		namespace:  namespace,
@@ -105,7 +109,6 @@ func NewDaemonSetProxy(logger logger.Logger, cli kubernetes.Interface, config *r
 		config:     config,
 		image:      image,
 		autoCreate: autoCreate,
-		deleteNs:   deleteNs,
 		remoteExecutor: &defaultExecutor{
 			newSPDYExecutor: remotecommand.NewSPDYExecutor,
 		},
@@ -162,10 +165,11 @@ func (d *DaemonSetProxy) tryCreateProxy() error {
 	}
 }
 
-// Machine get machine information
-func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, error) {
+// DoCmd executes command on target node
+func (d *DaemonSetProxy) DoCmd(nodeName string,
+	cmd []string) (stdout string, stderr string, err error) {
 	retStdout, retStderr := "", ""
-	err := util.RetryUntilTimeout(time.Second*10, time.Minute, func() error {
+	err = util.RetryUntilTimeout(time.Second*10, time.Minute, func() error {
 		pods, err := d.cli.CoreV1().Pods(d.namespace).List(metav1.ListOptions{
 			FieldSelector: "spec.nodeName=" + nodeName,
 			LabelSelector: labels.SelectorFromSet(map[string]string{
@@ -196,7 +200,8 @@ func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, e
 			return util.RetryAbleErr
 		}
 
-		retStdout, retStderr, err = d.remoteExecutor.doCmdOnPod(d.cli, d.config, d.namespace, pod.Name, cmd)
+		retStdout, retStderr, err =
+			d.remoteExecutor.doCmdOnPod(d.cli, d.config, d.namespace, pod.Name, cmd)
 		return err
 	})
 
@@ -206,13 +211,8 @@ func (d *DaemonSetProxy) DoCmd(nodeName string, cmd []string) (string, string, e
 // Finish do clean for ComponentExecutor
 func (d *DaemonSetProxy) Finish() error {
 	if d.autoCreate {
-		if err := d.cli.AppsV1().DaemonSets(d.namespace).Delete(d.dsName, &metav1.DeleteOptions{}); err != nil {
-			return err
-		}
-	}
-
-	if d.deleteNs {
-		if err := d.cli.CoreV1().Namespaces().Delete(d.namespace, &metav1.DeleteOptions{}); err != nil {
+		if err := d.cli.AppsV1().DaemonSets(d.namespace).
+			Delete(d.dsName, &metav1.DeleteOptions{}); err != nil {
 			return err
 		}
 	}

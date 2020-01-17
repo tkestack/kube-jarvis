@@ -34,7 +34,11 @@ func Test_runOnceHandler(t *testing.T) {
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
-			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
+			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem", "")).(*Coordinator)
+			if err := c.Complete(); err != nil {
+				t.Fatalf(err.Error())
+			}
+
 			ctx, cl := context.WithCancel(context.Background())
 			defer cl()
 			c.Coordinator = &coordinate.FakeCoordinator{RunFunc: func(ctx context.Context) error {
@@ -68,7 +72,7 @@ func (p *progressCoordinator) Progress() *plugins.Progress {
 }
 
 func Test_state(t *testing.T) {
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem", "")).(*Coordinator)
 	c.state = StateRunning
 	co := &progressCoordinator{
 		progress: plugins.NewProgress(),
@@ -83,7 +87,7 @@ func Test_state(t *testing.T) {
 	resp := httpserver.NewFakeResponseWriter()
 	c.stateHandler(resp, req)
 
-	result := &State{}
+	result := &httpserver.StateResponse{}
 	if err := json.Unmarshal(resp.RespData, result); err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -98,7 +102,7 @@ func Test_state(t *testing.T) {
 }
 
 func Test_getCron(t *testing.T) {
-	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
+	c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem", "")).(*Coordinator)
 	c.Cron = "1 1 1 1 1"
 	req := &http.Request{
 		Method: http.MethodGet,
@@ -132,7 +136,7 @@ func Test_updateCron(t *testing.T) {
 
 	for _, cs := range cases {
 		t.Run(fmt.Sprintf("%+v", cs), func(t *testing.T) {
-			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem")).(*Coordinator)
+			c := NewCoordinator(logger.NewLogger(), fake.NewCluster(), store.GetStore("mem", "")).(*Coordinator)
 			resp := httpserver.NewFakeResponseWriter()
 			req := &http.Request{
 				Method: http.MethodPut,

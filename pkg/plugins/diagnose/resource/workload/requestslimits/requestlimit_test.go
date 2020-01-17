@@ -19,8 +19,9 @@ package requestslimits
 
 import (
 	"context"
-	appv1 "k8s.io/api/apps/v1"
 	"testing"
+
+	appv1 "k8s.io/api/apps/v1"
 	"tkestack.io/kube-jarvis/pkg/plugins"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/translate"
@@ -31,7 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func TestRequestLimitDiagnostic_StartDiagnose(t *testing.T) {
+func Test_StartDiagnose(t *testing.T) {
 	res := cluster.NewResources()
 	res.Deployments = &appv1.DeploymentList{}
 	res.ReplicaSets = &appv1.ReplicaSetList{}

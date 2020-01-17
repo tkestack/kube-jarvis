@@ -140,7 +140,9 @@ func NewResources() *Resources {
 	}
 }
 
+// ResourcesFilterItem shows what workloads will be filtered out
 type ResourcesFilterItem struct {
+	// Namespace,Kind,Name support regular expressions
 	Namespace string
 	Kind      string
 	Name      string
@@ -148,8 +150,12 @@ type ResourcesFilterItem struct {
 	kindExp   *regexp.Regexp
 	nameExp   *regexp.Regexp
 }
+
+// ResourcesFilter is a set of ResourcesFilterItem
 type ResourcesFilter []*ResourcesFilterItem
 
+// Compile compile regular expressions
+// an error will be returned if regular expressions is wrong
 func (r ResourcesFilter) Compile() error {
 	var err error
 	for _, item := range r {
@@ -179,6 +185,7 @@ func (r ResourcesFilter) Compile() error {
 	return nil
 }
 
+// Filtered indicate whether the target workload is filtered
 func (r ResourcesFilter) Filtered(ns, kind, name string) bool {
 	for _, item := range r {
 		ok := true

@@ -33,13 +33,9 @@ spec:
       labels:
         k8s-app: kube-jarvis-agent
     spec:
-      # join host network namespace
       hostNetwork: true
-      # join host process namespace
       hostPID: true
-      # join host IPC namespace
-      hostIPC: true 
-      # tolerations
+      hostIPC: true
       tolerations:
       - effect: NoExecute
         operator: Exists
@@ -54,20 +50,12 @@ spec:
           runAsUser: 0
           privileged: true
         volumeMounts:
-        # Allows systemctl to communicate with the systemd running on the host
         - name: dbus
           mountPath: /var/run/dbus
         - name: run-systemd
           mountPath: /run/systemd
-        # Allows to peek into systemd units that are baked into the official EKS AMI
         - name: etc-systemd
           mountPath: /etc/systemd
-        # This is needed in order to fetch logs NOT managed by journald
-        # journallog is stored only in memory by default, so we need
-        #
-        # If all you need is access to persistent journals, /var/log/journal/* would be enough
-        # FYI, the volatile log store /var/run/journal was empty on my nodes. Perhaps it isn't used in Amazon Linux 2 / EKS AMI?
-        # See https://askubuntu.com/a/1082910 for more background
         - name: var-log
           mountPath: /var/log
         - name: var-run
@@ -81,7 +69,6 @@ spec:
         - name: etc-sudoers
           mountPath: /etc/sudoers.d
       volumes:
-      # for systemctl to systemd access
       - name: dbus
         hostPath:
           path: /var/run/dbus
@@ -98,15 +85,10 @@ spec:
         hostPath:
           path: /var/log
           type: Directory
-      # mainly for dockerd access via /var/run/docker.sock
       - name: var-run
         hostPath:
           path: /var/run
           type: Directory
-      # var-run implies you also need this, because
-      # /var/run is a synmlink to /run
-      # sh-4.2$ ls -lah /var/run
-      # lrwxrwxrwx 1 root root 6 Nov 14 07:22 /var/run -> ../run
       - name: run
         hostPath:
           path: /run
@@ -115,13 +97,10 @@ spec:
         hostPath:
           path: /usr/lib/systemd
           type: Directory
-      # Required by journalctl to locate the current boot.
-      # If omitted, journalctl is unable to locate host's current boot journal
       - name: etc-machine-id
         hostPath:
           path: /etc/machine-id
           type: File
-      # Avoid this error > ERROR [MessageGatewayService] Failed to add ssm-user to sudoers file: open /etc/sudoers.d/ssm-agent-users: no such file or directory
       - name: etc-sudoers
         hostPath:
           path: /etc/sudoers.d

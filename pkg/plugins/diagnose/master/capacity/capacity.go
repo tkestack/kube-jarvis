@@ -70,7 +70,8 @@ func (d *Diagnostic) Complete() error {
 }
 
 // StartDiagnose return a result chan that will output results
-func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
+func (d *Diagnostic) StartDiagnose(ctx context.Context,
+	param diagnose.StartDiagnoseParam) (chan *diagnose.Result, error) {
 	d.param = &param
 	d.result = make(chan *diagnose.Result, 100)
 	go func() {
@@ -109,20 +110,25 @@ l1:
 		cpu := m.Status.Capacity.Cpu()
 		mem := m.Status.Capacity.Memory()
 		if cpu.Cmp(scale.Cpu) < 0 {
-			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal, util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
+			d.sendCapacityWarnResult(m.Name, "Cpu", nodeTotal,
+				util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
 		} else {
-			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal, util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
+			d.sendCapacityGoodResult(m.Name, "Cpu", nodeTotal,
+				util.CpuQuantityStr(cpu), util.CpuQuantityStr(&scale.Cpu))
 		}
 
 		if mem.Cmp(scale.Memory) < 0 {
-			d.sendCapacityWarnResult(m.Name, "Memory", nodeTotal, util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
+			d.sendCapacityWarnResult(m.Name, "Memory", nodeTotal,
+				util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
 		} else {
-			d.sendCapacityGoodResult(m.Name, "Memory", nodeTotal, util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
+			d.sendCapacityGoodResult(m.Name, "Memory", nodeTotal,
+				util.MemQuantityStr(mem), util.MemQuantityStr(&scale.Memory))
 		}
 	}
 }
 
-func (d *Diagnostic) sendCapacityWarnResult(name string, resource string, nTotal int, curVal, targetVal string) {
+func (d *Diagnostic) sendCapacityWarnResult(name string, resource string,
+	nTotal int, curVal, targetVal string) {
 	objInfo := map[string]interface{}{
 		"NodeName":    name,
 		"Resource":    resource,
@@ -143,7 +149,8 @@ func (d *Diagnostic) sendCapacityWarnResult(name string, resource string, nTotal
 	}
 }
 
-func (d *Diagnostic) sendCapacityGoodResult(name string, resource string, nTotal int, curVal, targetVal string) {
+func (d *Diagnostic) sendCapacityGoodResult(name string, resource string,
+	nTotal int, curVal, targetVal string) {
 	objInfo := map[string]interface{}{
 		"NodeName":    name,
 		"Resource":    resource,

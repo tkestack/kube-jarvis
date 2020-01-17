@@ -26,8 +26,10 @@ import (
 )
 
 var (
+	// UnKnowTypeErr will be returned if target node executor is not found
 	UnKnowTypeErr = fmt.Errorf("unknow node executor type")
-	NoneExecutor  = fmt.Errorf("none executor")
+	// NoneExecutor will be returned if node executor type is "none"
+	NoneExecutor = fmt.Errorf("none executor")
 )
 
 // Executor get machine information
@@ -40,18 +42,25 @@ type Executor interface {
 
 // Config is the config of node executor
 type Config struct {
-	Type       string
-	Namespace  string
-	DaemonSet  string
-	Image      string
+	// Type is the node executor type
+	Type string
+	// Namespace is the namespace to install node agent if node executor type is "agent"
+	Namespace string
+	// DaemonSet is the DaemonSet name if node executor type is "agent"
+	DaemonSet string
+	// Image is the image that will be use to create node agent DaemonSet
+	Image string
+	// AutoCreate indicate whether to create node agent DaemonSet if it is not exist
+	// if AutoCreate is true, agent will be deleted once cluster diagnostic done
 	AutoCreate bool
-	DeleteNs   bool
 }
 
+// NewConfig return a Config with default value
 func NewConfig() *Config {
 	return &Config{}
 }
 
+// Complete check and complete config fields
 func (c *Config) Complete() {
 	if c.Type == "" {
 		c.Type = "proxy"
@@ -70,10 +79,12 @@ func (c *Config) Complete() {
 	}
 }
 
-func (c *Config) Executor(logger logger.Logger, cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
+// Executor return the appropriate node executor according to config value
+func (c *Config) Executor(logger logger.Logger,
+	cli kubernetes.Interface, config *restclient.Config) (Executor, error) {
 	switch c.Type {
 	case "proxy":
-		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet, c.Image, c.AutoCreate, c.DeleteNs)
+		return NewDaemonSetProxy(logger, cli, config, c.Namespace, c.DaemonSet, c.Image, c.AutoCreate)
 	case "none":
 		return nil, NoneExecutor
 	}

@@ -28,15 +28,28 @@ import (
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster/custom/nodeexec"
 )
 
+//  Auto is a component explorer that can try to explore component information by multiple methods
 type Auto struct {
-	logger      logger.Logger
-	Type        string
-	Name        string
-	Namespace   string
-	Nodes       []string
+	logger logger.Logger
+	exps   []Explorer
+	// Type indicate the type that Auto explore use
+	// if Type=Auto, multiple methods will be used for exploring component one by one
+	// otherwise, explore that type=Type will be used
+	Type string
+	// Name is the name of target component
+	// when use StaticPod explore, target pod name will be Name-NodeName
+	// when use Label explore, default target label will be k8s-app=Name
+	// when use Bare explore, Name is the target process name
+	Name string
+	// Namespace is the target namespace if Type is "StaticPod" or "Label"
+	Namespace string
+	// Nodes are target nodes for exploring components
+	Nodes []string
+	// MasterNodes indicate that whether only master nodes ares target nodes
+	// if Nodes is empty and MasterNodes is false, all nodes are target nodes
 	MasterNodes bool
-	Labels      map[string]string
-	exps        []Explorer
+	// Labels will be used when use label explore
+	Labels map[string]string
 }
 
 // NewAuto create a ComponentConfig with default value
@@ -50,6 +63,7 @@ func NewAuto(defName string, masterNodes bool) *Auto {
 	}
 }
 
+// Complete check and complete config
 func (a *Auto) Complete() {
 	if a.Type == "" {
 		a.Type = TypeAuto
@@ -60,8 +74,10 @@ func (a *Auto) Complete() {
 	}
 }
 
-// Init do init
-func (a *Auto) Init(logger logger.Logger, cli kubernetes.Interface, nodeExecutor nodeexec.Executor) error {
+// Init create explores according to config
+func (a *Auto) Init(logger logger.Logger,
+	cli kubernetes.Interface,
+	nodeExecutor nodeexec.Executor) error {
 	specialNodes := false
 	a.logger = logger
 	if a.MasterNodes == true || len(a.Nodes) != 0 {
@@ -125,7 +141,7 @@ func (a *Auto) initNodes(cli kubernetes.Interface) error {
 	return nil
 }
 
-// Component get cluster components
+// Component return target component info
 func (a *Auto) Component() ([]cluster.Component, error) {
 	for _, exp := range a.exps {
 		ok, result, err := a.tryExplore(exp)
