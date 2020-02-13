@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.com/RayHuangCN/kube-jarvis.svg?token=nJm3RqJv2hocVN6fWNzx&branch=master)](https://travis-ci.com/RayHuangCN/kube-jarvis.svg?token=nJm3RqJv2hocVN6fWNzx&branch=master)
 [![codecov](https://codecov.io/gh/RayHuangCN/kube-jarvis/branch/master/graph/badge.svg?token=rva9yuTNLO)](https://codecov.io/gh/RayHuangCN/kube-jarvis)
 
-kube-jarvis is a tool used to check the health of the kubernetes cluster
+kube-jarvis is a tool used to inspect kubernetes cluster
 
 # Features
 
