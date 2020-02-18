@@ -60,10 +60,12 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newCron := cron.New(cron.WithSeconds())
-	if _, err := newCron.AddFunc(string(data), c.cronDo); err != nil {
-		c.logger.Errorf("create new cron failed : %v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	if string(data) != "" {
+		if _, err := newCron.AddFunc(string(data), c.cronDo); err != nil {
+			c.logger.Errorf("create new cron failed : %v", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 	}
 
 	c.cronLock.Lock()
@@ -73,9 +75,15 @@ func (c *Coordinator) periodHandler(w http.ResponseWriter, r *http.Request) {
 	if c.cronCtl != nil {
 		c.cronCtl.Stop()
 	}
-	c.cronCtl = newCron
-	c.cronCtl.Start()
-	c.logger.Infof("cron scheduler success update to %s", string(data))
+
+	if string(data) != "" {
+		c.cronCtl = newCron
+		c.cronCtl.Start()
+		c.logger.Infof("cron scheduler success update to %s", string(data))
+	} else {
+		c.logger.Infof("cron scheduler success update closed")
+	}
+
 }
 
 // stateHandler return current inspection state and inspection process
