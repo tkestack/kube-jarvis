@@ -49,7 +49,10 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context, param diagnose.StartDiag
 			isHealth := true
 			levelGood := diagnose.HealthyLevelGood
 			levelBad := diagnose.HealthyLevelRisk
-			if node.Labels[describe.LabelNodeRolePrefix+"master"] == "true" {
+			// see https://github.com/kubernetes/kubeadm/blob/master/docs/design/design_v1.9.md#mark-master
+			// in order to be compatible with the previous 'node-role.kubernetes.io/master="true"'
+			// so judge whether exist instead of 'node-role.kubernetes.io/master=""'
+			if _, ok := node.Labels[describe.LabelNodeRolePrefix+"master"]; ok {
 				isMaster = true
 				levelBad = diagnose.HealthyLevelSerious
 			}
