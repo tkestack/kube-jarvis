@@ -20,6 +20,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 
 	"tkestack.io/kube-jarvis/pkg/httpserver"
 	_ "tkestack.io/kube-jarvis/pkg/plugins/cluster/all"
@@ -80,5 +81,7 @@ func main() {
 	}
 
 	go httpserver.Default.Start(config.Logger, config.Global.HttpAddr)
-	_ = coordinator.Run(context.Background())
+	if err := coordinator.Run(context.Background()); err != nil {
+		log.Fatal(err.Error())
+	}
 }
