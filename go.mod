@@ -13,7 +13,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.0
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/text v0.3.2
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.8
 	k8s.io/api v0.0.0-20191121015604-11707872ac1c
 	k8s.io/apimachinery v0.0.0-20191203211716-adc6f4cd9e7d
 	k8s.io/client-go v0.0.0-20191204082520-bc9b51d240b2
