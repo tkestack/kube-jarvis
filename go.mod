@@ -11,8 +11,8 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.0.3
 	github.com/pkg/errors v0.8.1
 	github.com/robfig/cron/v3 v3.0.0
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/text v0.3.2
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
+	golang.org/x/text v0.3.8
 	gopkg.in/yaml.v2 v2.2.4
 	k8s.io/api v0.0.0-20191121015604-11707872ac1c
 	k8s.io/apimachinery v0.0.0-20191203211716-adc6f4cd9e7d
