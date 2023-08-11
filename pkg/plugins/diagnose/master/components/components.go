@@ -19,10 +19,10 @@ package components
 
 import (
 	"context"
-	"time"
-
+	"fmt"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
+	"time"
 	"tkestack.io/kube-jarvis/pkg/plugins/cluster"
 	"tkestack.io/kube-jarvis/pkg/plugins/diagnose"
 )
@@ -30,6 +30,8 @@ import (
 const (
 	// DiagnosticType is type name of this Diagnostic
 	DiagnosticType = "master-components"
+
+	FailureDomainKey = "failure-domain.beta.kubernetes.io/zone"
 )
 
 // Diagnostic check that the core components are working properly (include k8s node components)
@@ -103,14 +105,25 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context,
 	d.result = make(chan *diagnose.Result, 1000)
 	go func() {
 		defer diagnose.CommonDeafer(d.result)
+		etcdNodes := make([]v1.Node, 0)
+		var etcdReplica int
 		for _, comp := range d.Components {
 			compInfos, exist := param.Resources.CoreComponents[comp]
 			if !exist {
 				d.sendCompNotExist(comp)
 				return
 			}
-
 			for _, inf := range compInfos {
+				if inf.Name == cluster.ComponentETCD {
+					etcdReplica += 1
+					for _, n := range param.Resources.Nodes.Items {
+						node := n
+						if node.Name == inf.Node {
+							etcdNodes = append(etcdNodes, node)
+							break
+						}
+					}
+				}
 				if inf.Error != nil {
 					d.sendNormalResult(comp, &inf, diagnose.HealthyLevelFailed, "err", map[string]interface{}{
 						"Err": inf.Error.Error(),
@@ -130,6 +143,21 @@ func (d *Diagnostic) StartDiagnose(ctx context.Context,
 				}
 			}
 		}
+		zone := make(map[string]int)
+		for _, node := range etcdNodes {
+			if node.Labels != nil {
+				id, ok := node.Labels[FailureDomainKey]
+				if !ok {
+					d.Logger.Errorf("lack of failure domain key: %s, node: %s", FailureDomainKey, node.Name)
+					return
+				}
+				zone[id] += 1
+			}
+		}
+		if len(zone) < 3 {
+			d.sendAbnormalResult(diagnose.HealthyLevelRisk, "ha", etcdReplica, len(zone))
+		}
+
 	}()
 	return d.result, nil
 }
@@ -178,6 +206,24 @@ func (d *Diagnostic) sendNormalResult(comp string, inf *cluster.Component,
 	d.result <- &diagnose.Result{
 		Level:    level,
 		ObjName:  inf.Name,
+		ObjInfo:  obj,
+		Title:    d.Translator.Message(preFix+"-title", obj),
+		Desc:     d.Translator.Message(preFix+"-desc", obj),
+		Proposal: d.Translator.Message(preFix+"-proposal", obj),
+	}
+}
+
+func (d *Diagnostic) sendAbnormalResult(level diagnose.HealthyLevel, preFix string, replica, curTotalZoneNum int) {
+	obj := map[string]interface{}{
+		"Name":            "node-zone",
+		"Component":       "etcd",
+		"Replica":         fmt.Sprint(replica),
+		"CurTotalZoneNum": fmt.Sprint(curTotalZoneNum),
+	}
+
+	d.result <- &diagnose.Result{
+		Level:    level,
+		ObjName:  "etcd-node-zone",
 		ObjInfo:  obj,
 		Title:    d.Translator.Message(preFix+"-title", obj),
 		Desc:     d.Translator.Message(preFix+"-desc", obj),

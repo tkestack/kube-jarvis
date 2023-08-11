@@ -1,0 +1,19 @@
+err-title: "发生错误"
+err-desc: "出现意外错误"
+err-proposal: "查看运行日志"
+
+not-run-title: "组件未运行"
+not-run-desc: "{{.Node}} 上的 {{.Name}} 未运行，可能会崩溃"
+not-run-proposal: "检查 {{.Node}} 上的 {{.Name}}"
+
+restart-title: "组件已重新启动"
+restart-desc: "{{.Name}} 作为 pod 运行，重启次数为 {{.Count}}，上次重启时间为 {{.LastTime}}"
+restart-proposal: "检查您的 {{.Name}} pod 状态并了解重启原因"
+
+good-title: "组件状态良好"
+good-desc: "{{.Node}} 上的 {{.Name}} 正在运行并且最近从未重新启动"
+good-proposal: ""
+
+ha-title: "独立集群ETCD多可用区容灾能力检查"
+ha-desc: "集群ETCD共{{.Replica}}个副本，分布在{{.CurTotalZoneNum}}个可用区内，未实现至少三可用区（3AZ）部署"
+ha-proposal: "了增强集群的容灾能力、高可用性和负载均衡，建议将ETCD节点分布在不同的可用区，以确保实现三可用区（3AZ）的部署"

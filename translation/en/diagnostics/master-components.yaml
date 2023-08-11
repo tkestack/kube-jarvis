@@ -13,3 +13,7 @@ restart-proposal: "Check your {{.Name}} pod status and event know the restart re
 good-title: "Component status is good"
 good-desc: "{{.Name}} on {{.Node}} is running and never restart recently"
 good-proposal: ""
+
+ha-title: "ETCD is not 3AZ"
+ha-desc: "The cluster ETCD has {{.Replica}} copies in total, distributed in {{.CurTotalZoneNum}} availability zones, and has not implemented at least three availability zones (3AZ) deployment"
+ha-proposal: "In order to enhance the load disaster recovery capability, high availability and load balancing, it is recommended to distribute ETCD scheduling in different availability zones to ensure the deployment of three availability zones (3AZ)"
